@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CRE 5장 신뢰성 계획</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&display=swap">
+<style>
+/*
+VOICE 다정한 선생님, 초등학생 학습지처럼 쉽고 또박또박 (1~4장 앱과 한 세트)
+IDEA 과학 탐구 학습지 5단원 — 제품 일생 노선도, 계획표, 실험 놀이, 확인 문제, 단원 평가, 오답 노트
+PICTURE 개념 → 설계 → 시제품 → 양산 → 사용 다섯 정거장 노선도, 정거장마다 그때 할 신뢰성 일과 시험
+COLOUR 종이 흰색, 해바라기 노랑 띠, 하늘 파랑 노선, 토마토 현재 정거장, 잎 초록은 정답에만
+TYPE Jua 제목 + Gowun Dodum 본문
+LAYOUT 노랑 띠 + 탭, 홈은 가로 노선도 위·설명 카드 아래(휴대폰은 세로 노선), 차시는 설명 → 활동 → 확인 문제
+*/
+:root{color-scheme:light dark;
+--bg:light-dark(#fffdf6,#14161c);--paper:light-dark(#ffffff,#1d2029);--ink:light-dark(#1d1b16,#f2efe6);--soft:light-dark(#5c574b,#b9b4a6);
+--sun:light-dark(#ffcf33,#e0b020);--sky:light-dark(#2f7bf6,#6ea4ff);--sky2:light-dark(#e3eeff,#1f2b45);--tom:light-dark(#ff5a4e,#ff7b70);--tom2:light-dark(#ffe4e1,#3b2220);
+--leaf:light-dark(#1f9d6b,#4fd19c);--leaf2:light-dark(#e2f7ee,#173528);--line:light-dark(#e8e2d0,#323645);--off:light-dark(#d9d4c4,#3a3e4b);--onsun:#1d1b16}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.6 "Gowun Dodum",system-ui,sans-serif;overflow-x:clip}
+h1,h2,h3,.jua{font-family:Jua,"Gowun Dodum",sans-serif;font-weight:400;line-height:1.15;text-wrap:balance;margin:0}
+h1{font-size:clamp(30px,5vw,48px)}h2{font-size:clamp(25px,3.4vw,34px);margin-bottom:8px}h3{font-size:21px;margin-bottom:6px}
+p{margin:.45em 0}
+.band{padding:clamp(22px,4vw,52px) max(5vw,16px)}
+.wrap{max-width:1180px;margin:0 auto}
+header{background:var(--sun);color:var(--onsun)}
+header .band{padding-bottom:0}
+.top{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.top .t{flex:1 1 300px}
+.top p{font-size:18px;max-width:62ch}
+.meter{flex:0 1 260px;background:#fff8;border-radius:16px;padding:10px 14px}
+.meter b{font-family:Jua,sans-serif;font-weight:400;font-size:22px}
+.mbar{height:12px;background:#0002;border-radius:99px;overflow:hidden;margin-top:6px}.mbar i{display:block;height:100%;background:var(--onsun);transition:width .4s}
+nav{display:flex;gap:4px;overflow-x:auto;margin-top:18px;scrollbar-width:none}
+nav a{flex:none;font-family:Jua,sans-serif;font-size:18px;color:var(--onsun);text-decoration:none;padding:11px 14px 9px;border-radius:14px 14px 0 0;min-height:44px}
+nav a[aria-current=page]{background:var(--bg);color:var(--ink)}
+a{color:var(--sky)}
+:focus-visible{outline:3px solid var(--sky);outline-offset:2px}
+section[data-view]{display:none}section[data-view].on{display:block}
+.lead{font-size:18px;color:var(--soft);max-width:68ch}
+.card{background:var(--paper);border:2px solid var(--line);border-radius:20px;padding:18px 20px}
+.two{display:grid;gap:20px;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);align-items:start}
+.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(min(100%,250px),1fr))}
+.def{font-size:20px;background:var(--sky2);border-radius:18px;padding:16px 18px;margin:12px 0}
+.def b{color:var(--sky)}
+.note{color:var(--soft);font-size:15px}
+.tip{margin-top:14px;background:var(--tom2);border-radius:16px;padding:12px 16px}.tip b{color:var(--tom)}
+.big{font-family:Jua,sans-serif;font-size:clamp(38px,6.5vw,60px);line-height:1;color:var(--sky);white-space:nowrap}
+.nw{white-space:nowrap}
+/* matrix */
+.mx{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto;gap:6px;max-width:520px;width:100%;justify-self:end}
+.ylab{writing-mode:vertical-rl;font-family:Jua,sans-serif;color:var(--soft);text-align:center}
+.xlab{grid-column:2;font-family:Jua,sans-serif;color:var(--soft);text-align:center}
+.mgrid{display:grid;grid-template-columns:1.6em repeat(5,minmax(0,1fr));gap:5px;padding:12px;background:var(--paper);border:2px solid var(--line);border-radius:20px}
+.mgrid .ax{display:grid;place-items:center;font-family:Jua,sans-serif;color:var(--soft);font-size:15px}
+.cell{aspect-ratio:1/1;border-radius:10px;display:flex;flex-wrap:wrap;align-content:center;justify-content:center;gap:3px;cursor:pointer;border:3px solid transparent}
+.cell.lo{background:light-dark(#c9eedb,#1e4433)}.cell.md{background:light-dark(#ffe9a3,#55471a)}.cell.hi{background:light-dark(#ffc2bc,#5a2622)}
+.cell.pk{border-color:var(--ink)}
+.dot{font-style:normal;font-family:Jua,sans-serif;width:clamp(20px,4vw,28px);height:clamp(20px,4vw,28px);border-radius:50%;background:var(--ink);color:var(--bg);display:grid;place-items:center;font-size:14px;transition:transform .3s}
+.hz{padding-left:1.4em;margin:10px 0;display:grid;gap:6px}
+.tag{font-family:Jua,sans-serif;font-weight:400;font-size:14px;padding:2px 8px;border-radius:8px;white-space:nowrap;color:#1d1b16}
+.tag.lo{background:#c9eedb}.tag.md{background:#ffe9a3}.tag.hi{background:#ffc2bc}
+.hit{color:var(--tom)}.mdt{color:light-dark(#b07a00,#ffcf33)}.lot{color:var(--leaf)}
+.scroll{overflow-x:auto}
+.ft{border-collapse:collapse;width:100%;min-width:620px;font-size:15px}
+.ft th,.ft td{border-bottom:1px solid var(--line);padding:8px 6px;text-align:left}
+.ft th{font-family:Jua,sans-serif;font-weight:400;font-size:16px}
+.ft input{width:58px;padding:6px 8px}
+.ft .rpn{font-family:Jua,sans-serif;font-size:20px;color:var(--sky);text-align:right}
+.sw{display:none}@media(max-width:700px){.sw{display:block}}
+.rank{display:grid;gap:6px;padding-left:1.4em}
+.dist{display:grid;gap:14px;grid-template-columns:minmax(0,1fr) minmax(0,1.5fr);align-items:stretch}
+.dist .fig{min-height:340px;background:var(--paper);border:2px solid var(--line);border-radius:20px}
+.bars{display:flex;align-items:flex-end;gap:3px;height:220px;padding:10px 8px 0;background:var(--sky2);border-radius:16px}
+.bars>div{flex:1 1 0;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%}
+.bars i{display:block;width:100%;background:var(--sky);border-radius:5px 5px 0 0;min-height:1px}
+.bars i.hl{background:var(--tom)}
+.bars span{font-size:13px;color:var(--soft);height:22px;line-height:22px}
+.sq{position:relative;aspect-ratio:1/1;max-width:340px;width:100%;background:var(--paper);border:3px solid var(--ink);border-radius:6px;overflow:hidden}
+.sq i{position:absolute;display:block;mix-blend-mode:multiply;opacity:.75}
+.sq .a{background:#ffcf33;top:0;bottom:0;left:0}.sq .b{background:#2f7bf6;left:0;right:0;bottom:0}
+.sq .lab{position:absolute;font-family:Jua,sans-serif;font-size:16px;background:var(--paper);padding:0 6px;border-radius:6px}
+.four{display:grid;gap:12px;grid-template-columns:repeat(2,minmax(0,1fr))}
+.four .fig{min-height:170px;background:var(--bg);border-radius:14px}
+.four h4{margin:0 0 2px;font-family:Jua,sans-serif;font-weight:400;font-size:17px}
+@media(max-width:760px){.dist{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:520px){.four{grid-template-columns:minmax(0,1fr)}}.line{position:relative;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin:18px 0 10px}
+.line::before{content:"";position:absolute;left:10%;right:10%;top:34px;height:10px;border-radius:9px;background:var(--sky);opacity:.85}
+.stn{position:relative;display:flex;flex-direction:column;align-items:center;gap:8px;background:none;border:0;font:inherit;color:var(--ink);cursor:pointer;padding:0 0 6px;min-height:44px}
+.stn i{width:56px;height:56px;margin-top:11px;border-radius:50%;background:var(--paper);border:5px solid var(--ink);display:grid;place-items:center;font-style:normal;font-family:Jua,sans-serif;font-size:22px}
+.stn.on i{background:var(--tom);color:#fff;border-color:var(--tom);transform:scale(1.12)}
+.stn b{font-family:Jua,sans-serif;font-weight:400;font-size:19px}
+.stn span{font-size:13px;color:var(--soft);text-align:center}
+.stc{display:grid;gap:14px;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.tbl{width:100%;border-collapse:collapse;font-size:15px}
+.tbl th,.tbl td{border-bottom:1px solid var(--line);padding:7px 6px;text-align:left}
+.tbl th{font-family:Jua,sans-serif;font-weight:400}
+.tbl td.n{text-align:right;white-space:nowrap}
+.tbl input{width:78px;padding:6px 8px}
+.tbl tr.top td{background:var(--tom2)}
+@media(max-width:760px){.stc{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:600px){.line{grid-template-columns:minmax(0,1fr);gap:0}.line::before{left:23px;right:auto;width:10px;top:30px;bottom:30px;height:auto}.stn{flex-direction:row;align-items:center;justify-content:flex-start;gap:12px;text-align:left}.stn i{margin:4px 0;flex:none}.stn span{text-align:left}}/* lamps */
+.lamps{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:6px;padding:14px;background:var(--sky2);border-radius:20px;aspect-ratio:1/1;max-width:520px;width:100%;justify-self:end}
+.lamp{border-radius:50% 50% 45% 45%;background:var(--sun);box-shadow:0 0 12px color-mix(in srgb,var(--sun) 70%,transparent);transition:background .25s,box-shadow .25s;position:relative}
+.lamp::after{content:"";position:absolute;left:30%;right:30%;bottom:-3px;height:22%;border-radius:3px;background:var(--soft);opacity:.6}
+.lamp.off{background:var(--off);box-shadow:none}
+.ctrl{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;margin:10px 0}
+input[type=range]{width:min(100%,340px);accent-color:var(--sky);height:44px}
+input[type=number]{font:inherit;font-size:16px;width:110px;padding:9px 12px;border-radius:12px;border:2px solid var(--line);background:var(--paper);color:var(--ink)}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:8px 0}.row label{min-width:8.5em}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.chip{font:inherit;font-size:16px;border:2px solid var(--line);background:var(--paper);color:var(--ink);border-radius:999px;padding:8px 14px;min-height:44px;cursor:pointer}
+.chip.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chip.ok{background:var(--leaf2);border-color:var(--leaf)}.chip.no{background:var(--tom2);border-color:var(--tom)}
+.btn{font-family:Jua,sans-serif;font-size:19px;border:0;border-radius:14px;padding:11px 20px;min-height:48px;background:var(--ink);color:var(--bg);cursor:pointer;text-decoration:none;display:inline-flex;align-items:center}
+.btn.alt{background:var(--paper);color:var(--ink);border:2px solid var(--ink)}
+.btn:disabled{opacity:.4;cursor:default}
+/* map */
+.path{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(min(100%,260px),1fr));margin-top:16px}
+.stop{display:block;text-decoration:none;color:var(--ink);background:var(--paper);border:2px solid var(--line);border-radius:20px;padding:16px 18px;position:relative}
+.stop:hover{border-color:var(--ink)}
+.stop .n{font-family:Jua,sans-serif;display:inline-grid;place-items:center;width:40px;height:40px;border-radius:50%;background:var(--sun);color:var(--onsun);font-size:20px;margin-bottom:8px}
+.stop.done .n{background:var(--leaf);color:#fff}
+.stop h3{margin:0 0 4px}.stop span{color:var(--soft);font-size:15px}
+.stop .st{position:absolute;right:16px;top:18px;font-family:Jua,sans-serif;font-size:15px;color:var(--leaf)}
+/* lesson */
+.lhead{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:6px}
+.lhead .n{font-family:Jua,sans-serif;width:52px;height:52px;border-radius:50%;background:var(--sun);color:var(--onsun);display:grid;place-items:center;font-size:24px;flex:none}
+.easy{font-size:19px;background:var(--sun);color:var(--onsun);display:inline-block;padding:6px 14px;border-radius:12px;margin:6px 0 10px}
+.pts{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));padding:0;list-style:none;margin:12px 0 0}
+.pts li{border:2px dashed var(--line);border-radius:16px;padding:12px 14px}
+.pts b{font-family:Jua,sans-serif;font-weight:400;font-size:19px;display:block;color:var(--sky)}
+.act{margin-top:22px;border:3px solid var(--ink);border-radius:24px;padding:clamp(16px,3vw,28px);background:var(--paper)}
+.act>h3{font-size:24px}
+.fig{position:relative;min-height:300px}.fig>svg{position:absolute;inset:0;width:100%;height:100%}
+svg text{paint-order:stroke;stroke:var(--paper);stroke-width:4px}
+.coins{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:end;min-height:250px;padding:12px;background:var(--sky2);border-radius:18px}
+.stack{display:flex;flex-direction:column-reverse;align-items:center;gap:2px}
+.coin{width:min(70px,80%);height:10px;border-radius:50%;background:var(--sun);border:2px solid #b88a00}
+.stack .cap{font-family:Jua,sans-serif;margin-top:6px;text-align:center}
+.stack.hl .cap{color:var(--tom)}
+.tl{display:flex;height:46px;border-radius:12px;overflow:hidden;background:var(--line);margin:12px 0 4px}
+.tl i{display:block;height:100%}.tl .u{background:var(--leaf)}.tl .d{background:var(--tom);min-width:3px}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:15px;color:var(--soft)}
+.legend span::before{content:"";display:inline-block;width:14px;height:14px;border-radius:4px;margin-right:6px;vertical-align:-2px;background:var(--c)}
+.stats{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(9em,1fr));margin-top:12px}
+.stat{background:var(--sky2);border-radius:14px;padding:10px 14px}.stat b{font-family:Jua,sans-serif;font-weight:400;font-size:26px;display:block;white-space:nowrap}.stat span{font-size:14px;color:var(--soft)}
+.sbar{display:flex;height:40px;border-radius:10px;overflow:hidden;margin:6px 0 2px}
+.sbar i{display:block;height:100%}
+.av{display:grid;gap:10px;margin-top:10px}
+.avr{display:grid;grid-template-columns:4.5em minmax(0,1fr) 5.5em;gap:10px;align-items:center}
+.avr b{font-family:Jua,sans-serif;font-weight:400;font-size:20px}
+.avr .v{font-family:Jua,sans-serif;font-size:22px;text-align:right;white-space:nowrap}
+.sort{display:grid;gap:10px}
+.sitem{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;border:2px solid var(--line);border-radius:16px;padding:10px 12px;background:var(--bg)}
+.sitem>span{font-size:17px;flex:1 1 180px}
+.sitem .chips{margin:0}
+.sitem.ok{border-color:var(--leaf);background:var(--leaf2)}
+.order{display:grid;gap:8px;counter-reset:o}
+.order li{list-style:none;border:2px solid var(--leaf);background:var(--leaf2);border-radius:14px;padding:10px 14px}
+.why{display:grid;gap:8px;margin-top:10px}
+.why div{border-left:6px solid var(--sky);background:var(--sky2);border-radius:0 14px 14px 0;padding:10px 14px}
+.why div.root{border-color:var(--tom);background:var(--tom2)}
+/* quiz */
+.qwrap{max-width:820px}
+.qtext{font-size:20px;margin:6px 0 12px}
+.opts{display:grid;gap:10px}
+.opt{font:inherit;text-align:left;background:var(--paper);color:var(--ink);border:2px solid var(--line);border-radius:16px;padding:12px 16px;min-height:52px;cursor:pointer}
+.opt:hover:not(:disabled){border-color:var(--ink)}
+.opt.ok{border-color:var(--leaf);background:var(--leaf2)}.opt.no{border-color:var(--tom);background:var(--tom2)}
+.opt:disabled{cursor:default}
+.exp{margin-top:12px;border-radius:16px;padding:12px 16px;background:var(--sky2)}
+.qbar{height:12px;background:var(--line);border-radius:99px;overflow:hidden;margin:10px 0 18px}.qbar i{display:block;height:100%;background:var(--leaf);transition:width .3s}
+.qnav{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;align-items:center}
+.checks{display:grid;gap:16px;margin-top:22px}
+.lnav{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:24px}
+footer{color:var(--soft);font-size:14px}
+@media(max-width:760px){.two{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:600px){nav a{font-size:16px;padding:10px 10px 8px}.avr{grid-template-columns:3.6em minmax(0,1fr) 4.8em}}
+@media(max-width:760px){.mx{justify-self:center}}
+@media(prefers-reduced-motion:reduce){.dot,.lamp,.qbar i,.mbar i{transition:none}}
+</style>
+</head>
+<body>
+<header><div class="band"><div class="wrap">
+  <div class="top">
+    <div class="t">
+      <h1>5장 · 신뢰성 계획</h1>
+      <p>CRE 시험 다섯째 단원(Reliability planning, testing)을 8번의 짧은 활동으로 익혀요. 무엇을, 언제, 어떤 시험으로 확인할지 계획하는 법을 배워요.</p>
+    </div>
+    <div class="meter"><b id="mTxt">0 / 8 차시 완료</b><div class="mbar"><i id="mBar" style="width:0"></i></div></div>
+  </div>
+  <nav id="nav"></nav>
+</div></div></header>
+
+<main>
+<section data-view="home" class="band"><div class="wrap">
+  <h2>제품의 일생 노선도</h2>
+  <p class="lead">신뢰성 계획은 ‘언제 무엇을 할지’ 정하는 일이에요. 정거장을 눌러 그 단계의 신뢰성 활동과 시험을 보세요.</p>
+  <div class="line" id="hLine"></div>
+  <div class="stc" id="hSay"></div>
+  <h2 style="margin-top:34px">5장 학습 지도</h2>
+  <p class="lead">순서대로 해도 좋고, 궁금한 차시부터 골라도 좋아요. 확인 문제를 모두 맞히면 초록 동그라미가 돼요.</p>
+  <div class="path" id="path"></div>
+  <div class="qnav" style="margin-top:22px"><a class="btn" href="#exam">5장 단원 평가 보러 가기</a><a class="btn alt" href="#review">오답 노트</a><button class="btn alt" id="resetAll">기록 지우기</button></div>
+</div></section>
+<section data-view="lesson" class="band"><div class="wrap" id="lesson"></div></section>
+
+<section data-view="exam" class="band"><div class="wrap qwrap">
+  <h2>5장 단원 평가</h2>
+  <p class="lead">차시 확인 문제와 기출 문제를 섞었어요. 틀린 문제는 오답 노트에 자동으로 모여요.</p>
+  <div class="chips" id="eMode"><button class="chip on" data-n="10">빠르게 10문제</button><button class="chip" data-n="0">전부 풀기</button></div>
+  <div class="qbar"><i id="eProg" style="width:0"></i></div>
+  <div id="eBox"></div>
+</div></section>
+
+<section data-view="review" class="band"><div class="wrap qwrap">
+  <h2>오답 노트</h2>
+  <p class="lead">틀렸던 문제와 해설이에요. 다시 풀어서 맞히면 노트에서 빠져요.</p>
+  <div id="rBox"></div>
+</div></section>
+</main>
+
+<footer class="band"><div class="wrap">
+  “CRE 첫걸음 공부방”의 신뢰성 계획(BOK Ⅳ.A) 내용을 더 깊게 풀어 쓴 학습 앱이에요. 단원 평가에는 올려 주신 기출 노트(Ⅵ Reliability Planning 등)의 문제가 들어 있고, 오답 보기는 일부 새로 만들었어요. 진도와 오답 기록은 이 브라우저에만 저장돼요.
+</div></footer>
+
+<script>
+{
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const store={get(k,d){try{return JSON.parse(localStorage.getItem("cre5-"+k))??d}catch(e){return d}},set(k,v){try{localStorage.setItem("cre5-"+k,JSON.stringify(v))}catch(e){}}};
+const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const pct=(v,d=1)=>(v*100).toFixed(d)+"%";
+/* ───── 수학 도우미 ───── */
+const f2=v=>(+v).toFixed(2),f3=v=>(+v).toFixed(3),fmt=n=>Math.round(n).toLocaleString("ko-KR");
+
+/* ───── 차시 데이터 ───── */
+const L=[
+ {id:"l1",t:"신뢰성 프로그램 계획",easy:"목표 → 예측 → 시험 → 필드 확인",
+  pts:[["첫 번째 요소","제품 수명 목표(신뢰성 요구사항). 고객 요구에서 출발해 개념 단계에서 정해요."],
+       ["업무 순서","예비 신뢰성 요구사항 전개 → 신뢰도 예측 → (가속) 시험으로 확인 → 보증 비용·필드 분석."],
+       ["계획에 들어갈 것","목표·할당, 예측 방법, 시험 계획(종류·시기·시료 수·신뢰수준), FRACAS, 설계 검토, 공급 업체 관리."],
+       ["계획은 살아 있다","설계 변경·시험 결과에 따라 계속 고쳐 써요. 시료는 보통 5~20개 수준에서 시작해요."]],
+  tip:"기출: ‘요구사항 전개 → 가속 시험 → 신뢰도 예측 → 보증 비용 분석’을 순서대로? → 1, 3, 2, 4 (요구사항 → 예측 → 시험 → 보증).",
+  act:"plan",
+  q:[["신뢰성 계획의 첫 번째 요소는?",["시험 장비 구매","제품 수명 목표","보증 비용 분석","양산 일정"],1,"무엇을 얼마나 오래 해야 하는지(목표)부터 정해요."],
+     ["신뢰성 업무의 올바른 순서는?",["시험 → 요구사항 → 예측 → 보증","요구사항 → 예측 → 시험 → 보증 분석","예측 → 보증 → 시험 → 요구사항","보증 → 시험 → 예측 → 요구사항"],1,"요구사항을 정리하고, 예측하고, 시험으로 확인하고, 필드에서 비용을 봐요."]]},
+ {id:"l2",t:"요구사항과 신뢰도 할당",easy:"시스템 목표를 부품에 나눠 주기",
+  pts:[["정량 요구사항","예: ‘100시간 임무 신뢰도 0.95’, ‘MTBF 5,000시간 이상(90% 신뢰수준)’. 조건·시간·확률을 모두 말해요."],
+       ["할당이란?","시스템 목표를 서브시스템 목표로 나눠 주는 것. 설계 초기의 길잡이예요."],
+       ["동등 할당","n개 직렬이면 각자 R* ^(1/n). 간단하지만 현실을 반영하지 못해요."],
+       ["ARINC 할당","예측 고장률이 큰 부분에 더 큰 몫을 줘요: 가중치 wᵢ = λᵢ / Σλ, 할당 λᵢ* = wᵢ × λ*시스템."],
+       ["예측과 비교","할당 목표보다 예측이 나쁘면 설계 개선·부품 변경·이중화를 검토해요."]],
+  tip:"직렬 시스템은 고장률을 더해요. 그래서 시스템 목표 고장률 λ* = −ln R* / t 를 먼저 구해요.",
+  act:"alloc",
+  q:[["동일한 부품 4개로 된 직렬 시스템의 목표 신뢰도가 0.90이다. 동등 할당하면 부품 하나의 신뢰도는 약?",["0.900","0.974","0.225","0.990"],1,"0.90^(1/4) ≈ 0.974."],
+     ["ARINC 할당법에서 고장률을 많이 나눠 받는 서브시스템은?",["예측 고장률이 큰 것","가장 싼 것","가장 가벼운 것","가장 나중에 설계한 것"],0,"가중치가 예측 고장률에 비례해요."]]},
+ {id:"l3",t:"신뢰성 시험의 종류",easy:"찾는 시험, 증명하는 시험, 거르는 시험",
+  pts:[["개발 시험 (찾기)","HALT(망가질 때까지 올려 설계 약점 찾기), 신뢰성 성장 시험, 마진 시험, 극한 조건 시험."],
+       ["입증·인증 시험 (증명)","요구 신뢰도를 정해진 신뢰수준으로 보여 줘요. 무고장 시험, 순차 시험(합격/불합격이 빨리 결정)."],
+       ["양산 시험 (거르기)","ESS·번인·HASS(제조 결함 스크리닝), PRAT(양산 신뢰성 수락 시험)."],
+       ["시험의 궁극 목표","시장(필드) 불량을 줄이는 것. 예상 고장률과 실제 고장률을 비교해 확인해요."],
+       ["시스템 vs 부품 시험","시스템 시험은 실제 필드 사용·인터페이스 조건을 가장 잘 재현해요. 첫 시험은 완전한 성능·기능 시험."]],
+  tip:"큰 설계 변경 후 ‘새 설계의 한계’를 알려면 → 고장을 유도하는 극한 동작 조건 시험(기능 검증은 오답).",
+  act:"tests",
+  q:[["신뢰성 시험의 궁극적인 목표는?",["생산 불량 최소화","초기 불량 제거","시장(필드) 불량 감소","모집단에서 불량을 걸러냄"],2,"모든 시험은 결국 고객 손에서의 고장을 줄이려는 거예요."],
+     ["개발 단계에서 스트레스를 한계까지 올려 설계 약점을 빠르게 찾는 시험은?",["HASS","ESS","PRAT","HALT"],3,"HALT는 개발, HASS·ESS·PRAT는 양산 시험이에요."]]},
+ {id:"l4",t:"신뢰성 성장과 듀안 모델",easy:"고치면서 자라는 MTBF",
+  pts:[["신뢰성 성장","설계·제조 결함을 찾아 고치면서 신뢰성 파라미터가 좋아지는 것. 시험-분석-수정(TAAF)과 FRACAS 폐루프로 이뤄져요."],
+       ["듀안 모델","누적 MTBF θc = K·T^α. 로그-로그 그래프에서 직선이에요. α는 성장률(보통 0.2~0.6)."],
+       ["순간 MTBF","θi = θc / (1 − α). 지금 이 순간의 MTBF로, 누적보다 커요."],
+       ["AMSAA(크로) 모델","고장 수를 확률 과정(NHPP)으로 보는 모델. 성장 추정에 듀안과 함께 쓰여요."],
+       ["언제?","설계·개발 단계에서 시제품을 시험하며 진행해요."]],
+  tip:"기출: α = 0.3, 누적 MTBF 26,000시간 → 순간 MTBF = 26,000 / 0.7 ≈ 37,143시간.",
+  act:"duane",
+  q:[["신뢰성 성장을 추정하는 데 쓰는 모델은?",["아레니우스 모델","듀안 모델","마이너 모델","블랙 모델"],1,"듀안(또는 AMSAA) 모델이에요."],
+     ["듀안 모델에서 누적 MTBF 1,000시간, 성장률 α = 0.5일 때 순간 MTBF는?",["500시간","1,000시간","1,500시간","2,000시간"],3,"θi = 1,000 / (1 − 0.5) = 2,000시간."]]},
+ {id:"l5",t:"환경 스트레스와 시험",easy:"덥게, 춥게, 흔들고, 축축하게",
+  pts:[["열 사이클","뜨거움↔차가움 반복. 재료마다 늘어나는 정도가 달라 납땜·접합부가 피로로 깨져요. 고온 지속보다 전자부품을 더 손상시키고, 잠재 결함을 찾는 데 가장 효과적."],
+       ["진동","최대치간 거리(진폭)와 주파수로 측정. 피로 손상, 커넥터 풀림. 랜덤 진동이 실제와 가까워요."],
+       ["고온·고습","부식, 절연 저하. 온·습도 가속은 Peck 모델."],
+       ["CERT (복합 환경 시험)","온도·습도·진동 등 여러 스트레스를 동시에 걸어 하드웨어 신뢰성을 평가해요."],
+       ["스텝 스트레스","고정된 스트레스 수준을 단계적으로 올리며 누적 효과로 평가해요."]],
+  tip:"전자 부품 인증 시험에 넣을 스트레스: 습도, 충격, 온도 사이클(+진동). 경도 같은 재료 특성은 따로 재요.",
+  act:"stress",
+  q:[["고온에서 계속 동작할 때보다 전자 부품을 더 손상시키는 조건은?",["상온 보관","열 사이클링","저습도","정전압 유지"],1,"반복 팽창·수축이 접합부를 피로로 깨뜨려요."],
+     ["여러 스트레스(온도·습도·진동)를 동시에 거는 시험은?",["CERT(복합 환경 신뢰성 시험)","기능 시험","외관 검사","번인"],0,"복합 환경 시험이 실제 사용 조건에 가까워요."]]},
+ {id:"l6",t:"무고장 시험과 시험 설계",easy:"고장 0개로 통과하려면 몇 개?",
+  pts:[["시료 수","n = ln(1 − C) / ln(R). 95% 신뢰수준·R 0.99 → 299개."],
+       ["신뢰도 하한","n개를 고장 없이 시험하면 R_L = (1 − C)^(1/n). 전제: 표본이 고장 없이 시험됐을 것."],
+       ["시간과 시료의 맞교환","지수분포면 필요한 총 시간 T = n × t. 시료를 늘리면 개당 시험 시간이 줄어요."],
+       ["순차 시험","결과를 보며 합격·불합격·계속을 판단. 신뢰성이 아주 좋거나 아주 나쁘면 가장 빨리 끝나요. OC 곡선은 MTBF별 합격 확률."],
+       ["시험 시간 단축","같은 신뢰도·신뢰수준을 유지하며 데모 시간을 줄이려면 → 시료 수를 늘려요."]],
+  tip:"기출: 7개 무고장, 90% 신뢰수준 → R_L = 0.1^(1/7) ≈ 0.72. 100개 무고장, 80% → 0.2^(0.01) ≈ 0.984.",
+  act:"zero",
+  q:[["95% 신뢰수준에서 고장 0개로 신뢰도 0.99를 보이려면 필요한 시료 수는?",["95","99","299","460"],2,"n = ln(0.05)/ln(0.99) = 298.07 → 299개."],
+     ["신뢰성 데모 시험 시간을 줄이면서 같은 신뢰도·신뢰수준을 입증하려면?",["시료 수를 늘린다","신뢰수준을 낮춘다","고장을 무시한다","시험을 생략한다"],0,"T = n·t 이므로 n을 늘리면 t가 줄어요."]]},
+ {id:"l7",t:"신뢰도 예측과 필드 데이터",easy:"부품 고장률을 더해 미리 점쳐 보기",
+  pts:[["언제 예측?","새로운 설계를 개발할 때. 개념 단계에서는 대안 설계를 비교하는 데 써요."],
+       ["부품 수 법 (Parts count)","부품 종류별 고장률 × 개수를 모두 더해요(직렬 가정). λ합 → MTBF = 1/λ합."],
+       ["부품 스트레스 법","온도·전압 같은 실제 스트레스를 반영해 고장률을 보정해요. 더 정확하지만 설계가 정해져야 해요."],
+       ["필드 데이터","예비품 수량을 정하거나 사용 환경을 재검증할 때는 시장 불량 데이터가 가장 중요해요."],
+       ["필드 고장 평가","먼저 고장 날짜·시간·장소를 확인해요. 사람의 검사 실수는 도면·한도견본 같은 시각 자료로 줄여요."]],
+  tip:"예측값은 ‘목표를 맞출 수 있나’를 보는 도구예요. 실제 신뢰도는 시험과 필드 데이터로 확인해요.",
+  act:"predict",
+  q:[["신뢰성 예측이 필요한 때는?",["양산 종료 후","새로운 설계를 개발할 때","보증 기간이 끝난 뒤","제품 폐기 시"],1,"개념·설계 단계에서 예측을 시작해요."],
+     ["부품 수 법으로 예측할 때 시스템 고장률은?",["부품 고장률 × 개수를 모두 더한다","부품 고장률을 모두 곱한다","가장 큰 고장률만 쓴다","평균 고장률을 쓴다"],0,"직렬 가정이라 고장률을 더해요."]]},
+ {id:"l8",t:"시험 시기와 계획 정리",easy:"어느 정거장에서 어떤 시험을?",
+  pts:[["개념","수명 목표·요구사항, 안전·책임 요건, 할당, 초기 예측."],
+       ["설계","FMEA, 디레이팅, 부품 선정, 설계 검토, 신뢰도 예측."],
+       ["시제품","가속 시험(가장 효과적인 시기), HALT, 신뢰성 성장 시험, 마진 시험."],
+       ["양산","ESS·번인·HASS, PRAT, 공정 관리."],
+       ["사용","FRACAS, 보증 데이터 분석, 예비품 계획, 필드 고장 분석."]],
+  tip:"가속 시험은 ‘시제품’이 나와야 할 수 있어요. 구상·기안 단계에는 시험할 물건이 없어요!",
+  act:"life",
+  q:[["가속 시험이 가장 효과적인 개발 단계는?",["구상","기안","프로토타입(시제품)","폐기"],2,"시험할 실물이 있어야 해요."],
+     ["특정 신뢰성 수준을 만족하기 위해 신뢰성 성장 시험을 해야 하는 시기는?",["설계 및 개발","양산 후","보증 종료 후","폐기 단계"],0,"고치면서 키우는 시험이라 설계·개발 단계예요."]]}
+];
+const EXTRA=[
+ ["l4", "다음 중 신뢰성 성장을 추정하기 위해 사용하는 모델은?", ["아이링 모델", "듀안 모델(또는 AMSAA 모델)", "역누승 법칙", "마이너 법칙"], 1, "성장은 듀안·AMSAA. 나머지는 가속·피로 모델이에요."],
+ ["l4", "성장률 α = 0.3, 누적 MTBF 26,000시간인 듀안 성장 모델에서 순간 MTBF는 약?", ["37,143시간", "26,000시간", "33,800시간", "18,200시간"], 0, "θi = 26,000 / (1 − 0.3) ≈ 37,143시간."],
+ ["l4", "신뢰성 성장 시험에서 사용하는 폐루프 과정은?", ["가치 공학", "통계적 공정 관리", "품질 기능 전개", "고장 보고·분석 및 시정조치 시스템(FRACAS)"], 3, "고장을 찾고 고치는 닫힌 고리가 성장을 만들어요."],
+ ["l3", "제품 개발 과정에서 시험 시간을 크게 압축하고 효율을 높이는 시험은?", ["ESS", "HASS", "고속 가속 수명 시험(HALT)", "PRAT"], 2, "HALT는 개발 시험이에요. ESS·HASS·PRAT는 양산 시험."],
+ ["l5", "고온에서 계속 동작할 때보다 전자 부품을 더 손상시키는 조건은?", ["일정 저온", "열 사이클링", "저습도 보관", "정격 이하 전압"], 1, "온도 변화의 반복이 접합부를 피로로 깨요."],
+ ["l3", "신뢰성 시험의 궁극적 목표는?", ["시장 불량 감소", "생산 불량 최소화", "초기 불량 제거", "모집단에서 불량을 걸러냄"], 0, "나머지는 중간 목표예요. 최종 목표는 시장(필드) 불량 감소."],
+ ["l7", "신뢰성 시험 프로그램 중 고장을 평가할 때 가장 먼저 알아내야 하는 것은?", ["고장 부품 단가", "경쟁사 고장률", "담당 엔지니어 이름", "고장이 발생한 날짜와 시간(그리고 장소)"], 3, "필드 고장품 분석도 언제·어디서부터 확인해요."],
+ ["l1", "다음 신뢰성 업무를 순서대로 나열하면? ① 예비 신뢰성 요구사항 전개 ② 가속 시험 실시 ③ 신뢰도 예측 ④ 보증 비용 분석", ["1, 2, 3, 4", "3, 1, 2, 4", "1, 3, 2, 4", "2, 1, 3, 4"], 2, "요구사항 → 예측 → 시험으로 확인 → 보증."],
+ ["l5", "시스템에 쓰일 전자장치의 하드웨어 신뢰성을 평가하는 시험은?", ["전기 기능 시험", "복합 환경 신뢰성 시험(CERT)", "기계적 기능 시험", "외관 검사"], 1, "기능 시험은 신뢰성 시험이 아니에요."],
+ ["l1", "신뢰성 계획의 첫 번째 요소는?", ["제품 수명 목표", "시험 장비 목록", "보증 정책", "생산 계획"], 0, "목표가 있어야 계획을 세울 수 있어요."],
+ ["l7", "사람의 검사 오류를 줄이는 가장 효율적인 방법은?", ["검사 시간을 늘린다", "검사자를 자주 바꾼다", "검사를 생략한다", "도면과 시각 보조 자료(한도견본 등)를 사용한다"], 3, "보고 비교할 기준이 있으면 실수가 줄어요."],
+ ["l8", "특정 신뢰성 수준을 만족하려면 신뢰성 성장 시험은 수명주기 중 언제 해야 하나요?", ["판매", "양산", "설계 및 개발", "폐기"], 2, "설계를 고칠 수 있을 때 해야 해요."],
+ ["l8", "가속 시험은 어떤 개발 단계에서 가장 효과적인가요?", ["구상", "프로토타입(시제품)", "기안", "단종"], 1, "시제품이 나와야 시험할 수 있어요."],
+ ["l7", "예비품 필요량 결정과 사용 환경 재검증을 위해 제품 사용 수명을 개선하려 한다. 어떤 자료를 써야 하나요?", ["시장 불량(필드) 데이터", "초가속 수명 시험(HALT) 결과", "경쟁사 카탈로그", "설계 도면"], 0, "실제 사용 데이터가 가장 중요해요. (HALT는 자주 고르는 오답)"],
+ ["l5", "복합 환경 신뢰성 시험(CERT)이 사용되는 경우는?", ["단일 스트레스 시험", "소프트웨어 시험", "외관 검사", "다중 스트레스 시험 응용"], 3, "여러 스트레스를 동시에 걸어요."],
+ ["l5", "시험 결과를 평가할 때 노출 수준의 누적 효과를 이용하는 시험 방법은?", ["순차 시험", "무고장 시험", "스텝 스트레스 시험", "서든 데스 시험"], 2, "스트레스를 단계적으로 올리며 누적 효과를 봐요."],
+ ["l4", "새 제품의 누적 MTBF가 1,600시간, 필요한 순간 MTBF가 2,000시간이다. 듀안 성장률 0.25일 때 결론은?", ["순간 MTBF가 1,200시간이라 부족하다", "순간 MTBF가 약 2,133시간으로 요구를 이미 만족한다", "순간 MTBF는 누적과 같다", "판단할 수 없다"], 1, "θi = 1,600 / 0.75 ≈ 2,133시간 ≥ 2,000시간."],
+ ["l4", "신뢰성 성장이란?", ["설계·제조 결함을 수정해 신뢰성 파라미터가 개선되는 것", "판매량이 늘어나는 것", "시험 시료가 늘어나는 것", "보증 기간이 늘어나는 것"], 0, "필출 문제예요. 결함을 고쳐서 좋아지는 것이 성장."],
+ ["l4", "신뢰성 향상과 설계 성숙도를 얻는 가장 효과적인 방법은?", ["부품 가격 인하", "출하 검사 강화", "보증 기간 연장", "구조화된 시험·분석·수정 프로그램(TAAF)"], 3, "시험하고, 분석하고, 고치는 고리를 반복해요."],
+ ["l5", "전자 부품·제품의 신뢰성 인증 시험에 포함되어야 할 가장 적절한 요소는?", ["색상, 무게, 크기", "가격, 납기, 수량", "습도, 충격, 온도 사이클(+진동)", "경도, 밀도, 광택"], 2, "인증 시험에는 환경 스트레스를 넣어요. 경도 같은 재료 특성은 따로 측정해요."],
+ ["l5", "최대치간 거리(진폭)와 주파수 측정값을 이용하는 시험은?", ["습도 시험", "진동 시험", "염수 분무 시험", "정전기 시험"], 1, "진동은 진폭과 주파수로 정의해요."],
+ ["l5", "부품·어셈블리에 가해지는 일반적인 진동 스트레스로 생기는 현상은?", ["피로 손상", "부식", "산화", "절연 파괴"], 0, "반복 하중이 피로 손상을 만들어요."],
+ ["l3", "차량 브레이크에 큰 설계 수정이 들어갔다. 새 설계의 한계를 알려면 어떤 시험을 해야 하나요?", ["기능 요구사항에 대한 설계 검증", "포장 시험", "외관 검사", "고장을 유도하는 극한 동작 조건 시험"], 3, "한계를 알려면 고장이 날 때까지 조건을 올려요. (설계 검증은 오답)"],
+ ["l3", "마진 시험의 목적은?", ["규격 이상의 신뢰성 마진 평가", "생산성 측정", "적용된 응력에 대한 안전 마진 검증", "가격 결정"], 2, "안전 여유 이상으로 응력을 가해도 동작하는지 확인해요."],
+ ["l6", "신뢰성이 요구사항보다 나쁜 상태(엔지니어는 모름)일 때, 가장 짧은 시간에 끝날 가능성이 높은 입증 시험은?", ["정시 중단 시험", "순차 시험", "무고장 시험", "완전 시험"], 1, "순차 시험은 아주 좋거나 아주 나쁠 때 빨리 결론이 나요."],
+ ["l3", "새로 도입한 고품질 제품의 고장률을 단기간에 파악하는 가장 효과적인 방법은?", ["가속 시험 결과", "필드 데이터를 몇 년 기다린다", "고객 설문", "카탈로그 비교"], 0, "고품질이면 정상 조건에서 고장이 너무 안 나요. 가속 시험이 즉각적 해결책."],
+ ["l3", "신뢰성 시험을 하는 일반적인 이유는?", ["고객 기대를 초과하려고", "광고하려고", "시험 장비를 쓰려고", "예상 고장률과 실제 고장률을 비교하려고"], 3, "빈출이에요. 예측과 실제를 비교해 확인해요."],
+ ["l3", "새 부품에 대한 신뢰성 시험의 직접적인 결과는?", ["부품 가격", "생산 수량", "부품이 신뢰성 요구사항을 충족하는지 여부", "공급 업체 순위"], 2, "시험은 요구사항 충족 여부를 알려 줘요."],
+ ["l7", "직렬 부품 A(1,500시간 시험·1고장), B(2,200시간·2고장), C(3,000시간·3고장)로 된 시스템의 고장률은 약?", ["0.0010", "0.0026", "0.0018", "0.0060"], 1, "1/1,500 + 2/2,200 + 3/3,000 ≈ 0.00067 + 0.00091 + 0.001 = 0.0026. MTBF는 역수."],
+ ["l6", "95% 신뢰수준에서 0개 고장으로 0.99 신뢰도를 보이려면 필요한 시료 수는?", ["299", "199", "99", "399"], 0, "n = ln(0.05)/ln(0.99) = 298.07 → 299."],
+ ["l6", "7개 시료를 무고장으로 시험했다. 90% 신뢰수준에서 신뢰도 하한은?", ["0.53", "0.90", "0.86", "0.72"], 3, "중요 기출이에요. R_L = (1 − 0.9)^(1/7) = 0.1^(1/7) ≈ 0.72."],
+ ["l6", "100번 시험에서 고장이 없었다. 80% 신뢰수준에서 신뢰도 하한은 약?", ["0.800", "0.950", "0.984", "0.998"], 2, "0.2^(1/100) ≈ 0.984."],
+ ["l6", "R_L = (1 − C)^(1/n)으로 신뢰도 하한을 추정할 때 필요한 전제 조건은?", ["표본이 정규분포를 따른다", "표본이 고장 없이 시험되었다", "표본이 30개 이상이다", "고장률이 증가한다"], 1, "무고장 시험 공식이에요."],
+ ["l6", "신뢰성 데모 시험 시간을 줄이라는 요구를 받았다. 같은 신뢰도·신뢰수준을 입증하려면?", ["시험 표본 수를 늘린다", "신뢰수준을 낮춘다", "고장을 세지 않는다", "스트레스를 무시한다"], 0, "T = n·t 이므로 n을 늘리면 t를 줄일 수 있어요."],
+ ["l7", "신뢰성 예측이 필요한 때는?", ["제품을 폐기할 때", "양산이 끝났을 때", "보증이 끝났을 때", "새로운 설계가 개발되어야 할 때"], 3, "개념 설계가 시작될 때 예측을 시작해요."],
+ ["l3", "부품 시험 대신 시스템 시험을 선택할 때의 이점은?", ["비용이 항상 싸다", "시료가 더 많이 필요 없다", "시스템 시험은 실제 필드 사용과 인터페이스 조건에 부품을 가장 잘 노출시킨다", "고장 분석이 필요 없다"], 2, "중요 기출이에요. 부품끼리의 상호작용까지 볼 수 있어요."],
+ ["l3", "시스템 개발 시험에서 가장 먼저 해야 할 시험은?", ["수명 시험", "완전한 성능·기능 시험", "고장 유도 시험", "보증 시험"], 1, "성능을 만족해야 그다음 수명 시험을 할 수 있어요."],
+ ["l5", "전자 부품 신뢰성이 온도에 민감할 때 높은 온도에서 시험하는 일반적인 목적은?", ["설계나 재료상의 결함을 드러내려고", "예상 환경에서의 수명을 정확히 예측하려고", "생산 속도를 높이려고", "비용을 줄이려고"], 0, "빈출이에요. (수명 예측은 자주 고르는 오답)"],
+ ["l5", "전자 제품의 잠재 결함을 찾아내는 가장 효과적인 방법은?", ["무게 측정", "상온 보관", "외관 검사", "열 순환(온도 사이클)"], 3, "열 순환(또는 열·습도)이 잠재 결함을 잘 드러내요."],
+ ["l6", "순차 시험 계획의 OC 곡선이 주는 정보는?", ["시험 비용", "시료 수", "여러 MTBF 값에 대해 합격할 확률", "고장 모드"], 2, "진짜 MTBF가 얼마일 때 합격할 확률인지 보여 줘요."],
+ ["l5", "고장 물리(PoF)를 적용할 때 가장 먼저 고려해야 할 사항은?", ["시험 장비 구매", "고장 모드와 메커니즘, 부하와 환경을 식별하고 연구한다", "보증 정책 수립", "생산 일정"], 1, "필출이에요. 모든 신뢰성 접근은 고장 물리 관점에서 시작해요."]
+];
+const POOL=[...L.flatMap(l=>l.q.map((q,i)=>({k:l.id+"-"+i,c:l.id,q:q[0],o:q[1],a:q[2],w:q[3]}))),...EXTRA.map((q,i)=>({k:"x"+i,c:q[0],q:q[1],o:q[2],a:q[3],w:q[4]}))];
+const lname=id=>L.find(l=>l.id===id).t;
+/* ───── 상태 ───── */
+let done=new Set(store.get("done",[])),solved=store.get("solved",{}),wrong=new Set(store.get("wrong",[]));
+const save=()=>{store.set("done",[...done]);store.set("solved",solved);store.set("wrong",[...wrong]);meter()};
+function meter(){$("#mTxt").textContent=`${done.size} / ${L.length} 차시 완료`;$("#mBar").style.width=done.size/L.length*100+"%";paintPath()}
+
+/* ───── 내비 & 라우팅 ───── */
+$("#nav").innerHTML=`<a href="#home">학습 지도</a>`+L.map((l,i)=>`<a href="#${l.id}">${i+1}차시</a>`).join("")+`<a href="#exam">단원 평가</a><a href="#review">오답 노트</a>`;
+function route(){let h=location.hash.slice(1)||"home";const les=L.find(l=>l.id===h);if(!les&&!["home","exam","review"].includes(h))h="home";
+ $$("section[data-view]").forEach(s=>s.classList.toggle("on",s.dataset.view===(les?"lesson":h)));
+ $$("#nav a").forEach(a=>a.getAttribute("href")==="#"+h?a.setAttribute("aria-current","page"):a.removeAttribute("aria-current"));
+ const cur=$("#nav a[aria-current]");if(cur)cur.scrollIntoView({block:"nearest",inline:"nearest"});
+ if(les)openLesson(les);if(h==="exam"&&!eList.length)startExam();if(h==="review")buildReview();}
+addEventListener("hashchange",()=>{route();scrollTo(0,0)});
+
+/* ───── 홈: 수명주기 노선도 ───── */
+const SN=[["개념","목표 정하기",["제품 수명 목표·신뢰성 요구사항","안전·책임 요건 설정","시스템 → 부품 신뢰도 할당","대안 설계 비교 예측"],["시험할 실물 없음 → 분석·예측 위주"]],
+ ["설계","튼튼하게 그리기",["FMEA·FTA","디레이팅·부품 선정","신뢰도 예측(부품 수·스트레스 법)","설계 검토(DR)"],["시뮬레이션·FEA","부품 단위 평가"]],
+ ["시제품","찾고 고치기",["FRACAS 시작·운영","시험-분석-수정(TAAF)","성장 추적(듀안·AMSAA)"],["HALT·마진 시험","가속 수명 시험(ALT)","신뢰성 성장 시험","입증(데모)·순차 시험"]],
+ ["양산","걸러내고 지키기",["공정 관리·Cpk","공급 업체 관리"],["ESS·번인·HASS","PRAT(양산 신뢰성 수락 시험)"]],
+ ["사용","배우고 되돌리기",["필드 고장·보증 데이터 분석","예비품 수량 계획","다음 설계로 피드백"],["필드 고장품 분석(날짜·시간·장소부터)"]]];
+let hm=2;
+function homeDraw(){$("#hLine").innerHTML=SN.map((s,i)=>`<button class="stn${i===hm?" on":""}" data-s="${i}"><i>${i+1}</i><span><b>${s[0]}</b><br>${s[1]}</span></button>`).join("");
+ const s=SN[hm];$("#hSay").innerHTML=`<div class="card"><h3>${s[0]} 단계: 할 일</h3><ul class="hz">${s[2].map(x=>`<li>${x}</li>`).join("")}</ul></div><div class="card"><h3>${s[0]} 단계: 시험</h3><ul class="hz">${s[3].map(x=>`<li>${x}</li>`).join("")}</ul></div>`;
+ $$("#hLine .stn").forEach(b=>b.onclick=()=>{hm=+b.dataset.s;homeDraw()});}function paintPath(){$("#path").innerHTML=L.map((l,i)=>`<a class="stop${done.has(l.id)?" done":""}" href="#${l.id}"><span class="n">${done.has(l.id)?"✓":i+1}</span>${done.has(l.id)?'<span class="st">완료</span>':""}<h3>${l.t}</h3><span>${l.easy}</span></a>`).join("")}
+$("#resetAll").onclick=e=>{if(e.target.dataset.sure){done.clear();solved={};wrong.clear();save();e.target.textContent="기록 지우기";delete e.target.dataset.sure}else{e.target.dataset.sure=1;e.target.textContent="한 번 더 누르면 지워져요"}};
+
+/* ───── 차시 화면 ───── */
+let ro=null;
+function openLesson(l){const i=L.indexOf(l);if(ro){ro.disconnect();ro=null}
+ $("#lesson").innerHTML=`<div class="lhead"><span class="n">${i+1}</span><div><span class="note">5장 · ${i+1}차시</span><h2 style="margin:0">${l.t}</h2></div></div>
+ <div class="easy">한마디로: ${l.easy}</div>
+ <ul class="pts">${l.pts.map(([a,b])=>`<li><b>${a}</b>${b}</li>`).join("")}</ul>
+ <div class="tip"><b>시험 꿀팁</b> ${l.tip}</div>
+ <div class="act" id="act"></div>
+ <h3 style="margin-top:28px;font-size:24px">확인 문제</h3><p class="note">두 문제를 모두 맞히면 차시 완료!</p>
+ <div class="checks">${l.q.map((q,j)=>qCard({k:l.id+"-"+j,c:l.id,q:q[0],o:q[1],a:q[2],w:q[3]},j+1)).join("")}</div>
+ <div class="lnav">${i>0?`<a class="btn alt" href="#${L[i-1].id}">← ${L[i-1].t}</a>`:`<a class="btn alt" href="#home">← 학습 지도</a>`}${i<L.length-1?`<a class="btn" href="#${L[i+1].id}">${L[i+1].t} →</a>`:`<a class="btn" href="#exam">단원 평가 →</a>`}</div>`;
+ ACT[l.act]($("#act"));
+ $$("#lesson .qc").forEach(c=>bindQ(c,ok=>{if(l.q.every((_,j)=>solved[l.id+"-"+j])){done.add(l.id);save()}}));}
+
+/* 문제 카드 */
+function qCard(q,label){return `<div class="card qc" data-k="${q.k}"><span class="note">${label?"문제 "+label:lname(q.c)}</span><p class="qtext">${q.q}</p>
+ <div class="opts">${q.o.map((t,i)=>`<button class="opt" data-i="${i}">${i+1}) ${t}</button>`).join("")}</div><div class="exp" hidden></div></div>`}
+function bindQ(card,cb,noRetry){const q=POOL.find(p=>p.k===card.dataset.k);let used=false;
+ card.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{if(used)return;used=true;const i=+b.dataset.i,ok=i===q.a;
+  card.querySelectorAll(".opt").forEach(x=>{x.disabled=true;if(+x.dataset.i===q.a)x.classList.add("ok")});if(!ok)b.classList.add("no");
+  if(ok){solved[q.k]=1;wrong.delete(q.k)}else{wrong.add(q.k)}save();
+  const e=card.querySelector(".exp");e.hidden=false;
+  e.innerHTML=`<b class="jua" style="font-size:20px;color:${ok?"var(--leaf)":"var(--tom)"}">${ok?"정답이에요!":"아쉬워요. 정답은 "+(q.a+1)+"번"}</b><p>${q.w}</p>${ok?"":`<button class="btn alt retry">다시 풀기</button>`}`;
+  const r=e.querySelector(".retry");if(r){if(noRetry)r.remove();else r.onclick=()=>{used=false;e.hidden=true;card.querySelectorAll(".opt").forEach(x=>{x.disabled=false;x.classList.remove("ok","no")})}}
+  cb&&cb(ok);});}
+
+/* ───── 활동들 ───── */
+const ACT={
+ plan(el){orderGame(el,"활동: 신뢰성 프로그램 순서 맞추기","제품 개발 동안 할 신뢰성 업무를 올바른 순서대로 눌러 보세요.",["고객 요구 파악: 사용 환경·기대 수명","신뢰성 요구사항 전개: 목표와 할당","신뢰도 예측: 목표를 맞출 수 있나","시험: 가속·성장·입증 시험으로 확인","양산 스크리닝: ESS·HASS","필드·보증 분석: 보증 비용과 고장 피드백"],"기출 순서 ‘요구사항 → 예측 → 시험 → 보증’과 같아요.");},
+ alloc(el){const S=[["동력부",300],["제어부",150],["센서부",60]];
+  el.innerHTML=`<h3>활동: ARINC 할당 계산기</h3><p>세 서브시스템이 직렬이에요. 예측 고장률(10⁻⁶/시간)을 바탕으로 시스템 목표를 나눠 줘요.</p>
+  <div class="two"><div>
+   <div class="row"><label for="aR">시스템 목표 R*</label><input id="aR" type="number" min="0.5" max="0.9999" step="0.01" value="0.95"></div>
+   <div class="row"><label for="aT">임무 시간 t</label><input id="aT" type="number" min="1" value="100"></div>
+   ${S.map(([n,l],i)=>`<div class="row"><label for="aL${i}">${n} 예측 λ</label><input id="aL${i}" type="number" min="1" value="${l}"><span class="note">×10⁻⁶</span></div>`).join("")}</div>
+  <div class="scroll"><table class="tbl"><thead><tr><th>서브시스템</th><th>가중치</th><th>할당 R</th><th>예측 R</th><th>판정</th></tr></thead><tbody id="aB"></tbody></table><p id="aN"></p></div></div>`;
+  const draw=()=>{const R=Math.min(.9999,Math.max(.5,+$("#aR").value||.95)),t=Math.max(1,+$("#aT").value||100),l=S.map((_,i)=>Math.max(1,+$("#aL"+i).value||1)*1e-6),sum=l.reduce((a,b)=>a+b,0),ls=-Math.log(R)/t;
+   $("#aB").innerHTML=S.map(([n],i)=>{const w=l[i]/sum,Ra=Math.exp(-w*ls*t),Rp=Math.exp(-l[i]*t),ok=Rp>=Ra-1e-12;return `<tr><td>${n}</td><td class="n">${f2(w)}</td><td class="n">${Ra.toFixed(4)}</td><td class="n">${Rp.toFixed(4)}</td><td>${ok?'<b class="lot">여유</b>':'<b class="hit">부족</b>'}</td></tr>`}).join("");
+   const Rs=Math.exp(-sum*t);$("#aN").innerHTML=`시스템 목표 고장률 λ* = −ln(${R})/${t} = ${(ls*1e6).toFixed(0)} ×10⁻⁶/h · 예측 시스템 R = ${Rs.toFixed(4)} ${Rs>=R?"→ 목표 달성":"→ <b class='hit'>목표 미달: 설계 개선 필요</b>"}<br><span class=\"note\">ARINC는 예측 고장률 비율대로 나누기 때문에 세 서브시스템의 판정이 늘 같이 움직여요. 부족하면 할당 R이 각 팀이 맞춰야 할 새 목표가 돼요. 동력부 λ를 400으로 바꿔 보세요.</span>`};
+  el.querySelectorAll("input").forEach(i=>i.oninput=draw);draw();},
+ tests(el){el.innerHTML=`<h3>활동: 어떤 목적의 시험일까?</h3><p>시험마다 찾기(개발)·증명(입증)·거르기(양산) 중 하나를 골라 보세요.</p><div class="sort" id="ts"></div>`;
+  sorter($("#ts"),[["HALT","찾기"],["신뢰성 성장 시험","찾기"],["마진 시험","찾기"],["무고장 신뢰성 입증 시험","증명"],["순차 시험","증명"],["ESS·번인","거르기"],["HASS","거르기"],["PRAT(양산 신뢰성 수락 시험)","거르기"]],["찾기","증명","거르기"]);},
+ duane(el){el.innerHTML=`<h3>활동: 듀안 성장 그래프</h3><p>첫 200시간 시험에서 누적 MTBF가 θ₁이었어요. 성장률 α와 목표를 바꾸면 목표에 닿는 시험 시간이 바뀌어요. (로그-로그 눈금)</p>
+  <div class="two"><div class="fig" id="dF"><svg id="dS" role="img" aria-label="듀안 신뢰성 성장 로그-로그 그래프"></svg></div><div>
+   <div class="row"><label for="d1">처음 누적 MTBF θ₁</label><input id="d1" type="number" min="1" value="100"><span class="note">h @ 200h</span></div>
+   <div class="row"><label for="da">성장률 α</label><input id="da" type="range" min="0.1" max="0.6" step="0.01" value="0.4"><span id="dav" class="nw"></span></div>
+   <div class="row"><label for="dg">목표 순간 MTBF</label><input id="dg" type="number" min="1" value="500"></div>
+   <div class="big" id="dT"></div><p id="dN"></p></div></div>
+  <div class="card" style="margin-top:14px"><h3>기출 계산: 순간 MTBF = 누적 MTBF / (1 − α)</h3><div class="row"><label for="qc">누적 MTBF</label><input id="qc" type="number" value="26000"><label for="qa" style="min-width:auto">α</label><input id="qa" type="number" step="0.01" value="0.3"><b class="jua" id="qi" style="font-size:22px"></b></div></div>`;
+  const s=$("#dS");const draw=()=>{const t1=200,c1=Math.max(1,+$("#d1").value||100),a=+$("#da").value,g=Math.max(1,+$("#dg").value||500);$("#dav").textContent=f2(a);
+   const Tg=t1*((g*(1-a))/c1)**(1/a),ci=T=>c1*(T/t1)**a;
+   $("#dT").textContent=isFinite(Tg)?fmt(Tg)+"시간":"—";$("#dN").innerHTML=`목표 ${fmt(g)}h에 닿는 누적 시험 시간. 그때 누적 MTBF = ${fmt(g*(1-a))}h, 순간 MTBF = 누적 / (1 − ${f2(a)}).`;
+   const qc=+$("#qc").value,qa=+$("#qa").value;$("#qi").textContent=qa<1?`→ ${fmt(qc/(1-qa))}시간`:"—";
+   const W=s.clientWidth,H=s.clientHeight;if(!W)return;const L0=Math.log10(100),L1=Math.log10(Math.max(Tg*3,20000)),M0=Math.log10(Math.min(c1,g)/3),M1=Math.log10(Math.max(g,ci(10**L1)/(1-a))*2);
+   const x0=46,x1=W-14,T=14,B=H-30,X=v=>x0+(Math.log10(v)-L0)/(L1-L0)*(x1-x0),Y=v=>B-(Math.log10(v)-M0)/(M1-M0)*(B-T),ink=css('--ink'),soft=css('--soft'),sky=css('--sky'),tom=css('--tom');
+   const ln=(f,col,dash)=>`<line x1="${X(100)}" y1="${Y(f(100))}" x2="${X(10**L1)}" y2="${Y(f(10**L1))}" stroke="${col}" stroke-width="4" ${dash?'stroke-dasharray="8 6"':""}/>`;
+   const ticks=[100,1000,10000,100000,1e6].filter(v=>Math.log10(v)<=L1+.01);
+   s.innerHTML=ticks.map(v=>`<line x1="${X(v)}" x2="${X(v)}" y1="${T}" y2="${B}" stroke="${css('--line')}"/><text x="${X(v)}" y="${B+20}" text-anchor="middle" font-size="13" fill="${soft}">${v>=1000?v/1000+"k":v}</text>`).join("")+
+    `<line x1="${x0}" y1="${B}" x2="${x1}" y2="${B}" stroke="${ink}" stroke-width="2"/><line x1="${x0}" y1="${T}" x2="${x0}" y2="${B}" stroke="${ink}" stroke-width="2"/>`+
+    `<line x1="${x0}" x2="${x1}" y1="${Y(g)}" y2="${Y(g)}" stroke="${tom}" stroke-width="2" stroke-dasharray="5 4"/><text x="${x0+6}" y="${Y(g)-6}" font-size="13" fill="${tom}">목표 ${fmt(g)}h</text>`+
+    ln(ci,sky)+ln(T=>ci(T)/(1-a),ink,1)+
+    (isFinite(Tg)&&Math.log10(Tg)<=L1?`<circle cx="${X(Tg)}" cy="${Y(g)}" r="8" fill="${tom}"/>`:"")+
+    `<text x="${X(100)+8}" y="${Y(ci(100))+22}" font-size="13" fill="${sky}">누적 θc</text><text x="${X(100)+8}" y="${Y(ci(100)/(1-a))-10}" font-size="13" fill="${ink}">순간 θi</text>`};
+  el.querySelectorAll("input").forEach(i=>i.oninput=draw);ro=new ResizeObserver(draw);ro.observe($("#dF"));},
+ stress(el){el.innerHTML=`<h3>활동: 이 고장은 어떤 스트레스로 드러날까?</h3><p>고장 증상마다 가장 잘 드러내는 환경 스트레스를 골라 보세요.</p><div class="sort" id="st"></div>`;
+  sorter($("#st"),[["BGA 납땜 접합부에 생긴 피로 균열","열 사이클"],["커넥터 나사가 점점 풀림","진동"],["회로 기판의 구리 배선 부식","고온 고습"],["전해 커패시터 전해액이 말라 용량 감소","고온 지속"],["정전기 방전으로 칩 입력단 파괴","전기적 스트레스"],["금속 브래킷의 반복 굽힘 피로","진동"]],["열 사이클","진동","고온 고습","고온 지속","전기적 스트레스"]);},
+ zero(el){el.innerHTML=`<h3>활동: 무고장 시험 설계기</h3><div class="chips" id="zm"><button class="chip on" data-m="n">시료 수 구하기</button><button class="chip" data-m="r">신뢰도 하한 구하기</button></div>
+  <div class="chips"><button class="chip" data-pr="n,0.95,0.99">기출: 95% · R 0.99</button><button class="chip" data-pr="r,0.9,7">기출: 90% · 7개</button><button class="chip" data-pr="r,0.8,100">기출: 80% · 100개</button></div>
+  <div class="two"><div><div class="row"><label for="zc">신뢰수준 C</label><input id="zc" type="number" min="0.5" max="0.999" step="0.01" value="0.95"></div>
+   <div class="row"><label for="zx" id="zxl">목표 신뢰도 R</label><input id="zx" type="number" step="0.01" value="0.99"></div></div>
+  <div><div class="big" id="zB"></div><p id="zF"></p></div></div>
+  <div class="card" style="margin-top:12px"><h3>시료와 시간 맞바꾸기 (지수분포, 고장 0개)</h3><p class="note">MTBF θ를 신뢰수준 C로 보이려면 총 시험 시간 T = θ × ln(1/(1−C))가 필요해요. 시료를 늘리면 개당 시간이 줄어요.</p>
+   <div class="row"><label for="zt">목표 MTBF θ</label><input id="zt" type="number" min="1" value="1000"><label for="zn" style="min-width:auto">시료 수</label><input id="zn" type="number" min="1" value="10"></div><p id="zT"></p></div>`;
+  let m="n";const draw=()=>{const C=Math.min(.999,Math.max(.5,+$("#zc").value||.95)),x=+$("#zx").value;
+   if(m==="n"){$("#zxl").textContent="목표 신뢰도 R";const ok=x>0&&x<1,n=ok?Math.ceil(Math.log(1-C)/Math.log(x)-1e-9):NaN;$("#zB").textContent=ok?n+"개":"—";$("#zF").innerHTML=ok?`n = ln(1 − ${C}) / ln(${x}) = ${(Math.log(1-C)/Math.log(x)).toFixed(2)} → 올림 <b>${n}개</b>`:"R은 0과 1 사이로 넣어 주세요."}
+   else{$("#zxl").textContent="시료 수 n";const n=Math.max(1,Math.round(x||1)),RL=(1-C)**(1/n);$("#zB").textContent="R ≥ "+RL.toFixed(3);$("#zF").innerHTML=`R_L = (1 − ${C})^(1/${n}) = <b>${RL.toFixed(4)}</b>. 전제: ${n}개 모두 고장 없이 시험.`}
+   const th=Math.max(1,+$("#zt").value||1000),zn=Math.max(1,Math.round(+$("#zn").value||1)),TT=th*Math.log(1/(1-C));
+   $("#zT").innerHTML=`필요한 총 시험 시간 = ${fmt(th)} × ln(1/${f2(1-C)}) = <b>${fmt(TT)}시간</b> → 시료 ${zn}개면 개당 <b>${fmt(TT/zn)}시간</b>`};
+  el.querySelectorAll("input").forEach(i=>i.oninput=draw);
+  const setM=v=>{m=v;$$("#zm .chip").forEach(x=>x.classList.toggle("on",x.dataset.m===m))};
+  $("#zm").addEventListener("click",e=>{const b=e.target.closest("[data-m]");if(!b)return;setM(b.dataset.m);$("#zx").value=m==="n"?0.99:7;draw()});
+  el.querySelectorAll("[data-pr]").forEach(b=>b.onclick=()=>{const [mm,C,x]=b.dataset.pr.split(",");setM(mm);$("#zc").value=C;$("#zx").value=x;draw()});draw();},
+ predict(el){const P=[["저항",0.5,40],["커패시터",1.0,30],["IC",5,6],["커넥터",2,4],["냉각 팬",20,1]];
+  el.innerHTML=`<h3>활동: 부품 수 법으로 예측하기</h3><p>제어 보드의 부품 고장률(10⁻⁶/시간)과 개수예요. 숫자를 바꿔 보세요. 빨간 줄이 고장률에 가장 크게 기여하는 부품이에요.</p>
+  <div class="two"><div class="scroll"><table class="tbl"><thead><tr><th>부품</th><th>λ (×10⁻⁶)</th><th>개수</th><th>λ × 개수</th></tr></thead><tbody id="pB"></tbody></table></div>
+  <div><div class="row"><label for="pt">임무 시간 t</label><input id="pt" type="number" min="1" value="1000"></div><div class="stats" id="pS"></div><p id="pN"></p></div></div><p class="note">예시 고장률이에요. 실제로는 MIL-HDBK-217, 제조사 데이터 등을 써요.</p>`;
+  $("#pB").innerHTML=P.map(([n,l,c],i)=>`<tr id="pr${i}"><td>${n}</td><td><input type="number" min="0" step="0.1" value="${l}" data-i="${i}" data-c="1" aria-label="${n} 고장률"></td><td><input type="number" min="0" value="${c}" data-i="${i}" data-c="2" aria-label="${n} 개수"></td><td class="n" id="pv${i}"></td></tr>`).join("");
+  const draw=()=>{const v=P.map(p=>p[1]*p[2]),sum=v.reduce((a,b)=>a+b,0),t=Math.max(1,+$("#pt").value||1000),mi=v.indexOf(Math.max(...v));
+   v.forEach((x,i)=>{$("#pv"+i).textContent=x.toFixed(1);$("#pr"+i).classList.toggle("top",i===mi)});
+   $("#pS").innerHTML=[[sum.toFixed(1),"λ합 ×10⁻⁶/h"],[sum?fmt(1e6/sum)+"h":"—","MTBF"],[(Math.exp(-sum*1e-6*t)*100).toFixed(1)+"%",`R(${fmt(t)}h)`]].map(([a,b])=>`<div class="stat"><b>${a}</b><span>${b}</span></div>`).join("");
+   $("#pN").innerHTML=sum?`가장 큰 기여: <b>${P[mi][0]}</b> (${Math.round(v[mi]/sum*100)}%). 여기부터 개선하면 효과가 커요.`:""};
+  el.addEventListener("input",e=>{const x=e.target;if(x.dataset.i!=null)P[+x.dataset.i][+x.dataset.c]=Math.max(0,+x.value||0);draw()});draw();},
+ life(el){el.innerHTML=`<h3>활동: 이 일은 어느 정거장에서?</h3><p>신뢰성 활동을 알맞은 수명주기 단계에 연결해 보세요.</p><div class="sort" id="lf"></div>`;
+  sorter($("#lf"),[["제품 수명 목표 정하기","개념"],["안전·책임 요건 설정","개념"],["FMEA와 디레이팅","설계"],["가속 수명 시험·HALT","시제품"],["신뢰성 성장 시험","시제품"],["ESS·HASS","양산"],["보증 데이터로 예비품 수량 재검토","사용"]],["개념","설계","시제품","양산","사용"]);}
+};/* 순서 맞추기 공통 */
+function orderGame(el,title,desc,ST,end){el.innerHTML=`<h3>${title}</h3><p>${desc}</p><div class="chips" id="oPool"></div><ol class="order" id="oOut" style="padding:0"></ol><p class="note" id="oMsg"></p>`;
+ let k=0;const order=ST.map((s,i)=>i).sort((a,b)=>((a*7+3)%ST.length)-((b*7+3)%ST.length));
+ const pool=()=>{el.querySelector("#oPool").innerHTML=order.filter(i=>i>=k).map(i=>`<button class="chip" data-r="${i}">${ST[i].split(":")[0]}</button>`).join("")||`<span class="jua" style="color:var(--leaf);font-size:20px">완벽해요! ${end}</span>`;
+  el.querySelectorAll("[data-r]").forEach(b=>b.onclick=()=>{if(+b.dataset.r===k){el.querySelector("#oOut").insertAdjacentHTML("beforeend",`<li>${k+1}. ${ST[k]}</li>`);k++;el.querySelector("#oMsg").textContent="";pool()}else{b.classList.add("no");el.querySelector("#oMsg").textContent="앗, 그 단계는 아직이에요. 먼저 해야 할 일을 생각해 보세요.";setTimeout(()=>b.classList.remove("no"),600)}})};pool();}
+/* 분류 활동 공통 */
+function sorter(box,items,cats){box.innerHTML=items.map(([t,a],i)=>`<div class="sitem" data-a="${a}"><span>${t}</span><span class="chips">${cats.map(c=>`<button class="chip" data-c="${c}">${c}</button>`).join("")}</span></div>`).join("")+`<p class="note" data-sc>0 / ${items.length} 맞힘</p>`;
+ box.addEventListener("click",e=>{const b=e.target.closest("[data-c]");if(!b)return;const it=b.closest(".sitem");if(it.classList.contains("ok"))return;
+  if(b.dataset.c===it.dataset.a){b.classList.add("ok");it.classList.add("ok")}else{b.classList.add("no");setTimeout(()=>b.classList.remove("no"),600)}
+  const n=box.querySelectorAll(".sitem.ok").length;box.querySelector("[data-sc]").textContent=`${n} / ${items.length} 맞힘${n===items.length?" · 모두 맞혔어요!":""}`});}
+
+/* ───── 단원 평가 ───── */
+let eList=[],ei=0,es=0,eN=10;
+function startExam(){eList=POOL.map(q=>[Math.random(),q]).sort((a,b)=>a[0]-b[0]).map(v=>v[1]);if(eN)eList=eList.slice(0,eN);ei=0;es=0;showE()}
+function showE(){$("#eProg").style.width=ei/eList.length*100+"%";
+ if(ei>=eList.length){const p=Math.round(es/eList.length*100);
+  $("#eBox").innerHTML=`<div class="card"><h3>다 풀었어요!</h3><div class="big" style="margin:10px 0">${es} / ${eList.length}</div><p>${p>=80?"아주 잘했어요. 5장은 자신 있게 넘어가도 돼요.":p>=50?"좋아요! 오답 노트에서 틀린 문제만 다시 보세요.":"괜찮아요. 해당 차시 활동을 한 번 더 해 보고 다시 도전!"}</p>
+  <div class="qnav"><button class="btn" id="eAgain">새로 섞어서 다시</button><a class="btn alt" href="#review">오답 노트 (${wrong.size})</a></div></div>`;
+  $("#eAgain").onclick=startExam;return;}
+ const q=eList[ei];$("#eBox").innerHTML=qCard(q,null).replace('<span class="note">',`<span class="note">${ei+1} / ${eList.length} · 맞힌 개수 ${es} · `)+`<div class="qnav"><button class="btn" id="eNext" disabled>다음 문제 →</button><a class="btn alt" href="#${q.c}">이 차시 복습</a></div>`;
+ bindQ($("#eBox .qc"),ok=>{if(ok)es++;const n=$("#eNext");n.disabled=false;n.focus()},true);
+ $("#eNext").onclick=()=>{ei++;showE()};}
+$("#eMode").addEventListener("click",e=>{const b=e.target.closest("[data-n]");if(!b)return;eN=+b.dataset.n;$$("#eMode .chip").forEach(x=>x.classList.toggle("on",x===b));startExam()});
+
+/* ───── 오답 노트 ───── */
+function buildReview(){const list=POOL.filter(q=>wrong.has(q.k));
+ $("#rBox").innerHTML=list.length?`<div class="checks">${list.map(q=>qCard(q,null)).join("")}</div>`:`<div class="card"><h3>오답 노트가 비어 있어요</h3><p>틀린 문제가 생기면 여기에 모여요. 차시 확인 문제나 단원 평가를 풀어 보세요.</p><div class="qnav"><a class="btn" href="#exam">단원 평가 풀기</a></div></div>`;
+ $$("#rBox .qc").forEach(c=>bindQ(c,null));}
+
+const redraw=()=>{const cur=L.find(l=>"#"+l.id===location.hash);if(cur)openLesson(cur)};
+matchMedia("(prefers-color-scheme:dark)").addEventListener("change",redraw);
+const themeObs=new MutationObserver(redraw);themeObs.observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
+homeDraw();meter();route();
+}
+</script>
+</body>
+</html>
