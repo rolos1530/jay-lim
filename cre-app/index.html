@@ -265,6 +265,16 @@ footer{color:var(--soft);font-size:14px}
 .plan{display:grid;gap:12px;grid-template-columns:repeat(3,minmax(0,1fr));margin-top:12px}
 .plan div{background:var(--paper);border:2px dashed var(--line);border-radius:18px;padding:14px 16px}
 .plan b{font-family:Jua,sans-serif;font-weight:400;font-size:19px;display:block;color:var(--sky)}
+.fx{margin-top:14px;border:2px solid var(--sky);border-radius:16px;overflow:hidden;background:var(--paper)}
+.fx h4{margin:0;padding:10px 14px;background:var(--sky2);font-family:Jua,sans-serif;font-weight:400;font-size:18px;color:var(--sky)}
+.fxt{width:100%;border-collapse:collapse;font-size:15px}
+.fxt th{font-family:Jua,sans-serif;font-weight:400;text-align:left;padding:8px 12px;border-bottom:2px solid var(--line);color:var(--soft);font-size:14px}
+.fxt td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+.fxt tr:last-child td{border-bottom:0}
+.fxt .fn{font-family:Jua,sans-serif;width:22%}
+.fxt .ff{font-weight:700;font-size:16px;overflow-wrap:anywhere;width:40%}
+.fxt .fw{color:var(--soft);font-size:14px}
+@media(max-width:600px){.fxt thead{display:none}.fxt tr{display:block;padding:8px 12px;border-bottom:1px solid var(--line)}.fxt td{display:block;padding:2px 0;border:0;width:auto}.fxt .fn,.fxt .ff,.fxt .fw{width:auto}.fxt .ff{margin:2px 0}}
 .qrow .qside{margin-left:auto;display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
 .qfig{display:block;width:100%;max-width:540px;height:auto;margin:4px 0 14px;background:var(--paper);border:2px solid var(--line);border-radius:14px;font-family:"Gowun Dodum",sans-serif}
 .qfig text{paint-order:stroke;stroke:var(--paper);stroke-width:3px}
@@ -544,7 +554,7 @@ function openLesson(d,l){const dd=DM[d],L=dd.lessons,i=L.indexOf(l),one=l.parts.
  const checks=l.parts.flatMap(p=>p.l.q.map((_,j)=>`c${p.n}:${p.l.id}-${j}`)).filter(g=>Q[g]);
  $("#lesson").innerHTML=`<div class="lhead"><span class="n" style="background:${dd.color}">${i+1}</span><div><span class="note">영역 ${dd.roman} ${dd.name} · ${i+1}차시</span><h2 style="margin:0">${l.t}</h2></div></div>
  <div class="easy">한마디로: ${l.easy}</div>
- ${l.parts.map((p,k)=>`${one?"":`<h3 style="margin-top:${k?26:10}px;font-size:22px">${k+1}. ${p.l.t}</h3>`}<ul class="pts">${p.l.pts.map(([a,b])=>`<li><b>${a}</b>${b}</li>`).join("")}</ul><div class="tip"><b>시험 꿀팁</b> ${p.l.tip}</div>`).join("")}
+ ${l.parts.map((p,k)=>`${one?"":`<h3 style="margin-top:${k?26:10}px;font-size:22px">${k+1}. ${p.l.t}</h3>`}<ul class="pts">${p.l.pts.map(([a,b])=>`<li><b>${a}</b>${b}</li>`).join("")}</ul><div class="tip"><b>시험 꿀팁</b> ${p.l.tip}</div>${p.l.fx?`<div class="fx"><h4>핵심 공식</h4><table class="fxt"><thead><tr><th>무엇</th><th>공식</th><th>언제·주의</th></tr></thead><tbody>${p.l.fx.map(([n,f,w])=>`<tr><td class="fn">${n}</td><td class="ff">${f}</td><td class="fw">${w||""}</td></tr>`).join("")}</tbody></table></div>`:""}`).join("")}
  ${l.parts.map((p,k)=>`<div class="act" id="act${k}"></div>`).join("")}
  <h3 style="margin-top:28px;font-size:24px">확인 문제</h3><p class="note">${checks.length}문제를 모두 맞히면 차시 완료!</p>
  <div class="checks">${checks.map((g,j)=>qCard(Q[g],"문제 "+(j+1))).join("")}</div>
