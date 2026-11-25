@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CRE 학습 앱 목차</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&display=swap">
+<style>
+/*
+VOICE 다정한 선생님, 초등학생 학습지처럼 쉽고 또박또박 (1~8장 앱과 한 세트)
+IDEA 과학 탐구 학습지 묶음의 차례 쪽 — 단원 카드 8장과 공부 체크
+PICTURE 8개 정거장 노선: 단원마다 색 동그라미, 다 본 단원은 초록 체크로 바뀜
+COLOUR 종이 흰색, 해바라기 노랑 띠, 단원별 색 점(어제 공부방과 같은 색), 잎 초록 완료
+TYPE Jua 제목 + Gowun Dodum 본문
+LAYOUT 노랑 띠(제목·진도) → 노선 → 단원 카드 격자(넓으면 4열, 700px 2열, 휴대폰 1열) → 공부 순서 안내
+*/
+:root{color-scheme:light dark;
+--bg:light-dark(#fffdf6,#14161c);--paper:light-dark(#ffffff,#1d2029);--ink:light-dark(#1d1b16,#f2efe6);--soft:light-dark(#5c574b,#b9b4a6);
+--sun:light-dark(#ffcf33,#e0b020);--sky:light-dark(#2f7bf6,#6ea4ff);--sky2:light-dark(#e3eeff,#1f2b45);
+--leaf:light-dark(#1f9d6b,#4fd19c);--leaf2:light-dark(#e2f7ee,#173528);--line:light-dark(#e8e2d0,#323645);--onsun:#1d1b16}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.6 "Gowun Dodum",system-ui,sans-serif;overflow-x:clip}
+h1,h2,h3,.jua{font-family:Jua,"Gowun Dodum",sans-serif;font-weight:400;line-height:1.15;text-wrap:balance;margin:0}
+h1{font-size:clamp(30px,5vw,48px)}h2{font-size:clamp(24px,3.2vw,32px);margin-bottom:8px}h3{font-size:22px}
+p{margin:.45em 0}
+.band{padding:clamp(22px,4vw,52px) max(5vw,16px)}
+.wrap{max-width:1180px;margin:0 auto}
+header{background:var(--sun);color:var(--onsun)}
+.top{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.top .t{flex:1 1 320px}.top p{font-size:18px;max-width:62ch}
+.meter{flex:0 1 280px;background:#fff8;border-radius:16px;padding:10px 14px}
+.meter b{font-family:Jua,sans-serif;font-weight:400;font-size:22px}
+.mbar{height:12px;background:#0002;border-radius:99px;overflow:hidden;margin-top:6px}.mbar i{display:block;height:100%;background:var(--onsun);transition:width .4s}
+a{color:var(--sky)}
+:focus-visible{outline:3px solid var(--sky);outline-offset:2px}
+.lead{font-size:18px;color:var(--soft);max-width:68ch}
+.note{color:var(--soft);font-size:15px}
+.line{position:relative;display:grid;grid-template-columns:repeat(8,minmax(0,1fr));margin:8px 0 26px}
+.line::before{content:"";position:absolute;left:6%;right:6%;top:27px;height:8px;border-radius:8px;background:var(--line)}
+.stn{position:relative;display:flex;flex-direction:column;align-items:center;gap:6px;text-decoration:none;color:var(--ink);min-height:44px}
+.stn i{width:62px;height:62px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-family:Jua,sans-serif;font-size:24px;color:#1d1b16;border:4px solid var(--bg);box-shadow:0 0 0 3px var(--ink)}
+.stn.done i{background:var(--leaf)!important;color:#fff}
+.stn span{font-family:Jua,sans-serif;font-size:15px;text-align:center}
+.grid{display:grid;gap:16px;grid-template-columns:repeat(4,minmax(0,1fr))}
+.card{background:var(--paper);border:2px solid var(--line);border-radius:22px;padding:18px 18px 14px;display:flex;flex-direction:column;gap:8px;position:relative;overflow:hidden}
+.card.done{border-color:var(--leaf)}
+.card .dot{position:absolute;right:-22px;top:-22px;width:84px;height:84px;border-radius:50%;opacity:.9}
+.card .no{font-family:Jua,sans-serif;font-size:15px;color:var(--soft)}
+.card h3{padding-right:34px}
+.card .pic{font-size:15px;background:var(--sky2);border-radius:12px;padding:8px 10px}
+.card ul{margin:0;padding-left:1.1em;font-size:15px;color:var(--soft)}
+.meta{display:flex;flex-wrap:wrap;gap:6px}
+.meta span{font-family:Jua,sans-serif;font-size:14px;border:2px solid var(--line);border-radius:999px;padding:2px 10px;white-space:nowrap}
+.go{margin-top:auto;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.btn{font-family:Jua,sans-serif;font-size:18px;border-radius:14px;padding:10px 16px;min-height:46px;background:var(--ink);color:var(--bg);text-decoration:none;display:inline-flex;align-items:center}
+.chk{display:flex;gap:8px;align-items:center;min-height:44px;font-size:15px;cursor:pointer}
+.chk input{width:22px;height:22px;accent-color:var(--leaf)}
+.plan{display:grid;gap:12px;grid-template-columns:repeat(3,minmax(0,1fr));margin-top:12px}
+.plan div{background:var(--paper);border:2px dashed var(--line);border-radius:18px;padding:14px 16px}
+.plan b{font-family:Jua,sans-serif;font-weight:400;font-size:19px;display:block;color:var(--sky)}
+.extra{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+.extra a{font-family:Jua,sans-serif;font-size:17px;border:2px solid var(--ink);color:var(--ink);border-radius:14px;padding:9px 14px;text-decoration:none;min-height:44px;display:inline-flex;align-items:center}
+footer{color:var(--soft);font-size:14px}
+@media(max-width:1000px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.plan{grid-template-columns:minmax(0,1fr)}.line{grid-template-columns:repeat(4,minmax(0,1fr));row-gap:14px}.line::before{display:none}}
+@media(max-width:600px){.grid{grid-template-columns:minmax(0,1fr)}.stn i{width:50px;height:50px;font-size:20px}}
+@media(prefers-reduced-motion:reduce){.mbar i{transition:none}}
+</style>
+</head>
+<body>
+<header><div class="band"><div class="wrap">
+  <div class="top">
+    <div class="t">
+      <h1>CRE 학습 앱 목차</h1>
+      <p>ASQ 신뢰성 기술자(CRE) 시험 범위를 8개 단원 학습 앱으로 나눴어요. 단원을 눌러 들어가고, 다 본 단원은 ‘다 봤어요’에 체크하세요.</p>
+    </div>
+    <div class="meter"><b id="mTxt">0 / 8 단원 완료</b><div class="mbar"><i id="mBar" style="width:0"></i></div><span class="note" style="color:#1d1b16">전체 468문제</span></div>
+  </div>
+</div></div></header>
+
+<main>
+<section class="band"><div class="wrap">
+  <nav class="line" id="line" aria-label="단원 바로가기"></nav>
+  <div class="grid" id="grid"></div>
+  <p class="note" style="margin-top:14px">링크는 새 창(또는 새 탭)으로 열려요. 각 앱의 차시 진도와 오답 노트는 그 앱 안에 따로 저장되고, 이 목차의 체크는 이 페이지에만 저장돼요(이 브라우저 기준).</p>
+</div></section>
+
+<section class="band" style="padding-top:0"><div class="wrap">
+  <h2>이렇게 공부해 보세요</h2>
+  <div class="plan">
+    <div><b>1. 차시 활동부터</b>각 단원의 1~8차시를 순서대로. 설명을 읽고 활동을 만져 본 뒤, 확인 문제 2개를 맞혀 초록 동그라미를 채워요.</div>
+    <div><b>2. 단원 평가로 확인</b>‘빠르게 10문제’로 감을 잡고, 시험이 가까워지면 ‘전부 풀기’로 기출까지 모두 풀어요.</div>
+    <div><b>3. 오답 노트 반복</b>틀린 문제는 오답 노트에 자동으로 모여요. 다시 맞히면 빠지니까 빌 때까지 반복해요.</div>
+  </div>
+  <div class="extra"><a href="https://claude.ai/artifact/9znpyqPceQ3vHHPwGdyFe4" target="_blank" rel="noopener">처음 만든 ‘CRE 첫걸음 공부방’ (전체 요약·낱말 카드)</a></div>
+</div></section>
+</main>
+
+<footer class="band"><div class="wrap">
+  단원 평가에는 올려 주신 기출 노트의 문제가 들어 있고, 오답 보기는 일부 새로 만들었어요. 공식과 정답은 교재·강의로 한 번 더 확인하세요.
+</div></footer>
+
+<script>
+{
+const CH=[
+ ["1","신뢰성 기본","BOK Ⅰ","#ffcf33","전구 100개로 보는 신뢰도",["정의 4요소·품질 vs 신뢰성","욕조 곡선·지수 공식","MTTF·MTBF·MTTR, 가용도 3형제"],69,"https://claude.ai/artifact/UimgfMxHpwVdVTadYUfB6q"],
+ ["2","리스크 관리","BOK Ⅱ","#ff5a4e","전기 포트 위험 매트릭스",["리스크 대응 4가지","FMEA·RPN, FTA 계산","공통 원인 고장·위험 감소 순서"],60,"https://claude.ai/artifact/SMxP686dCpGUfC8McXjc5p"],
+ ["3","통계 개념","BOK Ⅲ.A","#2f7bf6","부품 100개 고장 시간 점 그래프",["확률·이산 분포","f·F·R·h, 정규·Z","신뢰구간·검정 분포, 관리도"],73,"https://claude.ai/artifact/XDQHfP71B19j6SP6WbFMmu"],
+ ["4","데이터 관리","BOK Ⅲ.B","#1f9d6b","FRACAS 닫힌 고리",["데이터 출처·관측 중단","MTBF 하한(χ²)","고장 분석·파레토·와이블"],46,"https://claude.ai/artifact/EMpMZ6PwAxR4wukkghSUdr"],
+ ["5","신뢰성 계획","BOK Ⅳ.A","#9b6bff","제품 일생 노선도",["요구사항·ARINC 할당","시험 종류·듀안 성장","무고장 시험·부품 수 예측"],57,"https://claude.ai/artifact/WojyRmuCYUeP8KqC8hbTxQ"],
+ ["6","시험과 모델링","BOK Ⅳ","#ff8a1f","오븐 온도와 가속 계수",["아레니우스·역누승·Peck","직렬·병렬·k/n, 대기 병렬","몬테카를로·소프트웨어 시험"],64,"https://claude.ai/artifact/5dmeguYxmNVJhGBuNorSKR"],
+ ["7","신뢰성 설계","BOK Ⅴ.A–B","#e0407a","부하-강도 간섭 그림",["간섭 계산·디레이팅","리던던시·DOE","강건 설계·DFX·검증/확인"],65,"https://claude.ai/artifact/Js9jAWdyxgGRPjVEzsgH2Z"],
+ ["8","보전성","BOK Ⅴ.C","#00a3a3","1년 정비 일지",["사후·예방·예측 보전","최적 교체 주기·RCM","다운타임·예비품·TPM"],34,"https://claude.ai/artifact/LrD1qpEhGXtqz3yUN1vvnU"]];
+const $=s=>document.querySelector(s);
+const store={get(k,d){try{return JSON.parse(localStorage.getItem("creidx-"+k))??d}catch(e){return d}},set(k,v){try{localStorage.setItem("creidx-"+k,JSON.stringify(v))}catch(e){}}};
+let done=new Set(store.get("done",[]));
+function draw(){
+ $("#line").innerHTML=CH.map(c=>`<a class="stn${done.has(c[0])?" done":""}" href="#ch${c[0]}"><i style="background:${c[3]}">${done.has(c[0])?"✓":c[0]}</i><span>${c[1]}</span></a>`).join("");
+ $("#grid").innerHTML=CH.map(c=>`<article class="card${done.has(c[0])?" done":""}" id="ch${c[0]}"><span class="dot" style="background:${c[3]}"></span>
+  <span class="no">${c[0]}장 · ${c[2]}</span><h3>${c[1]}</h3><div class="pic">대표 그림: ${c[4]}</div>
+  <ul>${c[5].map(x=>`<li>${x}</li>`).join("")}</ul>
+  <div class="meta"><span>8차시</span><span>평가 ${c[6]}문제</span></div>
+  <div class="go"><a class="btn" href="${c[7]}" target="_blank" rel="noopener">공부하러 가기 →</a><label class="chk"><input type="checkbox" data-c="${c[0]}" ${done.has(c[0])?"checked":""}> 다 봤어요</label></div></article>`).join("");
+ $("#mTxt").textContent=`${done.size} / 8 단원 완료`;$("#mBar").style.width=done.size/8*100+"%";}
+$("#grid").addEventListener("change",e=>{const c=e.target.dataset.c;if(!c)return;e.target.checked?done.add(c):done.delete(c);store.set("done",[...done]);draw();const el=document.getElementById("ch"+c);el&&el.querySelector("input").focus()});
+draw();
+}
+</script>
+</body>
+</html>
