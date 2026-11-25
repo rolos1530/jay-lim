@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CRE 2장 리스크 관리</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&display=swap">
+<style>
+/*
+VOICE 다정한 선생님, 초등학생 학습지처럼 쉽고 또박또박 (1장 앱과 한 세트)
+IDEA 과학 탐구 학습지 2단원 — 차시별 활동지, 위험 지도, 확인 문제, 단원 평가, 오답 노트
+PICTURE 5×5 리스크 매트릭스 위의 전기 포트 위험 5개, ‘대책 적용’을 누르면 점이 초록 쪽으로 이동
+COLOUR 종이 흰색, 해바라기 노랑 띠, 하늘 파랑 보조, 토마토 강조, 매트릭스는 빨강·노랑·초록 신호등
+TYPE Jua 제목 + Gowun Dodum 본문
+LAYOUT 노랑 띠 + 탭(지도·차시·평가·오답), 차시는 설명 → 활동 → 확인 문제 한 줄 흐름, 600px 아래 세로 쌓기
+*/
+:root{color-scheme:light dark;
+--bg:light-dark(#fffdf6,#14161c);--paper:light-dark(#ffffff,#1d2029);--ink:light-dark(#1d1b16,#f2efe6);--soft:light-dark(#5c574b,#b9b4a6);
+--sun:light-dark(#ffcf33,#e0b020);--sky:light-dark(#2f7bf6,#6ea4ff);--sky2:light-dark(#e3eeff,#1f2b45);--tom:light-dark(#ff5a4e,#ff7b70);--tom2:light-dark(#ffe4e1,#3b2220);
+--leaf:light-dark(#1f9d6b,#4fd19c);--leaf2:light-dark(#e2f7ee,#173528);--line:light-dark(#e8e2d0,#323645);--off:light-dark(#d9d4c4,#3a3e4b);--onsun:#1d1b16}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.6 "Gowun Dodum",system-ui,sans-serif;overflow-x:clip}
+h1,h2,h3,.jua{font-family:Jua,"Gowun Dodum",sans-serif;font-weight:400;line-height:1.15;text-wrap:balance;margin:0}
+h1{font-size:clamp(30px,5vw,48px)}h2{font-size:clamp(25px,3.4vw,34px);margin-bottom:8px}h3{font-size:21px;margin-bottom:6px}
+p{margin:.45em 0}
+.band{padding:clamp(22px,4vw,52px) max(5vw,16px)}
+.wrap{max-width:1180px;margin:0 auto}
+header{background:var(--sun);color:var(--onsun)}
+header .band{padding-bottom:0}
+.top{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.top .t{flex:1 1 300px}
+.top p{font-size:18px;max-width:62ch}
+.meter{flex:0 1 260px;background:#fff8;border-radius:16px;padding:10px 14px}
+.meter b{font-family:Jua,sans-serif;font-weight:400;font-size:22px}
+.mbar{height:12px;background:#0002;border-radius:99px;overflow:hidden;margin-top:6px}.mbar i{display:block;height:100%;background:var(--onsun);transition:width .4s}
+nav{display:flex;gap:4px;overflow-x:auto;margin-top:18px;scrollbar-width:none}
+nav a{flex:none;font-family:Jua,sans-serif;font-size:18px;color:var(--onsun);text-decoration:none;padding:11px 14px 9px;border-radius:14px 14px 0 0;min-height:44px}
+nav a[aria-current=page]{background:var(--bg);color:var(--ink)}
+a{color:var(--sky)}
+:focus-visible{outline:3px solid var(--sky);outline-offset:2px}
+section[data-view]{display:none}section[data-view].on{display:block}
+.lead{font-size:18px;color:var(--soft);max-width:68ch}
+.card{background:var(--paper);border:2px solid var(--line);border-radius:20px;padding:18px 20px}
+.two{display:grid;gap:20px;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);align-items:start}
+.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(min(100%,250px),1fr))}
+.def{font-size:20px;background:var(--sky2);border-radius:18px;padding:16px 18px;margin:12px 0}
+.def b{color:var(--sky)}
+.note{color:var(--soft);font-size:15px}
+.tip{margin-top:14px;background:var(--tom2);border-radius:16px;padding:12px 16px}.tip b{color:var(--tom)}
+.big{font-family:Jua,sans-serif;font-size:clamp(38px,6.5vw,60px);line-height:1;color:var(--sky);white-space:nowrap}
+.nw{white-space:nowrap}
+/* matrix */
+.mx{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto;gap:6px;max-width:520px;width:100%;justify-self:end}
+.ylab{writing-mode:vertical-rl;font-family:Jua,sans-serif;color:var(--soft);text-align:center}
+.xlab{grid-column:2;font-family:Jua,sans-serif;color:var(--soft);text-align:center}
+.mgrid{display:grid;grid-template-columns:1.6em repeat(5,minmax(0,1fr));gap:5px;padding:12px;background:var(--paper);border:2px solid var(--line);border-radius:20px}
+.mgrid .ax{display:grid;place-items:center;font-family:Jua,sans-serif;color:var(--soft);font-size:15px}
+.cell{aspect-ratio:1/1;border-radius:10px;display:flex;flex-wrap:wrap;align-content:center;justify-content:center;gap:3px;cursor:pointer;border:3px solid transparent}
+.cell.lo{background:light-dark(#c9eedb,#1e4433)}.cell.md{background:light-dark(#ffe9a3,#55471a)}.cell.hi{background:light-dark(#ffc2bc,#5a2622)}
+.cell.pk{border-color:var(--ink)}
+.dot{font-style:normal;font-family:Jua,sans-serif;width:clamp(20px,4vw,28px);height:clamp(20px,4vw,28px);border-radius:50%;background:var(--ink);color:var(--bg);display:grid;place-items:center;font-size:14px;transition:transform .3s}
+.hz{padding-left:1.4em;margin:10px 0;display:grid;gap:6px}
+.tag{font-family:Jua,sans-serif;font-weight:400;font-size:14px;padding:2px 8px;border-radius:8px;white-space:nowrap;color:#1d1b16}
+.tag.lo{background:#c9eedb}.tag.md{background:#ffe9a3}.tag.hi{background:#ffc2bc}
+.hit{color:var(--tom)}.mdt{color:light-dark(#b07a00,#ffcf33)}.lot{color:var(--leaf)}
+.scroll{overflow-x:auto}
+.ft{border-collapse:collapse;width:100%;min-width:620px;font-size:15px}
+.ft th,.ft td{border-bottom:1px solid var(--line);padding:8px 6px;text-align:left}
+.ft th{font-family:Jua,sans-serif;font-weight:400;font-size:16px}
+.ft input{width:58px;padding:6px 8px}
+.ft .rpn{font-family:Jua,sans-serif;font-size:20px;color:var(--sky);text-align:right}
+.sw{display:none}@media(max-width:700px){.sw{display:block}}
+.rank{display:grid;gap:6px;padding-left:1.4em}
+/* lamps */
+.lamps{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:6px;padding:14px;background:var(--sky2);border-radius:20px;aspect-ratio:1/1;max-width:520px;width:100%;justify-self:end}
+.lamp{border-radius:50% 50% 45% 45%;background:var(--sun);box-shadow:0 0 12px color-mix(in srgb,var(--sun) 70%,transparent);transition:background .25s,box-shadow .25s;position:relative}
+.lamp::after{content:"";position:absolute;left:30%;right:30%;bottom:-3px;height:22%;border-radius:3px;background:var(--soft);opacity:.6}
+.lamp.off{background:var(--off);box-shadow:none}
+.ctrl{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;margin:10px 0}
+input[type=range]{width:min(100%,340px);accent-color:var(--sky);height:44px}
+input[type=number]{font:inherit;font-size:16px;width:110px;padding:9px 12px;border-radius:12px;border:2px solid var(--line);background:var(--paper);color:var(--ink)}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:8px 0}.row label{min-width:8.5em}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.chip{font:inherit;font-size:16px;border:2px solid var(--line);background:var(--paper);color:var(--ink);border-radius:999px;padding:8px 14px;min-height:44px;cursor:pointer}
+.chip.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chip.ok{background:var(--leaf2);border-color:var(--leaf)}.chip.no{background:var(--tom2);border-color:var(--tom)}
+.btn{font-family:Jua,sans-serif;font-size:19px;border:0;border-radius:14px;padding:11px 20px;min-height:48px;background:var(--ink);color:var(--bg);cursor:pointer;text-decoration:none;display:inline-flex;align-items:center}
+.btn.alt{background:var(--paper);color:var(--ink);border:2px solid var(--ink)}
+.btn:disabled{opacity:.4;cursor:default}
+/* map */
+.path{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(min(100%,260px),1fr));margin-top:16px}
+.stop{display:block;text-decoration:none;color:var(--ink);background:var(--paper);border:2px solid var(--line);border-radius:20px;padding:16px 18px;position:relative}
+.stop:hover{border-color:var(--ink)}
+.stop .n{font-family:Jua,sans-serif;display:inline-grid;place-items:center;width:40px;height:40px;border-radius:50%;background:var(--sun);color:var(--onsun);font-size:20px;margin-bottom:8px}
+.stop.done .n{background:var(--leaf);color:#fff}
+.stop h3{margin:0 0 4px}.stop span{color:var(--soft);font-size:15px}
+.stop .st{position:absolute;right:16px;top:18px;font-family:Jua,sans-serif;font-size:15px;color:var(--leaf)}
+/* lesson */
+.lhead{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:6px}
+.lhead .n{font-family:Jua,sans-serif;width:52px;height:52px;border-radius:50%;background:var(--sun);color:var(--onsun);display:grid;place-items:center;font-size:24px;flex:none}
+.easy{font-size:19px;background:var(--sun);color:var(--onsun);display:inline-block;padding:6px 14px;border-radius:12px;margin:6px 0 10px}
+.pts{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));padding:0;list-style:none;margin:12px 0 0}
+.pts li{border:2px dashed var(--line);border-radius:16px;padding:12px 14px}
+.pts b{font-family:Jua,sans-serif;font-weight:400;font-size:19px;display:block;color:var(--sky)}
+.act{margin-top:22px;border:3px solid var(--ink);border-radius:24px;padding:clamp(16px,3vw,28px);background:var(--paper)}
+.act>h3{font-size:24px}
+.fig{position:relative;min-height:300px}.fig>svg{position:absolute;inset:0;width:100%;height:100%}
+svg text{paint-order:stroke;stroke:var(--paper);stroke-width:4px}
+.coins{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:end;min-height:250px;padding:12px;background:var(--sky2);border-radius:18px}
+.stack{display:flex;flex-direction:column-reverse;align-items:center;gap:2px}
+.coin{width:min(70px,80%);height:10px;border-radius:50%;background:var(--sun);border:2px solid #b88a00}
+.stack .cap{font-family:Jua,sans-serif;margin-top:6px;text-align:center}
+.stack.hl .cap{color:var(--tom)}
+.tl{display:flex;height:46px;border-radius:12px;overflow:hidden;background:var(--line);margin:12px 0 4px}
+.tl i{display:block;height:100%}.tl .u{background:var(--leaf)}.tl .d{background:var(--tom);min-width:3px}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:15px;color:var(--soft)}
+.legend span::before{content:"";display:inline-block;width:14px;height:14px;border-radius:4px;margin-right:6px;vertical-align:-2px;background:var(--c)}
+.stats{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(9em,1fr));margin-top:12px}
+.stat{background:var(--sky2);border-radius:14px;padding:10px 14px}.stat b{font-family:Jua,sans-serif;font-weight:400;font-size:26px;display:block;white-space:nowrap}.stat span{font-size:14px;color:var(--soft)}
+.sbar{display:flex;height:40px;border-radius:10px;overflow:hidden;margin:6px 0 2px}
+.sbar i{display:block;height:100%}
+.av{display:grid;gap:10px;margin-top:10px}
+.avr{display:grid;grid-template-columns:4.5em minmax(0,1fr) 5.5em;gap:10px;align-items:center}
+.avr b{font-family:Jua,sans-serif;font-weight:400;font-size:20px}
+.avr .v{font-family:Jua,sans-serif;font-size:22px;text-align:right;white-space:nowrap}
+.sort{display:grid;gap:10px}
+.sitem{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;border:2px solid var(--line);border-radius:16px;padding:10px 12px;background:var(--bg)}
+.sitem>span{font-size:17px;flex:1 1 180px}
+.sitem .chips{margin:0}
+.sitem.ok{border-color:var(--leaf);background:var(--leaf2)}
+.order{display:grid;gap:8px;counter-reset:o}
+.order li{list-style:none;border:2px solid var(--leaf);background:var(--leaf2);border-radius:14px;padding:10px 14px}
+.why{display:grid;gap:8px;margin-top:10px}
+.why div{border-left:6px solid var(--sky);background:var(--sky2);border-radius:0 14px 14px 0;padding:10px 14px}
+.why div.root{border-color:var(--tom);background:var(--tom2)}
+/* quiz */
+.qwrap{max-width:820px}
+.qtext{font-size:20px;margin:6px 0 12px}
+.opts{display:grid;gap:10px}
+.opt{font:inherit;text-align:left;background:var(--paper);color:var(--ink);border:2px solid var(--line);border-radius:16px;padding:12px 16px;min-height:52px;cursor:pointer}
+.opt:hover:not(:disabled){border-color:var(--ink)}
+.opt.ok{border-color:var(--leaf);background:var(--leaf2)}.opt.no{border-color:var(--tom);background:var(--tom2)}
+.opt:disabled{cursor:default}
+.exp{margin-top:12px;border-radius:16px;padding:12px 16px;background:var(--sky2)}
+.qbar{height:12px;background:var(--line);border-radius:99px;overflow:hidden;margin:10px 0 18px}.qbar i{display:block;height:100%;background:var(--leaf);transition:width .3s}
+.qnav{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;align-items:center}
+.checks{display:grid;gap:16px;margin-top:22px}
+.lnav{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:24px}
+footer{color:var(--soft);font-size:14px}
+@media(max-width:760px){.two{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:600px){nav a{font-size:16px;padding:10px 10px 8px}.avr{grid-template-columns:3.6em minmax(0,1fr) 4.8em}}
+@media(max-width:760px){.mx{justify-self:center}}
+@media(prefers-reduced-motion:reduce){.dot,.lamp,.qbar i,.mbar i{transition:none}}
+</style>
+</head>
+<body>
+<header><div class="band"><div class="wrap">
+  <div class="top">
+    <div class="t">
+      <h1>2장 · 리스크 관리</h1>
+      <p>CRE 시험 둘째 단원(Risk management)을 8번의 짧은 활동으로 익혀요. 무엇이 위험한지 찾고, 점수 매기고, 줄이는 법을 배워요.</p>
+    </div>
+    <div class="meter"><b id="mTxt">0 / 8 차시 완료</b><div class="mbar"><i id="mBar" style="width:0"></i></div></div>
+  </div>
+  <nav id="nav"></nav>
+</div></div></header>
+
+<main>
+<section data-view="home" class="band"><div class="wrap">
+  <div class="two">
+    <div>
+      <h2>전기 포트의 위험 지도</h2>
+      <div class="def">리스크 = 일어날 <b>가능성</b> × 일어났을 때의 <b>심각도</b></div>
+      <p>전기 포트에서 생길 수 있는 위험 5가지를 지도 위에 올려 봤어요. 오른쪽 위(빨강)로 갈수록 위험해요. <b>대책 적용</b>을 눌러 점들이 어디로 옮겨 가는지 보세요.</p>
+      <div class="chips" id="hMode"><button class="chip on" data-m="0">대책 전</button><button class="chip" data-m="1">대책 적용 후</button></div>
+      <ol class="hz" id="hList"></ol>
+      <p class="note">점수 구간(15 이상 높음, 8~14 중간, 7 이하 낮음)과 예시는 학습용으로 정한 값이에요. 회사마다 기준표가 달라요.</p>
+    </div>
+    <div class="mx" id="hMx" role="img" aria-label="가능성과 심각도 5×5 리스크 매트릭스 위의 위험 5가지"></div>
+  </div>
+  <h2 style="margin-top:34px">2장 학습 지도</h2>
+  <p class="lead">순서대로 해도 좋고, 궁금한 차시부터 골라도 좋아요. 확인 문제를 모두 맞히면 초록 동그라미가 돼요.</p>
+  <div class="path" id="path"></div>
+  <div class="qnav" style="margin-top:22px"><a class="btn" href="#exam">2장 단원 평가 보러 가기</a><a class="btn alt" href="#review">오답 노트</a><button class="btn alt" id="resetAll">기록 지우기</button></div>
+</div></section>
+
+<section data-view="lesson" class="band"><div class="wrap" id="lesson"></div></section>
+
+<section data-view="exam" class="band"><div class="wrap qwrap">
+  <h2>2장 단원 평가</h2>
+  <p class="lead">차시 확인 문제와 기출 문제를 섞었어요. 틀린 문제는 오답 노트에 자동으로 모여요.</p>
+  <div class="chips" id="eMode"><button class="chip on" data-n="10">빠르게 10문제</button><button class="chip" data-n="0">전부 풀기</button></div>
+  <div class="qbar"><i id="eProg" style="width:0"></i></div>
+  <div id="eBox"></div>
+</div></section>
+
+<section data-view="review" class="band"><div class="wrap qwrap">
+  <h2>오답 노트</h2>
+  <p class="lead">틀렸던 문제와 해설이에요. 다시 풀어서 맞히면 노트에서 빠져요.</p>
+  <div id="rBox"></div>
+</div></section>
+</main>
+
+<footer class="band"><div class="wrap">
+  “CRE 첫걸음 공부방”의 2장(BOK Ⅱ) 내용을 더 깊게 풀어 쓴 학습 앱이에요. 1장 앱과 같은 방식이고, 진도와 오답 기록은 이 브라우저에만 저장돼요. 공식과 정답은 교재·강의로 한 번 더 확인하세요.
+</div></footer>
+
+<script>
+{
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const store={get(k,d){try{return JSON.parse(localStorage.getItem("cre2-"+k))??d}catch(e){return d}},set(k,v){try{localStorage.setItem("cre2-"+k,JSON.stringify(v))}catch(e){}}};
+const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const pct=(v,d=1)=>(v*100).toFixed(d)+"%";
+const zone=s=>s>=15?["높음","hi"]:s>=8?["중간","md"]:["낮음","lo"];
+
+/* ───── 차시 데이터 ───── */
+const L=[
+ {id:"l1",t:"리스크란?",easy:"얼마나 자주 × 얼마나 심각하게",
+  pts:[["리스크의 두 얼굴","가능성(발생 확률)과 심각도(영향)를 함께 봐요. 자주 일어나도 가벼우면, 아주 심각해도 거의 안 일어나면 리스크가 낮을 수 있어요."],
+       ["위험원(Hazard)","다칠 수 있는 원천 그 자체(뜨거운 물, 전기). 리스크는 그 위험원 때문에 실제로 피해가 날 가능성과 크기예요."],
+       ["리스크 매트릭스","가로 가능성, 세로 심각도의 표. 칸의 색(빨강·노랑·초록)으로 우선순위를 한눈에 정해요."],
+       ["정성 vs 정량","정성: ‘높다·중간·낮다’ 같은 말로. 정량: 확률과 금액 같은 숫자로. FMEA는 정성, FTA는 정량 분석에 가까워요."]],
+  tip:"리스크 = 확률 × 영향. 이 곱셈 하나가 2장 전체의 뼈대예요.",
+  act:"matrix",
+  q:[["리스크를 평가하는 두 가지 축으로 알맞은 것은?",["비용과 납기","가능성과 심각도","품질과 수량","검출도와 가격"],1,"리스크는 발생 가능성(확률)과 심각도(영향)를 곱해서 봐요."],
+     ["‘뜨거운 물’ 그 자체처럼 피해를 줄 수 있는 원천을 뭐라고 할까요?",["위험원(Hazard)","잔류 위험","고장 모드","검출도"],0,"피해를 줄 수 있는 원천이 위험원, 그로 인한 피해 가능성과 크기가 리스크예요."]]},
+ {id:"l2",t:"리스크 관리 과정",easy:"찾기 → 재기 → 판단 → 대응 → 지켜보기",
+  pts:[["① 식별","무엇이 잘못될 수 있는지 목록 만들기. 브레인스토밍, 체크리스트, 과거 고장 기록(FRACAS), PHA(예비 위험 분석)."],
+       ["② 분석","가능성과 심각도를 매기기. FMEA, FTA, 리스크 매트릭스."],
+       ["③ 평가","정해 둔 기준(허용 가능한가?)과 비교해 무엇부터 할지 순서 정하기."],
+       ["④ 대응","회피·전이·완화·수용 중에서 고르기."],
+       ["⑤ 감시·검토","대책이 효과 있었는지, 새 위험이 생기지 않았는지 계속 확인. 한 번 하고 끝이 아니라 계속 도는 고리예요."]],
+  tip:"리스크 관리는 제품 수명주기 ‘처음부터 끝까지’ 계속 돌아가는 활동이에요. 설계 초기에 시작할수록 싸요.",
+  act:"process",
+  q:[["리스크 관리 과정의 첫 단계는?",["대응","식별","감시","수용"],1,"먼저 무엇이 잘못될 수 있는지 찾아야(식별) 분석·평가·대응을 할 수 있어요."],
+     ["대책을 적용한 뒤에 해야 할 일로 가장 알맞은 것은?",["기록 삭제","효과를 감시·검토","리스크 매트릭스 폐기","FMEA 중단"],1,"대책이 효과 있었는지, 새 위험이 생기지 않았는지 계속 감시·검토해요."]]},
+ {id:"l3",t:"리스크 대응 4가지",easy:"없애고, 넘기고, 줄이고, 받아들이고",
+  pts:[["회피 (Avoid)","위험한 활동 자체를 하지 않기. 예: 위험한 소재를 아예 쓰지 않는 설계로 바꾸기."],
+       ["전이 (Transfer)","피해를 다른 곳으로 넘기기. 예: 보험 가입, 계약으로 공급사에 책임 넘기기."],
+       ["완화 (Mitigate)","가능성이나 심각도를 줄이기. 예: 이중화, 디레이팅, 퓨즈, 검사 강화."],
+       ["수용 (Accept)","충분히 작거나 대책 비용이 너무 클 때 알고서 받아들이기. 대신 기록하고 지켜봐요."]],
+  tip:"전이는 리스크를 ‘없애는’ 것이 아니라 ‘누가 부담하느냐’를 바꾸는 거예요.",
+  act:"respond",
+  q:[["제품 리콜에 대비해 보험에 가입하는 것은 어떤 대응일까요?",["회피","전이","완화","수용"],1,"피해 비용을 보험사로 넘기는 것이라 전이예요."],
+     ["과열을 막기 위해 온도 퓨즈를 넣는 것은?",["회피","전이","완화","수용"],2,"위험을 없애진 못하지만 피해 가능성·크기를 줄이므로 완화예요."]]},
+ {id:"l4",t:"FMEA와 RPN",easy:"부품마다 ‘이렇게 고장 나면?’ 표 채우기",
+  pts:[["상향식·정성 분석","부품(아래)의 고장 모드에서 시작해 시스템(위)에 미치는 영향을 따져요."],
+       ["표의 순서","기능 → 고장 모드 → 고장 영향 → 고장 원인 → 현재 관리 → S·O·D 점수 → RPN → 권고 조치."],
+       ["RPN = S × O × D","심각도(S), 발생도(O), 검출도(D)를 각 1~10점으로 매겨 곱해요. 최대 1,000점."],
+       ["검출도는 거꾸로!","찾기 ‘어려울수록’ 점수가 커요. 출하 전에 거의 못 찾으면 10점."],
+       ["RPN이 같다면","심각도가 높은 것부터 고쳐요. 또 심각도 9~10점은 RPN이 낮아도 따로 챙겨요."]],
+  tip:"심각도 점수를 낮추려면 보통 ‘설계 변경’이 필요해요. 검사만 늘리면 검출도만 좋아져요.",
+  act:"fmea",
+  q:[["FMEA에서 RPN을 구하는 방법은?",["S + O + D","S × O × D","S × O","(S + O) × D"],1,"세 점수(각 1~10)를 곱해요. 최대 1,000점."],
+     ["RPN이 같은 고장들이 있다면 무엇부터 개선할까요?",["발생도 높은 것","검출도 높은 것","심각도 높은 것","비용이 싼 것"],2,"점수가 같으면 사람이 다치거나 크게 망가지는, 심각도 높은 것부터!"]]},
+ {id:"l5",t:"FMEA 종류와 한계",easy:"설계용, 공정용, 그리고 못 보는 것",
+  pts:[["DFMEA (설계)","설계가 잘못되어 생길 고장을 찾아요. 예: 재료 강도 부족, 공차 설계 잘못."],
+       ["PFMEA (공정)","만드는 과정에서 생길 고장을 찾아요. 예: 볼트 체결 토크 부족, 납땜 누락."],
+       ["FMECA","FMEA에 치명도(Criticality) 분석을 더해 고장 모드의 위험을 순위로 매겨요."],
+       ["FMEA의 한계","고장을 하나씩 따로 보기 때문에 여러 개가 동시에 고장 나는 경우, 사람 실수의 조합, 외부 환경 영향은 잘 못 봐요. 시간과 품이 많이 들어요."],
+       ["살아 있는 문서","설계·공정이 바뀌거나 현장 고장이 생기면 FMEA도 계속 고쳐 써요."]],
+  tip:"FMEA는 혼자 하지 않아요. 설계·생산·품질·서비스가 모인 다기능 팀(CFT)이 함께 작성해요.",
+  act:"dpfmea",
+  q:[["FMEA의 한계 중 하나는?",["정량 계산이 불가능하다","동시 고장의 영향을 파악할 수 없다","부품 수준 분석이 안 된다","설계 단계에 쓸 수 없다"],1,"FMEA는 고장 모드를 하나씩 따로 보기 때문에 동시 고장은 못 봐요."],
+     ["‘조립 라인에서 볼트를 덜 조이는 고장’을 다루는 FMEA는?",["DFMEA","PFMEA","FTA","QFD"],1,"만드는 과정(공정)의 고장이니 PFMEA예요."]]},
+ {id:"l6",t:"고장 나무 분석 FTA",easy:"큰 사고에서 거꾸로 원인 나무 그리기",
+  pts:[["하향식·정량 분석","원하지 않는 사건(정상 사건, Top event)에서 시작해 원인을 나뭇가지처럼 내려가요."],
+       ["AND 게이트","아래 사건이 ‘모두’ 일어나야 위 사건이 생겨요. 확률은 곱하기: P = a × b."],
+       ["OR 게이트","아래 사건 중 ‘하나라도’ 일어나면 생겨요. P = 1 − (1−a)(1−b). 아주 작으면 대략 a + b."],
+       ["최소 컷셋","정상 사건을 일으키는 기본 사건들의 가장 작은 묶음. 원소가 1개인 컷셋이 있으면 약점(단일 고장점)!"],
+       ["FMEA와 짝꿍","FMEA는 아래→위(귀납), FTA는 위→아래(연역). 둘을 함께 쓰면 빈틈이 줄어요."]],
+  tip:"AND 게이트 아래는 ‘이중화’된 곳, OR 게이트 아래는 하나만 고장 나도 끝나는 ‘약한 고리’예요.",
+  act:"fta",
+  q:[["FMEA와 FTA의 방향을 바르게 짝지은 것은?",["FMEA 하향식, FTA 상향식","FMEA 상향식, FTA 하향식","둘 다 상향식","둘 다 하향식"],1,"FMEA는 부품에서 시스템으로, FTA는 시스템 고장에서 원인으로 내려가요."],
+     ["FTA에서 확률 0.1과 0.2인 두 사건이 AND 게이트로 연결되면 위 사건 확률은?",["0.02","0.28","0.30","0.72"],0,"AND는 곱하기: 0.1 × 0.2 = 0.02. OR였다면 1 − 0.9×0.8 = 0.28."]]},
+ {id:"l7",t:"공통 원인 고장과 다른 기법",easy:"원인 하나에 여럿이 같이 쓰러질 때",
+  pts:[["공통 원인 고장 (CCF)","전원·물·열·같은 제조 로트처럼 원인 하나가 여러 부품을 동시에 고장 내는 것. 이중화 효과를 크게 깎아요."],
+       ["CCF 막기","다양성(서로 다른 회사·방식), 물리적 분리, 독립 전원, 같은 로트 피하기."],
+       ["PHA (예비 위험 분석)","설계 아주 초기에 위험원을 넓게 훑어보는 분석."],
+       ["ETA (사건 나무)","시작 사건에서 ‘성공/실패’ 가지를 앞으로 뻗어 결과를 보는 귀납 분석."],
+       ["HAZOP","공정 설비에서 ‘더 많이, 더 적게, 없음, 반대로’ 같은 안내어로 이탈을 찾아요."]],
+  tip:"같은 회사, 같은 로트 부품 두 개로 만든 이중화는 생각보다 약해요. 공통 원인이 둘을 한꺼번에 쓰러뜨려요.",
+  act:"ccf",
+  q:[["전원 하나가 꺼져서 이중화된 두 장비가 함께 멈췄다. 이것은?",["공통 원인 고장","우발 고장","간헐 고장","마모 고장"],0,"원인 하나로 여러 부품이 동시에 고장 나는 공통 원인 고장이에요."],
+     ["공통 원인 고장을 줄이는 방법으로 알맞은 것은?",["같은 로트 부품만 쓰기","서로 다른 방식·제조사로 다양화","전원을 하나로 합치기","검사를 생략하기"],1,"다양성과 분리가 공통 원인을 끊는 대표 방법이에요."]]},
+ {id:"l8",t:"위험 줄이는 순서와 검증",easy:"설계 → 안전장치 → 경고, 그리고 V&V",
+  pts:[["① 본질 안전 설계","위험원을 아예 없애거나 줄이는 설계. 가장 효과가 커요."],
+       ["② 보호 장치","안전 덮개, 인터록, 퓨즈처럼 위험을 막는 장치."],
+       ["③ 경고·교육","라벨, 설명서, 교육. 남은 위험을 알리는 마지막 수단."],
+       ["잔류 위험","대책 후에도 남은 위험. 허용 가능한지 판단하고, 사용자에게 알려야 해요(경고 라벨이 가장 흔해요)."],
+       ["검증 vs 확인","검증(Verification): 설계 사양대로 만들었나? 확인(Validation): 고객이 정말 원하는 걸 하나?"]],
+  tip:"외우기: 검증은 ‘제대로 만들었나(build it right)’, 확인은 ‘맞는 걸 만들었나(build the right thing)’.",
+  act:"control",
+  q:[["위험을 줄이는 통제 방법을 효과 좋은 순서대로 나열하면?",["교육 → 안전장치 → 설계변경","안전장치 → 설계변경 → 교육","설계변경 → 안전장치 → 교육","설계변경 → 교육 → 안전장치"],2,"처음부터 안전한 설계가 최고, 다음 보호장치, 마지막이 경고·교육이에요."],
+     ["Validation(타당성 확인)에 대한 설명은?",["설계 사양을 충족하는지 확인","고객이 원하는 필요를 충족하는지 확인","공정이 규격 부품을 만드는지 확인","부품 단가 확인"],1,"Validation은 고객(사용자) 쪽, Verification은 설계 사양 쪽이에요."]]}
+];
+const EXTRA=[
+ ["l8","위험 관리를 하고 난 뒤에도 남아 있는 위험은?",["잔류(잔존) 위험","공통 원인 위험","치명 위험","상대 위험"],0,"다 없애지 못하고 남은 위험이 잔류 위험. 사용자에게 알려야 해요."],
+ ["l6","시스템 고장 상황에서 시작해 원인을 찾아 내려가는 논리 분석법은?",["FMEA","FTA","QFD","파레토"],1,"정상 사건(Top event)에서 출발하는 고장 나무 분석이에요."],
+ ["l6","FTA에서 확률 0.1과 0.2인 두 사건이 OR 게이트로 연결되면 위 사건 확률은?",["0.02","0.28","0.30","0.70"],1,"OR: 1 − (1−0.1)(1−0.2) = 1 − 0.72 = 0.28."],
+ ["l4","FMEA에서 검출도(D) 점수가 10점이라는 뜻은?",["거의 확실히 찾아낸다","거의 찾아낼 수 없다","고장이 매우 자주 난다","고장이 매우 심각하다"],1,"검출도는 찾기 어려울수록 점수가 커요. 10점은 거의 못 찾는다는 뜻."],
+ ["l4","S=8, O=4, D=5인 고장 모드의 RPN은?",["17","160","32","200"],1,"8 × 4 × 5 = 160."],
+ ["l5","FMEA에 치명도 분석을 더해 고장 모드의 우선순위를 매기는 기법은?",["FMECA","FRACAS","FTA","HAZOP"],0,"FMEA + Criticality Analysis = FMECA."],
+ ["l3","위험한 원료를 쓰지 않도록 공정 자체를 바꾸는 것은 어떤 대응일까요?",["회피","전이","완화","수용"],0,"위험한 활동 자체를 없애므로 회피예요."],
+ ["l7","시작 사건에서 성공/실패 가지를 뻗어 결과를 분석하는 귀납적 기법은?",["FTA","ETA","FMEA","PHA"],1,"사건 나무 분석(ETA)은 앞으로(귀납) 가지를 뻗어요."],
+ ["l8","Verification(검증)에 대한 설명은?",["고객 요구를 충족하는지 확인","설계 사양을 충족하는지 확인","시장 점유율 확인","잔류 위험 수용"],1,"Verification은 설계 사양대로 만들어졌는지 확인하는 것이에요."],
+ ["l1","리스크 매트릭스에서 가장 먼저 대응해야 하는 칸은?",["가능성 낮음·심각도 낮음","가능성 높음·심각도 낮음","가능성 낮음·심각도 높음","가능성 높음·심각도 높음"],3,"둘 다 높은 오른쪽 위(빨간 칸)가 최우선이에요."]
+];
+const POOL=[...L.flatMap(l=>l.q.map((q,i)=>({k:l.id+"-"+i,c:l.id,q:q[0],o:q[1],a:q[2],w:q[3]}))),...EXTRA.map((q,i)=>({k:"x"+i,c:q[0],q:q[1],o:q[2],a:q[3],w:q[4]}))];
+const lname=id=>L.find(l=>l.id===id).t;
+
+/* ───── 상태 ───── */
+let done=new Set(store.get("done",[])),solved=store.get("solved",{}),wrong=new Set(store.get("wrong",[]));
+const save=()=>{store.set("done",[...done]);store.set("solved",solved);store.set("wrong",[...wrong]);meter()};
+function meter(){$("#mTxt").textContent=`${done.size} / ${L.length} 차시 완료`;$("#mBar").style.width=done.size/L.length*100+"%";paintPath()}
+
+/* ───── 내비 & 라우팅 ───── */
+$("#nav").innerHTML=`<a href="#home">학습 지도</a>`+L.map((l,i)=>`<a href="#${l.id}">${i+1}차시</a>`).join("")+`<a href="#exam">단원 평가</a><a href="#review">오답 노트</a>`;
+function route(){let h=location.hash.slice(1)||"home";const les=L.find(l=>l.id===h);if(!les&&!["home","exam","review"].includes(h))h="home";
+ $$("section[data-view]").forEach(s=>s.classList.toggle("on",s.dataset.view===(les?"lesson":h)));
+ $$("#nav a").forEach(a=>a.getAttribute("href")==="#"+h?a.setAttribute("aria-current","page"):a.removeAttribute("aria-current"));
+ const cur=$("#nav a[aria-current]");if(cur)cur.scrollIntoView({block:"nearest",inline:"nearest"});
+ if(les)openLesson(les);if(h==="exam"&&!eList.length)startExam();if(h==="review")buildReview();}
+addEventListener("hashchange",()=>{route();scrollTo(0,0)});
+
+/* ───── 공통: 5×5 매트릭스 ───── */
+function mxHTML(dots,pick){let h="";for(let s=5;s>=1;s--){h+=`<span class="ax">${s}</span>`;for(let l=1;l<=5;l++){const z=zone(s*l)[1],here=dots.filter(d=>d.l===l&&d.s===s);
+  h+=`<span class="cell ${z}${pick&&pick.l===l&&pick.s===s?" pk":""}" data-l="${l}" data-s="${s}">${here.map(d=>`<i class="dot">${d.n}</i>`).join("")}</span>`}}
+ h+=`<span></span>`+[1,2,3,4,5].map(l=>`<span class="ax">${l}</span>`).join("");
+ return `<span class="ylab">심각도 ↑</span><div class="mgrid">${h}</div><span class="xlab">가능성 →</span>`}
+
+/* ───── 홈 ───── */
+const HZ=[["전원 코드 피복이 벗겨져 감전",[3,5],[1,5],"이중 절연 코드로 설계 변경"],["끓는 물이 넘쳐 화상",[4,4],[2,4],"뚜껑 잠금 + 넘침 방지 구조"],["물 없이 가열되어 과열·화재",[3,4],[1,3],"온도 퓨즈(보호 장치)"],["손잡이가 헐거워져 떨어뜨림",[2,3],[1,3],"체결 토크 관리(PFMEA)"],["스위치가 고장 나서 안 켜짐",[3,2],[2,2],"스위치 디레이팅"]];
+let hm=0;
+function homeDraw(){const dots=HZ.map((h,i)=>{const [l,s]=hm?h[2]:h[1];return{n:i+1,l,s}});
+ $("#hMx").innerHTML=mxHTML(dots);
+ $("#hList").innerHTML=HZ.map((h,i)=>{const [l,s]=hm?h[2]:h[1],z=zone(l*s);return `<li><b class="tag ${z[1]}">${l}×${s}=${l*s} ${z[0]}</b> ${h[0]}${hm?`<br><span class="note">대책: ${h[3]}</span>`:""}</li>`}).join("")}
+$("#hMode").addEventListener("click",e=>{const b=e.target.closest("[data-m]");if(!b)return;hm=+b.dataset.m;$$("#hMode .chip").forEach(x=>x.classList.toggle("on",x===b));homeDraw()});
+function paintPath(){$("#path").innerHTML=L.map((l,i)=>`<a class="stop${done.has(l.id)?" done":""}" href="#${l.id}"><span class="n">${done.has(l.id)?"✓":i+1}</span>${done.has(l.id)?'<span class="st">완료</span>':""}<h3>${l.t}</h3><span>${l.easy}</span></a>`).join("")}
+$("#resetAll").onclick=e=>{if(e.target.dataset.sure){done.clear();solved={};wrong.clear();save();e.target.textContent="기록 지우기";delete e.target.dataset.sure}else{e.target.dataset.sure=1;e.target.textContent="한 번 더 누르면 지워져요"}};
+
+/* ───── 차시 화면 ───── */
+let ro=null;
+function openLesson(l){const i=L.indexOf(l);if(ro){ro.disconnect();ro=null}
+ $("#lesson").innerHTML=`<div class="lhead"><span class="n">${i+1}</span><div><span class="note">2장 · ${i+1}차시</span><h2 style="margin:0">${l.t}</h2></div></div>
+ <div class="easy">한마디로: ${l.easy}</div>
+ <ul class="pts">${l.pts.map(([a,b])=>`<li><b>${a}</b>${b}</li>`).join("")}</ul>
+ <div class="tip"><b>시험 꿀팁</b> ${l.tip}</div>
+ <div class="act" id="act"></div>
+ <h3 style="margin-top:28px;font-size:24px">확인 문제</h3><p class="note">두 문제를 모두 맞히면 차시 완료!</p>
+ <div class="checks">${l.q.map((q,j)=>qCard({k:l.id+"-"+j,c:l.id,q:q[0],o:q[1],a:q[2],w:q[3]},j+1)).join("")}</div>
+ <div class="lnav">${i>0?`<a class="btn alt" href="#${L[i-1].id}">← ${L[i-1].t}</a>`:`<a class="btn alt" href="#home">← 학습 지도</a>`}${i<L.length-1?`<a class="btn" href="#${L[i+1].id}">${L[i+1].t} →</a>`:`<a class="btn" href="#exam">단원 평가 →</a>`}</div>`;
+ ACT[l.act]($("#act"));
+ $$("#lesson .qc").forEach(c=>bindQ(c,ok=>{if(l.q.every((_,j)=>solved[l.id+"-"+j])){done.add(l.id);save()}}));}
+
+/* 문제 카드 */
+function qCard(q,label){return `<div class="card qc" data-k="${q.k}"><span class="note">${label?"문제 "+label:lname(q.c)}</span><p class="qtext">${q.q}</p>
+ <div class="opts">${q.o.map((t,i)=>`<button class="opt" data-i="${i}">${i+1}) ${t}</button>`).join("")}</div><div class="exp" hidden></div></div>`}
+function bindQ(card,cb,noRetry){const q=POOL.find(p=>p.k===card.dataset.k);let used=false;
+ card.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{if(used)return;used=true;const i=+b.dataset.i,ok=i===q.a;
+  card.querySelectorAll(".opt").forEach(x=>{x.disabled=true;if(+x.dataset.i===q.a)x.classList.add("ok")});if(!ok)b.classList.add("no");
+  if(ok){solved[q.k]=1;wrong.delete(q.k)}else{wrong.add(q.k)}save();
+  const e=card.querySelector(".exp");e.hidden=false;
+  e.innerHTML=`<b class="jua" style="font-size:20px;color:${ok?"var(--leaf)":"var(--tom)"}">${ok?"정답이에요!":"아쉬워요. 정답은 "+(q.a+1)+"번"}</b><p>${q.w}</p>${ok?"":`<button class="btn alt retry">다시 풀기</button>`}`;
+  const r=e.querySelector(".retry");if(r){if(noRetry)r.remove();else r.onclick=()=>{used=false;e.hidden=true;card.querySelectorAll(".opt").forEach(x=>{x.disabled=false;x.classList.remove("ok","no")})}}
+  cb&&cb(ok);});}
+
+/* ───── 활동들 ───── */
+const ACT={
+ matrix(el){const SC=[["놀이터 그네 줄이 끊어짐",2,4],["사무실 종이에 손가락 베임",4,1],["비행기 엔진 동시 정지",1,5],["스마트폰 배터리가 서서히 약해짐",5,2]];
+  let cur={l:3,s:3};
+  el.innerHTML=`<h3>활동: 내가 매기는 리스크</h3><p>칸을 직접 눌러 가능성과 심각도를 골라 보세요. 아래 예시를 눌러 어디쯤일지 생각해 봐도 좋아요.</p>
+  <div class="two"><div class="mx" id="mMx"></div><div><div class="big" id="mBig"></div><p id="mSay"></p>
+  <div class="chips">${SC.map((s,i)=>`<button class="chip" data-sc="${i}">${s[0]}</button>`).join("")}</div><p class="note" id="mNote">예시 점수는 학습용 어림값이에요.</p></div></div>`;
+  const draw=()=>{const sc=cur.l*cur.s,z=zone(sc);$("#mMx").innerHTML=mxHTML([],cur);
+   $("#mBig").innerHTML=`${cur.l} × ${cur.s} = <span class="${z[1]}t">${sc}</span>`;
+   $("#mSay").innerHTML=`<b>${z[0]}</b> 리스크 · ${z[1]==="hi"?"바로 대책을 세워야 해요. 설계 변경이 먼저!":z[1]==="md"?"대책을 계획하고, 비용과 효과를 따져 줄여요.":"기록해 두고 지켜보며 수용할 수 있어요."}`;};
+  el.addEventListener("click",e=>{const c=e.target.closest(".cell");if(c){cur={l:+c.dataset.l,s:+c.dataset.s};draw()}
+   const b=e.target.closest("[data-sc]");if(b){const s=SC[+b.dataset.sc];cur={l:s[1],s:s[2]};el.querySelectorAll("[data-sc]").forEach(x=>x.classList.toggle("on",x===b));draw()}});draw();},
+ process(el){orderGame(el,"활동: 리스크 관리 과정 순서 맞추기","섞여 있는 단계를 올바른 순서대로 눌러 보세요.",
+  ["식별: 무엇이 잘못될 수 있나 찾기","분석: 가능성·심각도 매기기","평가: 기준과 비교해 우선순위 정하기","대응: 회피·전이·완화·수용 고르기","감시·검토: 효과 확인, 다시 처음으로"],"계속 도는 고리라는 것도 기억하세요!");},
+ respond(el){el.innerHTML=`<h3>활동: 어떤 대응일까?</h3><p>각 상황이 4가지 대응 중 무엇인지 골라 보세요.</p><div class="sort" id="rs"></div>`;
+  sorter($("#rs"),[["리콜 비용을 보상받는 보험에 가입","전이"],["독성 납땜 대신 무연 납땜으로 바꿈","회피"],["모터를 정격의 70%로만 사용(디레이팅)","완화"],["확률이 아주 낮은 운석 충돌은 기록만 하고 둠","수용"],["공급사 계약서에 품질 보증 책임 조항 추가","전이"],["중요한 펌프를 두 대로 이중화","완화"]],["회피","전이","완화","수용"]);},
+ fmea(el){const R=[["드라이어 히터","과열","화상·화재","온도 센서 고장",9,3,4],["전원 스위치","접점 마모","안 켜짐","저가 접점 재질",5,6,3],["팬 날개","균열","소음·바람 약함","사출 조건 불량",4,4,6],["코드 연결부","단선","작동 멈춤","반복 굽힘",6,4,5]];
+  el.innerHTML=`<h3>활동: 미니 FMEA 표 채우기</h3><p>헤어드라이어 FMEA 예시예요. 점수를 바꾸면 RPN과 개선 순서가 바로 바뀌어요.</p>
+  <p class="note sw">표가 넓으면 옆으로 밀어서 보세요.</p><div class="scroll"><table class="ft"><thead><tr><th>부품</th><th>고장 모드</th><th>영향</th><th>원인</th><th>S</th><th>O</th><th>D</th><th>RPN</th></tr></thead><tbody id="fB"></tbody></table></div>
+  <h3 style="margin-top:16px">개선 순서</h3><ol class="rank" id="fR"></ol><p class="note">예시 점수예요. RPN이 같으면 심각도 높은 쪽을 먼저 올렸어요.</p>`;
+  const num=(i,j,v)=>`<input type="number" min="1" max="10" value="${v}" data-r="${i}" data-c="${j}" aria-label="${R[i][0]} ${"SOD"[j-4]}">`;
+  $("#fB").innerHTML=R.map((r,i)=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td>${num(i,4,r[4])}</td><td>${num(i,5,r[5])}</td><td>${num(i,6,r[6])}</td><td class="rpn" id="rp${i}"></td></tr>`).join("");
+  const draw=()=>{R.forEach((r,i)=>$("#rp"+i).textContent=r[4]*r[5]*r[6]);
+   $("#fR").innerHTML=R.map((r,i)=>({r,p:r[4]*r[5]*r[6]})).sort((a,b)=>b.p-a.p||b.r[4]-a.r[4]).map(({r,p})=>`<li><b>${r[0]} · ${r[1]}</b> RPN ${p} (S ${r[4]})${r[4]>=9?' <span class="tag hi">심각도 9 이상: 따로 챙기기</span>':""}</li>`).join("")};
+  el.addEventListener("input",e=>{const t=e.target;if(t.dataset.r==null)return;R[+t.dataset.r][+t.dataset.c]=Math.min(10,Math.max(1,+t.value||1));draw()});draw();},
+ dpfmea(el){el.innerHTML=`<h3>활동: 설계 FMEA일까, 공정 FMEA일까?</h3><p>각 고장 원인을 어느 FMEA에서 다뤄야 할지 골라 보세요.</p><div class="sort" id="dp"></div>`;
+  sorter($("#dp"),[["축 지름을 너무 가늘게 설계해 부러짐","DFMEA"],["작업자가 커넥터를 끝까지 꽂지 않음","PFMEA"],["재료의 내열 온도가 사용 온도보다 낮음","DFMEA"],["리플로우 오븐 온도가 낮아 납땜 불량","PFMEA"],["공차를 너무 빡빡하게 정해 조립 불가","DFMEA"],["포장 중 낙하로 케이스 긁힘","PFMEA"]],["DFMEA","PFMEA"]);},
+ fta(el){el.innerHTML=`<h3>활동: 고장 나무 계산기</h3><p>“자동차가 제때 멈추지 못함”이 정상 사건이에요. 기본 사건 확률을 바꿔 보세요.</p>
+  <div class="two"><div class="fig" id="ftF" style="min-height:340px"><svg id="ftS" role="img" aria-label="OR 게이트와 AND 게이트로 된 고장 나무"></svg></div>
+  <div><div class="row"><label for="pA">A 주 브레이크 고장</label><input id="pA" type="range" min="0" max="0.2" step="0.005" value="0.05"><span id="pAv" class="nw"></span></div>
+  <div class="row"><label for="pB">B 비상 브레이크 고장</label><input id="pB" type="range" min="0" max="0.2" step="0.005" value="0.1"><span id="pBv" class="nw"></span></div>
+  <div class="row"><label for="pC">C 운전자 반응 늦음</label><input id="pC" type="range" min="0" max="0.2" step="0.005" value="0.02"><span id="pCv" class="nw"></span></div>
+  <div class="big" id="ftTop"></div><p id="ftEq"></p><p class="note">최소 컷셋: {A, B}, {C}. C는 혼자서도 사고를 일으키는 단일 고장점이에요.</p></div></div>`;
+  const s=$("#ftS");const draw=()=>{const a=+$("#pA").value,b=+$("#pB").value,c=+$("#pC").value,g=a*b,top=1-(1-g)*(1-c);
+   ["A","B","C"].forEach((k,i)=>$(`#p${k}v`).textContent=[a,b,c][i].toFixed(3));
+   $("#ftTop").textContent="P = "+top.toFixed(4);
+   $("#ftEq").innerHTML=`AND: ${a.toFixed(3)} × ${b.toFixed(3)} = ${g.toFixed(4)}<br>OR: 1 − (1 − ${g.toFixed(4)})(1 − ${c.toFixed(3)}) = <b>${top.toFixed(4)}</b>`;
+   const W=s.clientWidth,H=s.clientHeight;if(!W)return;const ink=css('--ink'),pap=css('--paper'),sky=css('--sky'),tom=css('--tom'),sm=W<440;
+   const box=(x,y,w,t,p,col)=>`<rect x="${x-w/2}" y="${y-22}" width="${w}" height="44" rx="10" fill="${pap}" stroke="${col||ink}" stroke-width="3"/><text x="${x}" y="${y-2}" text-anchor="middle" font-size="${sm?12:14}" fill="${ink}">${t}</text><text x="${x}" y="${y+15}" text-anchor="middle" font-family="Jua" font-size="${sm?13:15}" fill="${col||sky}">${p}</text>`;
+   const gate=(x,y,t)=>`<path d="M${x-20} ${y+16} L${x-20} ${y-4} Q${x} ${y-24} ${x+20} ${y-4} L${x+20} ${y+16} Z" fill="${sky}"/><text x="${x}" y="${y+10}" text-anchor="middle" font-family="Jua" font-size="13" fill="#fff" style="stroke:none">${t}</text>`;
+   const st=(H-60)/4,cx=W/2,y0=28,y1=y0+st,y2=y1+st,y3=y2+st,y4=H-28,xl=W*.3,xr=W*.78,xa=W*.15,xb=W*.45,bw=Math.min(150,W*.28);
+   const ln=(x1,y1_,x2,y2_)=>`<path d="M${x1} ${y1_} V${(y1_+y2_)/2} H${x2} V${y2_}" fill="none" stroke="${ink}" stroke-width="2"/>`;
+   s.innerHTML=ln(cx,y0+22,cx,y1-16)+ln(cx,y1+16,xl,y2-22)+ln(cx,y1+16,xr,y4-22)+ln(xl,y2+22,xl,y3-16)+ln(xl,y3+16,xa,y4-22)+ln(xl,y3+16,xb,y4-22)+
+    box(cx,y0,Math.min(230,W*.6),"제때 멈추지 못함",top.toFixed(4),tom)+gate(cx,y1,"OR")+box(xl,y2,bw,"브레이크 모두 실패",g.toFixed(4))+gate(xl,y3,"AND")+
+    box(xa,y4,Math.min(120,W*.27),"A 주 브레이크",a.toFixed(3))+box(xb,y4,Math.min(120,W*.27),"B 비상 브레이크",b.toFixed(3))+box(xr,y4,Math.min(130,W*.36),"C 반응 늦음",c.toFixed(3))};
+  el.querySelectorAll("input").forEach(i=>i.oninput=draw);ro=new ResizeObserver(draw);ro.observe($("#ftF"));},
+ ccf(el){el.innerHTML=`<h3>활동: 이중화 vs 공통 원인</h3><p>펌프 두 대를 병렬로 두면 둘 다 고장 나야 멈춰요. 그런데 공통 원인(β, 베타 계수)이 끼어들면 어떻게 될까요?</p>
+  <div class="row"><label for="cQ">펌프 1대 고장 확률 Q</label><input id="cQ" type="range" min="0.001" max="0.05" step="0.001" value="0.01"><span id="cQv" class="nw"></span></div>
+  <div class="row"><label for="cB">공통 원인 비율 β</label><input id="cB" type="range" min="0" max="0.2" step="0.005" value="0.1"><span id="cBv" class="nw"></span></div>
+  <div class="av" id="cV"></div><p id="cSay"></p><p class="note">베타 계수 모델: 고장 중 β만큼은 두 대를 동시에 쓰러뜨리는 공통 원인, 나머지는 서로 독립이라고 보는 근사예요.</p>`;
+  const draw=()=>{const Q=+$("#cQ").value,b=+$("#cB").value,ind=Q*Q,ccf=((1-b)*Q)**2+b*Q;
+   $("#cQv").textContent=Q.toFixed(3);$("#cBv").textContent=b.toFixed(3);const mx=Q;
+   $("#cV").innerHTML=[["1대만","단독",Q],["2대 (독립)","Q × Q",ind],["2대 + 공통원인","((1−β)Q)² + βQ",ccf]].map(([n,s,v])=>`<div class="avr" style="grid-template-columns:7.5em minmax(0,1fr) 5.5em"><b>${n}</b><div><div class="mbar" style="background:var(--line);height:14px"><i style="width:${Math.max(.5,v/mx*100)}%;background:${n.includes("공통")?"var(--tom)":"var(--sky)"}"></i></div><span class="note">${s}</span></div><span class="v">${Number(v.toPrecision(2))}</span></div>`).join("");
+   $("#cSay").innerHTML=`독립이라면 1대보다 <b>${(Q/ind).toFixed(0)}배</b> 안전하지만, 공통 원인이 있으면 <b>${(Q/ccf).toFixed(1)}배</b>밖에 안 좋아져요.`};
+  el.querySelectorAll("input").forEach(i=>i.oninput=draw);draw();},
+ control(el){el.innerHTML=`<h3>활동 1: 위험 줄이는 방법, 몇 번째 수단?</h3><p>전기 포트의 대책들을 3단계 중 어디에 속하는지 골라 보세요.</p><div class="sort" id="ct"></div>
+  <h3 style="margin-top:22px">활동 2: 검증일까, 확인일까?</h3><div class="sort" id="vv"></div>`;
+  sorter($("#ct"),[["물 없이 켜지지 않는 구조로 설계","설계"],["뚜껑 열리면 전원이 끊기는 인터록","장치"],["“뜨거우니 조심” 라벨 부착","경고"],["과열 시 끊기는 온도 퓨즈","장치"],["설명서에 아이 손 닿지 않게 보관 안내","경고"]],["설계","장치","경고"]);
+  sorter($("#vv"),[["도면의 치수대로 부품이 나왔는지 측정","검증"],["실제 고객이 집에서 써 보고 만족하는지 확인","확인"],["사양서의 ‘1.7L 용량’을 채우는지 시험","검증"],["병원 간호사가 실제 병동에서 기기를 써 보는 시험","확인"]],["검증","확인"]);}
+};
+/* 순서 맞추기 공통 */
+function orderGame(el,title,desc,ST,end){el.innerHTML=`<h3>${title}</h3><p>${desc}</p><div class="chips" id="oPool"></div><ol class="order" id="oOut" style="padding:0"></ol><p class="note" id="oMsg"></p>`;
+ let k=0;const order=ST.map((s,i)=>i).sort((a,b)=>((a*7+3)%ST.length)-((b*7+3)%ST.length));
+ const pool=()=>{el.querySelector("#oPool").innerHTML=order.filter(i=>i>=k).map(i=>`<button class="chip" data-r="${i}">${ST[i].split(":")[0]}</button>`).join("")||`<span class="jua" style="color:var(--leaf);font-size:20px">완벽해요! ${end}</span>`;
+  el.querySelectorAll("[data-r]").forEach(b=>b.onclick=()=>{if(+b.dataset.r===k){el.querySelector("#oOut").insertAdjacentHTML("beforeend",`<li>${k+1}. ${ST[k]}</li>`);k++;el.querySelector("#oMsg").textContent="";pool()}else{b.classList.add("no");el.querySelector("#oMsg").textContent="앗, 그 단계는 아직이에요. 먼저 해야 할 일을 생각해 보세요.";setTimeout(()=>b.classList.remove("no"),600)}})};pool();}
+/* 분류 활동 공통 */
+function sorter(box,items,cats){box.innerHTML=items.map(([t,a],i)=>`<div class="sitem" data-a="${a}"><span>${t}</span><span class="chips">${cats.map(c=>`<button class="chip" data-c="${c}">${c}</button>`).join("")}</span></div>`).join("")+`<p class="note" data-sc>0 / ${items.length} 맞힘</p>`;
+ box.addEventListener("click",e=>{const b=e.target.closest("[data-c]");if(!b)return;const it=b.closest(".sitem");if(it.classList.contains("ok"))return;
+  if(b.dataset.c===it.dataset.a){b.classList.add("ok");it.classList.add("ok")}else{b.classList.add("no");setTimeout(()=>b.classList.remove("no"),600)}
+  const n=box.querySelectorAll(".sitem.ok").length;box.querySelector("[data-sc]").textContent=`${n} / ${items.length} 맞힘${n===items.length?" · 모두 맞혔어요!":""}`});}
+
+/* ───── 단원 평가 ───── */
+let eList=[],ei=0,es=0,eN=10;
+function startExam(){eList=POOL.map(q=>[Math.random(),q]).sort((a,b)=>a[0]-b[0]).map(v=>v[1]);if(eN)eList=eList.slice(0,eN);ei=0;es=0;showE()}
+function showE(){$("#eProg").style.width=ei/eList.length*100+"%";
+ if(ei>=eList.length){const p=Math.round(es/eList.length*100);
+  $("#eBox").innerHTML=`<div class="card"><h3>다 풀었어요!</h3><div class="big" style="margin:10px 0">${es} / ${eList.length}</div><p>${p>=80?"아주 잘했어요. 2장은 자신 있게 넘어가도 돼요.":p>=50?"좋아요! 오답 노트에서 틀린 문제만 다시 보세요.":"괜찮아요. 해당 차시 활동을 한 번 더 해 보고 다시 도전!"}</p>
+  <div class="qnav"><button class="btn" id="eAgain">새로 섞어서 다시</button><a class="btn alt" href="#review">오답 노트 (${wrong.size})</a></div></div>`;
+  $("#eAgain").onclick=startExam;return;}
+ const q=eList[ei];$("#eBox").innerHTML=qCard(q,null).replace('<span class="note">',`<span class="note">${ei+1} / ${eList.length} · 맞힌 개수 ${es} · `)+`<div class="qnav"><button class="btn" id="eNext" disabled>다음 문제 →</button><a class="btn alt" href="#${q.c}">이 차시 복습</a></div>`;
+ bindQ($("#eBox .qc"),ok=>{if(ok)es++;const n=$("#eNext");n.disabled=false;n.focus()},true);
+ $("#eNext").onclick=()=>{ei++;showE()};}
+$("#eMode").addEventListener("click",e=>{const b=e.target.closest("[data-n]");if(!b)return;eN=+b.dataset.n;$$("#eMode .chip").forEach(x=>x.classList.toggle("on",x===b));startExam()});
+
+/* ───── 오답 노트 ───── */
+function buildReview(){const list=POOL.filter(q=>wrong.has(q.k));
+ $("#rBox").innerHTML=list.length?`<div class="checks">${list.map(q=>qCard(q,null)).join("")}</div>`:`<div class="card"><h3>오답 노트가 비어 있어요</h3><p>틀린 문제가 생기면 여기에 모여요. 차시 확인 문제나 단원 평가를 풀어 보세요.</p><div class="qnav"><a class="btn" href="#exam">단원 평가 풀기</a></div></div>`;
+ $$("#rBox .qc").forEach(c=>bindQ(c,null));}
+
+const redraw=()=>{const cur=L.find(l=>"#"+l.id===location.hash);if(cur)openLesson(cur)};
+matchMedia("(prefers-color-scheme:dark)").addEventListener("change",redraw);
+const themeObs=new MutationObserver(redraw);themeObs.observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
+homeDraw();meter();route();
+}
+</script>
+</body>
+</html>
