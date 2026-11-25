@@ -64,7 +64,7 @@ const L=[
  {id:"l6",t:"다운타임과 가용도",easy:"고치는 시간 말고 ‘기다리는 시간’도 줄여요",
   pts:[["정지 시간의 구성","능동 보전 시간(진단·분해·교체·조정·검증) + 지연 시간(부품 대기, 행정, 이동)."],
        ["무효 유지보수 시간","실제로 손을 대지 않고 흘러가는 시간. 교체 부품 대기가 대표적이에요."],
-       ["가용도 3형제","Ai = MTBF/(MTBF + MTTR), Aa는 예방 보전까지, Ao는 대기 시간까지 포함."],
+       ["가용도 3형제","Ai = MTBF/(MTBF + MTTR), Aa = MTBMA/(MTBMA + 평균 능동 보전 시간), Ao = MTBMA/(MTBMA + MDT). MTBMA(= MTBM)는 예방 보전까지 포함한 보전 행위 사이 간격이에요."],
        ["가용성을 높이려면","유효(능동) 보수 시간을 줄이거나, 고장 간격을 늘리거나, 대기 시간을 줄여요."],
        ["MTTR 할당","MTTR = Σ(λᵢ·tᵢ) / Σλᵢ. 자주 고장 나는 부품의 수리 시간이 MTTR을 좌우해요."]],
   tip:"수리 가능한 시스템 데이터를 분석하는 첫 목적은 수리 시간을 추정하는 거예요(수리 활동 계획 검토는 오답).",
@@ -173,7 +173,7 @@ const ACT={
  down(el){el.innerHTML=`<h3>활동: 정지 시간 쪼개 보기</h3><p>고장 한 번에 드는 시간을 넣어 보세요. 노랑은 손을 대는 능동 보전, 회색은 기다리는 무효 시간이에요.</p>
   <div class="chips"><button class="chip" data-pr="1700,3,4,2,24,0">기출: MTBMA 1,700, 수리 8, 검증 2, 부품 대기 24</button><button class="chip" data-pr="1700,3,4,2,2,0">부품을 미리 비축하면</button></div>
   <div class="two"><div>
-   <div class="row"><label for="w0">MTBF</label><input id="w0" type="number" min="1" value="1700"></div>
+   <div class="row"><label for="w0">MTBMA</label><input id="w0" type="number" min="1" value="1700"></div>
    <div class="row"><label for="w1">진단</label><input id="w1" type="number" min="0" value="3"></div>
    <div class="row"><label for="w2">분해·교체</label><input id="w2" type="number" min="0" value="4"></div>
    <div class="row"><label for="w3">검증</label><input id="w3" type="number" min="0" value="2"></div>
@@ -182,7 +182,7 @@ const ACT={
   <div><div class="sbar" id="wB"></div><div class="legend"><span style="--c:var(--sun)">능동 보전</span><span style="--c:var(--soft)">무효(대기) 시간</span></div><div class="stats" id="wS"></div><p id="wN"></p></div></div>`;
   const draw=()=>{const v=[0,1,2,3,4,5].map(i=>Math.max(0,+$("#w"+i).value||0)),act=v[1]+v[2]+v[3],dly=v[4]+v[5],tot=act+dly||1,u=Math.max(1,v[0]);
    $("#wB").innerHTML=`<i style="width:${act/tot*100}%;background:var(--sun)"></i><i style="width:${dly/tot*100}%;background:var(--soft)"></i>`;
-   $("#wS").innerHTML=[[(u/(u+act)*100).toFixed(2)+"%","Ai (능동 보전만)"],[(u/(u+act+dly)*100).toFixed(2)+"%","Ao (대기 포함)"],[Math.round(dly/tot*100)+"%","정지 중 무효 시간 비율"]].map(([a,b])=>`<div class="stat"><b>${a}</b><span>${b}</span></div>`).join("");
+   $("#wS").innerHTML=[[(u/(u+act)*100).toFixed(2)+"%","Aa (능동 보전만)"],[(u/(u+act+dly)*100).toFixed(2)+"%","Ao (대기 포함)"],[Math.round(dly/tot*100)+"%","정지 중 무효 시간 비율"]].map(([a,b])=>`<div class="stat"><b>${a}</b><span>${b}</span></div>`).join("");
    $("#wN").innerHTML=dly>act?"정지 시간의 대부분이 <b>기다리는 시간</b>이에요. 수리 기술보다 예비품·물류 개선이 Ao를 더 크게 올려요.":"정지 시간의 대부분이 실제 수리예요. 모듈 교체·자가 진단 같은 보전성 설계가 효과적이에요."};
   el.querySelectorAll("input").forEach(i=>i.oninput=draw);
   el.querySelectorAll("[data-pr]").forEach(b=>b.onclick=()=>{b.dataset.pr.split(",").forEach((x,i)=>$("#w"+i).value=x);el.querySelectorAll("[data-pr]").forEach(x=>x.classList.toggle("on",x===b));draw()});draw();},
