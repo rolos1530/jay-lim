@@ -265,6 +265,7 @@ footer{color:var(--soft);font-size:14px}
 .plan{display:grid;gap:12px;grid-template-columns:repeat(3,minmax(0,1fr));margin-top:12px}
 .plan div{background:var(--paper);border:2px dashed var(--line);border-radius:18px;padding:14px 16px}
 .plan b{font-family:Jua,sans-serif;font-weight:400;font-size:19px;display:block;color:var(--sky)}
+.qrow .qside{margin-left:auto;display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
 .qfig{display:block;width:100%;max-width:540px;height:auto;margin:4px 0 14px;background:var(--paper);border:2px solid var(--line);border-radius:14px;font-family:"Gowun Dodum",sans-serif}
 .qfig text{paint-order:stroke;stroke:var(--paper);stroke-width:3px}
 .tg{display:inline-block;font-family:Jua,sans-serif;font-size:13px;line-height:1;padding:4px 8px;border-radius:8px;margin-right:6px;vertical-align:2px;white-space:nowrap}
@@ -602,7 +603,7 @@ function showE(){const L=ex.list,isM=ex.key==="mock";
   $("#eAgain").onclick=()=>{if(startExam()!==false)showE()};$("#eSet").onclick=()=>{ex.list=[];examSetup()};return}
  const q=L[ex.i];
  $("#exam").innerHTML=`<h2>${isM?"전 범위 모의고사":`영역 ${DM[q.d].roman} 평가`}</h2><div class="qbar"><i style="width:${ex.i/L.length*100}%"></i></div>`+
-  qCard(q,`${ex.i+1} / ${L.length} · 맞힌 개수 ${ex.score} · 영역 ${DM[q.d].roman} ${lt(q.d,q.lc)}`)+`<div class="qnav"><button class="btn" id="eNext" disabled>다음 문제 →</button><a class="btn alt" href="#d${q.d}-${q.lc}">이 차시 복습</a><button class="btn alt" id="eQuit">그만하고 결과 보기</button></div>`;
+  qCard(q,`${ex.i+1} / ${L.length} · 맞힌 개수 ${ex.score} · 영역 ${DM[q.d].roman} ${lt(q.d,q.lc)}`)+`<div class="qnav qrow"><button class="btn" id="eNext" disabled>다음 문제 →</button><span class="qside"><a class="btn alt" href="#d${q.d}-${q.lc}">이 차시 복습</a><button class="btn alt" id="eQuit">그만하고 결과 보기</button></span></div>`;
  bindQ($("#exam .qc"),ok=>{if(ok)ex.score++;const r=ex.res[q.d]||(ex.res[q.d]=[0,0]);r[1]++;if(ok)r[0]++;const b=$("#eNext");b.disabled=false;b.focus()},true);
  $("#eNext").onclick=()=>{ex.i++;showE()};$("#eQuit").onclick=()=>{const k=ex.i+($("#eNext").disabled?0:1);if(!k){ex.list=[];examSetup();return}ex.list=ex.list.slice(0,k);ex.i=k;showE()};}
 
