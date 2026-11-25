@@ -141,7 +141,7 @@ function homeDraw(){$("#c4hSay").innerHTML=`<span class="note">${hm+1} / 6 정�
   `<text x="${cx}" y="${cy-6}" text-anchor="middle" font-family="Jua" font-size="${sm?22:28}" fill="${ink}">FRACAS</text><text x="${cx}" y="${cy+18}" text-anchor="middle" font-size="14" fill="${css('--soft')}">닫힌 고리</text>`;
  s.querySelectorAll("[data-st]").forEach(g=>g.onclick=()=>{hm=+g.dataset.st;homeDraw()});}
 const homeRO=new ResizeObserver(homeDraw);homeRO.observe($("#c4hFig"));
-let ro=null;
+let ro=null;const ROS=[];
 const ACT={
  sources(el){el.innerHTML=`<h3>활동: 내부 데이터일까, 외부 데이터일까?</h3><p>각 자료가 어디서 온 것인지 골라 보세요.</p><div class="sort" id="so"></div>`;
   sorter($("#so"),[["우리 회사 개발 시험의 고장 기록","내부"],["부품 제조사가 준 데이터시트의 고장률","외부"],["우리 제품의 보증 수리(반품) 기록","내부"],["GIDEP 부품 고장 정보","외부"],["MIL-HDBK-217 고장률 표","외부"],["우리 공장 양산 ESS 결과","내부"]],["내부","외부"]);},
@@ -207,7 +207,7 @@ const ACT={
     `<line x1="${X(Math.log(eta))}" x2="${X(Math.log(eta))}" y1="${Y(0)}" y2="${B}" stroke="${tom}" stroke-dasharray="4 4"/><text x="${X(Math.log(eta))}" y="${B+20}" text-anchor="middle" font-size="13" fill="${tom}">η</text>`+
     `<text x="${bb}" y="${B+20}" text-anchor="end" font-size="13" fill="${soft}">시간 (로그 눈금) →</text>`};
   $("#wd").oninput=draw;el.querySelectorAll("[data-pr]").forEach(b=>b.onclick=()=>{$("#wd").value=b.dataset.pr;draw()});
-  ro=new ResizeObserver(draw);ro.observe($("#wF"));}
+  ROS.push(ro=new ResizeObserver(draw));ro.observe($("#wF"));}
 };
-return {L,POOL,ACT,homeDraw:homeDraw,stopRO:()=>{if(ro){ro.disconnect();ro=null}}};
+return {L,POOL,ACT,homeDraw:homeDraw,stopRO:()=>{ROS.splice(0).forEach(o=>o.disconnect());ro=null}};
 });

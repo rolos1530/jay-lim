@@ -152,7 +152,7 @@ function homeDraw(){const dots=HZ.map((h,i)=>{const [l,s]=hm?h[2]:h[1];return{n:
  $("#c2hList").innerHTML=HZ.map((h,i)=>{const [l,s]=hm?h[2]:h[1],z=zone(l*s);return `<li><b class="tag ${z[1]}">${l}×${s}=${l*s} ${z[0]}</b> ${h[0]}${hm?`<br><span class="note">대책: ${h[3]}</span>`:""}</li>`}).join("")}
 $("#c2hMode").addEventListener("click",e=>{const b=e.target.closest("[data-m]");if(!b)return;hm=+b.dataset.m;$$("#c2hMode .chip").forEach(x=>x.classList.toggle("on",x===b));homeDraw()});
 
-let ro=null;
+let ro=null;const ROS=[];
 const ACT={
  matrix(el){const SC=[["놀이터 그네 줄이 끊어짐",2,4],["사무실 종이에 손가락 베임",4,1],["비행기 엔진 동시 정지",1,5],["스마트폰 배터리가 서서히 약해짐",5,2]];
   let cur={l:3,s:3};
@@ -197,7 +197,7 @@ const ACT={
    s.innerHTML=ln(cx,y0+22,cx,y1-16)+ln(cx,y1+16,xl,y2-22)+ln(cx,y1+16,xr,y4-22)+ln(xl,y2+22,xl,y3-16)+ln(xl,y3+16,xa,y4-22)+ln(xl,y3+16,xb,y4-22)+
     box(cx,y0,Math.min(230,W*.6),"제때 멈추지 못함",top.toFixed(4),tom)+gate(cx,y1,"OR")+box(xl,y2,bw,"브레이크 모두 실패",g.toFixed(4))+gate(xl,y3,"AND")+
     box(xa,y4,Math.min(120,W*.27),"A 주 브레이크",a.toFixed(3))+box(xb,y4,Math.min(120,W*.27),"B 비상 브레이크",b.toFixed(3))+box(xr,y4,Math.min(130,W*.36),"C 반응 늦음",c.toFixed(3))};
-  el.querySelectorAll("input").forEach(i=>i.oninput=draw);ro=new ResizeObserver(draw);ro.observe($("#ftF"));},
+  el.querySelectorAll("input").forEach(i=>i.oninput=draw);ROS.push(ro=new ResizeObserver(draw));ro.observe($("#ftF"));},
  ccf(el){el.innerHTML=`<h3>활동: 이중화 vs 공통 원인</h3><p>펌프 두 대를 병렬로 두면 둘 다 고장 나야 멈춰요. 그런데 공통 원인(β, 베타 계수)이 끼어들면 어떻게 될까요?</p>
   <div class="row"><label for="cQ">펌프 1대 고장 확률 Q</label><input id="cQ" type="range" min="0.001" max="0.05" step="0.001" value="0.01"><span id="cQv" class="nw"></span></div>
   <div class="row"><label for="cB">공통 원인 비율 β</label><input id="cB" type="range" min="0" max="0.2" step="0.005" value="0.1"><span id="cBv" class="nw"></span></div>
@@ -213,5 +213,5 @@ const ACT={
   sorter($("#vv"),[["도면의 치수대로 부품이 나왔는지 측정","검증"],["실제 고객이 집에서 써 보고 만족하는지 확인","확인"],["사양서의 ‘1.7L 용량’을 채우는지 시험","검증"],["병원 간호사가 실제 병동에서 기기를 써 보는 시험","확인"]],["검증","확인"]);}
 };
 
-return {L,POOL,ACT,homeDraw:homeDraw,stopRO:()=>{if(ro){ro.disconnect();ro=null}}};
+return {L,POOL,ACT,homeDraw:homeDraw,stopRO:()=>{ROS.splice(0).forEach(o=>o.disconnect());ro=null}};
 });

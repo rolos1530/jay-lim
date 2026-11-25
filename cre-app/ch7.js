@@ -169,7 +169,7 @@ function homeDraw(){const mS=+$("#c7hM").value,z=(mS-100)/Math.sqrt(hsd**2+144),
 $("#c7hM").addEventListener("input",homeDraw);
 $("#c7hSd").addEventListener("click",e=>{const b=e.target.closest("[data-s]");if(!b)return;hsd=+b.dataset.s;$$("#c7hSd .chip").forEach(x=>x.classList.toggle("on",x===b));homeDraw()});
 const homeRO=new ResizeObserver(homeDraw);homeRO.observe($("#c7hFig"));
-let ro=null;
+let ro=null;const ROS=[];
 const ACT={
  dfr(el){orderGame(el,"활동: 신뢰성 설계 순서 맞추기","새 제품의 신뢰성 설계 단계를 올바른 순서대로 눌러 보세요.",["요구사항 이해: 사용 환경·기능·수명","목표 설정: 신뢰성 목표와 보증 비용 목표","할당: 시스템 목표를 부품으로","설계 분석: FMEA·부하-강도·디레이팅","설계 검토: 문서화된 닫힌 고리 실행 계획","검증과 확인: 요구사항·사용 환경 적합성"],"요구사항에서 시작해 검증으로 닫혀요.");},
  lsi(el){el.innerHTML=`<h3>활동: 간섭 계산기</h3>
@@ -190,7 +190,7 @@ const ACT={
   const setM=v=>{m=v;$$("#lm .chip").forEach(x=>x.classList.toggle("on",x.dataset.m===m))};
   $("#lm").addEventListener("click",e=>{const b=e.target.closest("[data-m]");if(!b)return;setM(b.dataset.m);draw()});
   el.querySelectorAll("[data-pr]").forEach(b=>b.onclick=()=>{const [mm,a,c,d,e,r]=b.dataset.pr.split(",");setM(mm);if(mm==="p")$("#lS").value=a;$("#lSs").value=c;$("#lL").value=d;$("#lLs").value=e;$("#lR").value=r;el.querySelectorAll("[data-pr]").forEach(x=>x.classList.toggle("on",x===b));draw()});
-  ro=new ResizeObserver(draw);ro.observe($("#lFig"));},
+  ROS.push(ro=new ResizeObserver(draw));ro.observe($("#lFig"));},
  derate(el){el.innerHTML=`<h3>활동: 디레이팅 확인표</h3><p>부품의 정격과 실제로 걸리는 응력을 넣어 보세요. 막대 위 검은 선이 지금의 응력비예요.</p>
   <div class="chips"><button class="chip" data-pr="0.25,0.1">저항 0.25W에 0.1W</button><button class="chip" data-pr="50,45">커패시터 50V에 45V</button><button class="chip" data-pr="10000,5000">하중 10,000파운드 한계에 5,000</button></div>
   <div class="two"><div><div class="row"><label for="dR">정격(최대 허용)</label><input id="dR" type="number" min="0" step="any" value="0.25"></div><div class="row"><label for="dA">실제 응력</label><input id="dA" type="number" min="0" step="any" value="0.1"></div></div>
@@ -240,12 +240,12 @@ const ACT={
     `<path d="${d}" fill="none" stroke="${sky}" stroke-width="4"/>`+[9,10,11].map(v=>`<text x="${X(v)}" y="${B+20}" text-anchor="middle" font-size="13" fill="${soft}">${v===10?"목표 10":v===9?"LSL 9":"USL 11"}</text>`).join("")+
     `<text x="${a-6}" y="${Y(5000)+4}" text-anchor="end" font-size="13" fill="${soft}">5,000</text>`+
     `<circle cx="${X(y)}" cy="${Y(q)}" r="8" fill="${tom}"/>`};
-  $("#ly").oninput=draw;ro=new ResizeObserver(draw);ro.observe($("#lF"));},
+  $("#ly").oninput=draw;ROS.push(ro=new ResizeObserver(draw));ro.observe($("#lF"));},
  dfx(el){el.innerHTML=`<h3>활동: 어떤 DFX일까?</h3><p>설계 아이디어마다 무엇을 위한 설계인지 골라 보세요.</p><div class="sort" id="dx"></div>`;
   sorter($("#dx"),[["나사 종류를 7가지에서 2가지로 줄인다","조립성(DFM/DFA)"],["고장 나면 모듈을 통째로 빼서 5분 안에 교체할 수 있게","서비스 가능성"],["정격의 50%로 부품을 쓰고 열 설계를 보강","신뢰성(DfR)"],["보드에 시험용 측정 패드와 자가 진단을 넣는다","시험 용이성(DfT)"],["분해해서 재활용하기 쉬운 단일 재질 사용","환경(DfE)"]],["조립성(DFM/DFA)","서비스 가능성","신뢰성(DfR)","시험 용이성(DfT)","환경(DfE)"]);},
  hf(el){el.innerHTML=`<h3>활동 1: 검증일까, 확인일까, 공정 검증일까?</h3><div class="sort" id="h1"></div><h3 style="margin-top:22px">활동 2: 사람의 실수를 줄이는 방법 고르기</h3><div class="sort" id="h2"></div>`;
   sorter($("#h1"),[["도면 공차대로 시제품이 만들어졌는지 측정","검증"],["실제 고객 현장에서 의도대로 쓰기 적합한지 평가","확인"],["양산 조건에서 만든 부품이 설계 사양을 만족하는지","공정 검증"],["요구사항 문서의 항목을 시험으로 하나씩 확인","검증"]],["검증","확인","공정 검증"]);
   sorter($("#h2"),[["잘못된 방향으로는 끼워지지 않는 커넥터","좋은 방법"],["올바른/잘못된 조립 상태 사진을 작업대에 붙임","좋은 방법"],["작업자에게 ‘조심하라’고만 말함","약한 방법"],["반복 수작업을 자동화 장비로 바꿈","좋은 방법"]],["좋은 방법","약한 방법"]);}
 };
-return {L,POOL,ACT,homeDraw:homeDraw,stopRO:()=>{if(ro){ro.disconnect();ro=null}}};
+return {L,POOL,ACT,homeDraw:homeDraw,stopRO:()=>{ROS.splice(0).forEach(o=>o.disconnect());ro=null}};
 });

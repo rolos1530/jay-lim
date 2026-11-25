@@ -129,7 +129,7 @@ function homeDraw(){const R=sim(hm),f=R.flat().filter(e=>e[0]==="f"),p=R.flat().
  $("#c8hSt").innerHTML=[[f.length+"번","갑작스런 고장"],[p.length+"번","계획 교체"],[fmt(dt)+"h","정지 시간 합계"],[((1-dt/(YEAR*4))*100).toFixed(2)+"%","베어링 가동률"]].map(([v,t])=>`<div class="stat"><b>${v}</b><span>${t}</span></div>`).join("");
  $("#c8hSay").innerHTML=["고장 날 때까지 써서 교체 횟수는 가장 적지만, 모든 정지가 <b>갑작스런 고장</b>이라 생산 계획이 깨지고 정지 시간이 길어요.","1,500시간마다 바꾸니 대부분 <b>계획 정지</b>가 됐어요. 하지만 일찍 고장 나는 베어링은 여전히 갑자기 멈추고, 멀쩡한 베어링도 버리게 돼요.","진동이 커지는 신호(수명의 약 90%)를 보고 바꿔서 거의 모든 정지가 <b>짧은 계획 정지</b>예요. 부품도 끝까지 쓰지만, 감시 장비와 측정 비용이 들어요."][hm];}
 $("#c8hM").addEventListener("click",e=>{const b=e.target.closest("[data-m]");if(!b)return;hm=+b.dataset.m;$$("#c8hM .chip").forEach(x=>x.classList.toggle("on",x===b));homeDraw()});
-let ro=null;
+let ro=null;const ROS=[];
 const ACT={
  good(el){el.innerHTML=`<h3>활동: 보전성이 좋은 설계일까?</h3><p>고치기 쉬운 설계인지, 고치기 어려운 설계인지 골라 보세요.</p><div class="sort" id="gd"></div>`;
   sorter($("#gd"),[["고장 난 전원부를 모듈째 빼서 교체","좋은 설계"],["필터를 바꾸려면 기계 뒷판 12개 나사를 풀어야 함","나쁜 설계"],["고장 위치를 화면에 코드로 표시하는 자가 진단","좋은 설계"],["특수 공구가 있어야만 열 수 있는 덮개","나쁜 설계"],["커넥터 모양이 달라서 잘못 꽂을 수 없음","좋은 설계"],["부품 번호 표시가 없어 매번 도면을 찾아야 함","나쁜 설계"]],["좋은 설계","나쁜 설계"]);},
@@ -148,7 +148,7 @@ const ACT={
    s.innerHTML=`<line x1="${a}" y1="${B}" x2="${bb}" y2="${B}" stroke="${ink}" stroke-width="2"/><line x1="${a}" y1="${TT}" x2="${a}" y2="${B}" stroke="${ink}" stroke-width="2"/>`+
     `<path d="${d0}" fill="none" stroke="${soft}" stroke-width="3" stroke-dasharray="7 5"/><path d="${d1}" fill="none" stroke="${css('--tom')}" stroke-width="3"/>`+
     `<text x="${a+6}" y="${TT+12}" font-size="13" fill="${soft}">h(t)</text><text x="${bb}" y="${B+20}" text-anchor="end" font-size="13" fill="${soft}">시간 → ${fmt(Hz)}h</text>`};
-  el.querySelectorAll("input").forEach(i=>i.oninput=draw);ro=new ResizeObserver(draw);ro.observe($("#sF"));},
+  el.querySelectorAll("input").forEach(i=>i.oninput=draw);ROS.push(ro=new ResizeObserver(draw));ro.observe($("#sF"));},
  cost(el){el.innerHTML=`<h3>활동: 최적 교체 주기 찾기</h3><p>예방 교체 비용 Cp와 고장 후 교체 비용 Cf, 마모 정도 β를 바꿔 보세요. 곡선이 가장 낮은 곳이 최적 주기예요. η = 1,000시간.</p>
   <div class="two"><div>
    <div class="row"><label for="cp">예방 교체 비용 Cp</label><input id="cp" type="number" min="1" value="100"><span class="note">만 원</span></div>
@@ -167,7 +167,7 @@ const ACT={
     `<path d="${Ts.map((p,i)=>(i?"L":"M")+X(p[0]).toFixed(1)+" "+Y(p[1]).toFixed(1)).join("")}" fill="none" stroke="${css('--sky')}" stroke-width="4"/>`+
     `<line x1="${a}" x2="${bb}" y1="${Y(noRep)}" y2="${Y(noRep)}" stroke="${soft}" stroke-dasharray="6 5" stroke-width="2"/><text x="${bb}" y="${Y(noRep)-6}" text-anchor="end" font-size="13" fill="${soft}">교체 안 함</text>`+
     `<circle cx="${X(best[0])}" cy="${Y(best[1])}" r="8" fill="${css('--tom')}"/>`+[0,1000,2000].map(t=>`<text x="${X(t)}" y="${B+20}" text-anchor="middle" font-size="13" fill="${soft}">${t}h</text>`).join("")};
-  el.querySelectorAll("input").forEach(i=>i.oninput=draw);ro=new ResizeObserver(draw);ro.observe($("#cF"));},
+  el.querySelectorAll("input").forEach(i=>i.oninput=draw);ROS.push(ro=new ResizeObserver(draw));ro.observe($("#cF"));},
  rcm(el){el.innerHTML=`<h3>활동: RCM 정비 과업 고르기</h3><p>FMEA로 찾은 고장 모드마다 알맞은 정비 과업을 골라 보세요.</p><div class="sort" id="rc"></div>`;
   sorter($("#rc"),[["펌프 베어링: 진동이 서서히 커진 뒤 고장","상태 감시"],["타이밍 벨트: 정해진 수명쯤 마모로 끊어짐","정기 교체"],["비상 발전기: 평소엔 안 써서 고장 나도 모름","기능 점검"],["사무실 형광등: 싸고 고장 영향이 작음","고장 시 보전"],["예측도 감시도 안 되는데 고장이 치명적임","재설계"]],["상태 감시","정기 교체","기능 점검","고장 시 보전","재설계"]);},
  down(el){el.innerHTML=`<h3>활동: 정지 시간 쪼개 보기</h3><p>고장 한 번에 드는 시간을 넣어 보세요. 노랑은 손을 대는 능동 보전, 회색은 기다리는 무효 시간이에요.</p>
@@ -204,5 +204,5 @@ const ACT={
  tpm(el){el.innerHTML=`<h3>활동: 작업자의 자주 보전일까, 전문 보전팀 일일까?</h3><div class="sort" id="tp"></div>`;
   sorter($("#tp"),[["작업 시작 전 설비 청소와 급유","작업자"],["볼트 풀림·이상 소음 매일 점검","작업자"],["주축 베어링 분해 교체","전문 보전팀"],["고장 원인 분석과 설비 개선 설계","전문 보전팀"],["필터 막힘 확인과 간단한 교체","작업자"]],["작업자","전문 보전팀"]);}
 };
-return {L,POOL,ACT,homeDraw:homeDraw,stopRO:()=>{if(ro){ro.disconnect();ro=null}}};
+return {L,POOL,ACT,homeDraw:homeDraw,stopRO:()=>{ROS.splice(0).forEach(o=>o.disconnect());ro=null}};
 });

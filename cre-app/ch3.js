@@ -191,7 +191,7 @@ function homeDraw(){const d=DS[hm],s=$("#c3hS"),W=s.clientWidth,H=s.clientHeight
   `<line x1="${X(mean)}" x2="${X(mean)}" y1="${T}" y2="${B}" stroke="${ink}" stroke-dasharray="5 4" stroke-width="2"/><text x="${X(mean)+6}" y="${T+12}" font-size="13" fill="${ink}">평균</text>`;}
 $("#c3hMode").addEventListener("click",e=>{const b=e.target.closest("[data-m]");if(!b)return;hm=+b.dataset.m;$$("#c3hMode .chip").forEach(x=>x.classList.toggle("on",x===b));homeDraw()});
 const homeRO=new ResizeObserver(homeDraw);homeRO.observe($("#c3hFig"));
-let ro=null;
+let ro=null;const ROS=[];
 const ACT={
  prob(el){el.innerHTML=`<h3>활동: 넓이로 보는 확률</h3><p>네모 전체가 1(모든 경우)이에요. 노랑 띠가 A, 파랑 띠가 B. 겹친 초록 부분이 ‘A 그리고 B’예요.</p>
   <div class="chips" id="pm"><button class="chip on" data-m="i">독립 사건</button><button class="chip" data-m="x">배반 사건</button></div>
@@ -231,7 +231,7 @@ const ACT={
    const C={f:[f,fm*1.1],F:[F,1],R:[R,1],h:[h,Math.min(hm2,.06)*1.1]};
    for(const k in C){lineChart($("#s"+k),{fn:C[k][0],xmax:250,ymax:C[k][1],col:sky,mark:t,ticks:tk,left:14});
     $("#v"+k).textContent=k==="F"||k==="R"?(C[k][0](t)*100).toFixed(1)+"%":C[k][0](t).toFixed(4)}};
-  el.querySelectorAll("input").forEach(i=>i.oninput=draw);ro=new ResizeObserver(draw);ro.observe($("#fw"));},
+  el.querySelectorAll("input").forEach(i=>i.oninput=draw);ROS.push(ro=new ResizeObserver(draw));ro.observe($("#fw"));},
  normal(el){el.innerHTML=`<h3>활동: Z 계산기</h3><p>고장 시간이 정규분포를 따를 때, t시간까지 살아남을 확률(신뢰도)을 구해요. 파란 넓이가 신뢰도예요.</p>
   <div class="chips"><button class="chip" data-pr="50,10,40">기출: 평균 50, σ 10, 40시간</button><button class="chip" data-pr="15,3.5,10">기출: 수도관 15년, σ 3.5, 10년</button><button class="chip" data-pr="100,10,119.6">Z = 1.96 확인</button></div>
   <div class="two"><div class="fig" id="nF"><svg id="nS" role="img" aria-label="정규분포 곡선과 신뢰도 넓이"></svg></div><div>
@@ -245,7 +245,7 @@ const ACT={
    lineChart($("#nS"),{fn,xmax:xm,ymax:.45,col:css('--sky'),shade:[zc,8],mark:zc,ticks:[[1,"μ−3σ"],[2,"μ−2σ"],[3,"μ−σ"],[4,"μ"],[5,"μ+σ"],[6,"μ+2σ"],[7,"μ+3σ"]],left:14})};
   el.querySelectorAll("input").forEach(i=>i.oninput=draw);
   el.querySelectorAll("[data-pr]").forEach(b=>b.onclick=()=>{const [a,c,d]=b.dataset.pr.split(",");$("#nm").value=a;$("#nsd").value=c;$("#nx").value=d;el.querySelectorAll("[data-pr]").forEach(x=>x.classList.toggle("on",x===b));draw()});
-  ro=new ResizeObserver(draw);ro.observe($("#nF"));},
+  ROS.push(ro=new ResizeObserver(draw));ro.observe($("#nF"));},
  which(el){el.innerHTML=`<h3>활동: 어느 분포의 설명일까?</h3><p>각 설명에 맞는 분포를 골라 보세요.</p><div class="sort" id="wh"></div>`;
   sorter($("#wh"),[["이미 500시간 쓴 부품도 새것과 고장 확률이 같다","지수"],["β와 η 두 숫자로 초기·우발·마모를 모두 그린다","와이블"],["log(t)를 취하면 종 모양이 된다","대수정규"],["평균을 중심으로 좌우 대칭인 종 모양","정규"],["수리 시간처럼 대부분 짧고 가끔 아주 길다","대수정규"],["특성수명에서 63.2%가 고장 난다","와이블"],["MTBF = 1/λ, R(t) = e^(−λt)","지수"]],["정규","지수","와이블","대수정규"]);},
  clt(el){el.innerHTML=`<h3>활동: 중심극한정리 실험</h3><p>모집단은 지수분포(평균 1, 한쪽으로 크게 치우침)예요. 표본 n개의 평균을 400번 구해서 막대로 쌓았어요. n을 키워 보세요.</p>
@@ -276,8 +276,8 @@ const ACT={
      `<text x="${a}" y="${B+18}" font-size="13" fill="${soft}">1</text><text x="${b}" y="${B+18}" text-anchor="end" font-size="13" fill="${soft}">25번째 표본군</text>`}
    $("#spSay").innerHTML=m===0?"모든 점이 관리 한계 안에서 위아래로 섞여 있어요. 우연 원인만 있는 <b>관리 상태</b>예요.":m===1?"15번째 점이 <b>UCL 밖</b>으로 나갔어요. 그런데 규격 한계 안이라 불량은 아닐 수도 있어요. 그래도 이상 원인(공구 파손, 측정 실수 등)을 찾아야 해요!":"16번째부터 점들이 <b>중심선 위쪽에만 연속</b>으로 찍혔어요. 한계선을 넘진 않았지만 평균이 이동한 이상 신호예요(공구 마모 등)."};
   $("#sm").addEventListener("click",e=>{const b=e.target.closest("[data-m]");if(!b)return;m=+b.dataset.m;$$("#sm .chip").forEach(x=>x.classList.toggle("on",x===b));draw()});
-  ro=new ResizeObserver(draw);ro.observe($("#spF"));}
+  ROS.push(ro=new ResizeObserver(draw));ro.observe($("#spF"));}
 };
 
-return {L,POOL,ACT,homeDraw:homeDraw,stopRO:()=>{if(ro){ro.disconnect();ro=null}}};
+return {L,POOL,ACT,homeDraw:homeDraw,stopRO:()=>{ROS.splice(0).forEach(o=>o.disconnect());ro=null}};
 });

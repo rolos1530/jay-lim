@@ -164,7 +164,7 @@ function homeDraw(){const T=+$("#c6hT").value,af=AFa(hEa,25,T),h=1000*af,y=h/876
 $("#c6hT").addEventListener("input",homeDraw);
 $("#c6hE").addEventListener("click",e=>{const b=e.target.closest("[data-e]");if(!b)return;hEa=+b.dataset.e;$$("#c6hE .chip").forEach(x=>x.classList.toggle("on",x===b));homeDraw()});
 const homeRO=new ResizeObserver(homeDraw);homeRO.observe($("#c6hFig"));
-let ro=null;
+let ro=null;const ROS=[];
 const ACT={
  alt(el){el.innerHTML=`<h3>활동: 이 가속 시험 계획, 괜찮을까?</h3><p>각 계획이 좋은지, 문제가 있는지 골라 보세요.</p><div class="sort" id="al"></div>`;
   sorter($("#al"),[["가속 조건에서도 정상 조건과 같은 고장 메커니즘이 나온다","좋은 계획"],["온도를 너무 올려 플라스틱 케이스가 녹아 버렸다","문제 있음"],["응력-수명 관계(물리 모델)를 먼저 정하고 시작한다","좋은 계획"],["가장 낮은 스트레스 수준에 시료를 더 많이 배정한다","좋은 계획"],["완제품 전체에 모든 스트레스를 최대로 걸고 수명을 외삽한다","문제 있음"],["높은 스트레스 한 수준에서만 시험하고 모델 없이 정상 수명을 말한다","문제 있음"]],["좋은 계획","문제 있음"]);},
@@ -202,7 +202,7 @@ const ACT={
     `<line x1="${X(500)}" x2="${X(500)}" y1="${T}" y2="${B}" stroke="${css('--line')}" stroke-dasharray="4 4"/><text x="${X(500)+4}" y="${T+12}" font-size="13" fill="${soft}">측정 끝(500h)</text>`+
     U.map(([sl],i)=>`<line x1="${X(0)}" y1="${Y(100)}" x2="${X(ft[i])}" y2="${Y(th)}" stroke="${cols[i]}" stroke-width="2" stroke-dasharray="6 5"/>`+pts[i].map(([t,v])=>`<circle cx="${X(t)}" cy="${Y(v)}" r="4.5" fill="${cols[i]}"/>`).join("")+`<circle cx="${X(ft[i])}" cy="${Y(th)}" r="6" fill="none" stroke="${cols[i]}" stroke-width="3"/>`).join("")+
     `<text x="${b}" y="${B+20}" text-anchor="end" font-size="13" fill="${soft}">시간 → ${fmt(xm)}h</text>`};
-  $("#dTh").oninput=draw;ro=new ResizeObserver(draw);ro.observe($("#dF"));},
+  $("#dTh").oninput=draw;ROS.push(ro=new ResizeObserver(draw));ro.observe($("#dF"));},
  sys(el){el.innerHTML=`<h3>활동: k-out-of-n 블록 놀이</h3><p>n개 중 k개 이상만 작동하면 되는 시스템이에요. k = n이면 직렬, k = 1이면 병렬이에요.</p>
   <div class="chips" id="sp"><button class="chip" data-pr="3,3,0.9">직렬 3개</button><button class="chip" data-pr="3,1,0.9">병렬 3개</button><button class="chip" data-pr="4,2,0.8">기출: 4개 중 2개, R 0.8</button><button class="chip" data-pr="3,2,0.9">2-out-of-3 투표</button></div>
   <div class="row"><label for="sn">부품 수 n</label><input id="sn" type="range" min="1" max="8" value="4"><span id="snv" class="nw"></span></div>
@@ -234,7 +234,7 @@ const ACT={
     (t<=xm?`<line x1="${X(t)}" x2="${X(t)}" y1="${T}" y2="${B}" stroke="${ink}" stroke-dasharray="4 4"/>`:"")+`<text x="${b}" y="${B+20}" text-anchor="end" font-size="13" fill="${soft}">시간 → ${fmt(xm)}</text>`};
   el.querySelectorAll("input").forEach(i=>i.oninput=draw);
   el.querySelectorAll("[data-pr]").forEach(b=>b.onclick=()=>{const [l,t,w]=b.dataset.pr.split(",");$("#bl").value=l;$("#bt").value=t;$("#bw").value=w;el.querySelectorAll("[data-pr]").forEach(x=>x.classList.toggle("on",x===b));draw()});
-  ro=new ResizeObserver(draw);ro.observe($("#bF"));},
+  ROS.push(ro=new ResizeObserver(draw));ro.observe($("#bF"));},
  mc(el){el.innerHTML=`<h3>활동: 몬테카를로로 2-out-of-3 신뢰도 추정</h3><p>부품 신뢰도 0.9인 투표 시스템(3개 중 2개 이상 작동)을 컴퓨터로 여러 번 ‘작동’시켜 봐요. 정답은 0.9720이에요.</p>
   <div class="chips" id="mn"><button class="chip" data-n="20">20번</button><button class="chip on" data-n="200">200번</button><button class="chip" data-n="2000">2,000번</button><button class="chip" data-n="20000">20,000번</button></div><button class="btn alt" id="mgo">다시 던지기</button>
   <div class="two" style="margin-top:12px"><div class="fig" id="mF"><svg id="mS" role="img" aria-label="시행 횟수에 따른 추정값 변화"></svg></div><div><div class="stats" id="mSt"></div><p class="note">시행이 많을수록 정답에 가까워지지만 계산 시간도 늘어요. 몬테카를로 계산 시간의 주원인은 뽑아야 하는 사건의 수예요.</p></div></div>`;
@@ -246,9 +246,9 @@ const ACT={
     `<line x1="${a}" x2="${b}" y1="${Y(.972)}" y2="${Y(.972)}" stroke="${css('--tom')}" stroke-width="2" stroke-dasharray="6 4"/><text x="${b}" y="${Y(.972)-6}" text-anchor="end" font-size="13" fill="${css('--tom')}">정답 0.972</text>`+
     `<path d="${tr.map(([i,v],j)=>(j?"L":"M")+X(i).toFixed(1)+" "+Y(v).toFixed(1)).join("")}" fill="none" stroke="${css('--sky')}" stroke-width="3"/><text x="${b}" y="${B+20}" text-anchor="end" font-size="13" fill="${soft}">시행 수 → ${fmt(N)}</text>`};
   $("#mn").addEventListener("click",e=>{const b=e.target.closest("[data-n]");if(!b)return;N=+b.dataset.n;$$("#mn .chip").forEach(x=>x.classList.toggle("on",x===b));run()});
-  $("#mgo").onclick=()=>{seed++;run()};ro=new ResizeObserver(run);ro.observe($("#mF"));},
+  $("#mgo").onclick=()=>{seed++;run()};ROS.push(ro=new ResizeObserver(run));ro.observe($("#mF"));},
  sw(el){el.innerHTML=`<h3>활동: 어떤 소프트웨어 시험일까?</h3><p>상황에 맞는 시험을 골라 보세요.</p><div class="sort" id="sw"></div>`;
   sorter($("#sw"),[["버그를 고친 뒤 예전 기능이 그대로 되는지 다시 확인","회귀"],["코드의 모든 분기와 독립 경로를 한 번씩 지나가게 설계","화이트박스"],["속은 모르고 사용자 시나리오대로 입력하고 결과만 확인","블랙박스"],["일부러 잘못된 값을 넣어 오류 처리가 되는지 확인","결함 삽입"],["실제 사용자들이 쓰는 빈도대로 기능을 시험","운용 프로파일"]],["회귀","화이트박스","블랙박스","결함 삽입","운용 프로파일"]);}
 };
-return {L,POOL,ACT,homeDraw:homeDraw,stopRO:()=>{if(ro){ro.disconnect();ro=null}}};
+return {L,POOL,ACT,homeDraw:homeDraw,stopRO:()=>{ROS.splice(0).forEach(o=>o.disconnect());ro=null}};
 });

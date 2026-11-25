@@ -155,7 +155,7 @@ function lampsDraw(){const t=+$("#c1hT").value,on=life.filter(x=>x>t).length;
  $("#c1hNote").textContent=`켜진 전구 ${on}개 · 공식 e^(−${t}/1000) = ${pct(Math.exp(-t/1000))}`;}
 $("#c1hT").addEventListener("input",lampsDraw);
 
-let ro=null;
+let ro=null;const ROS=[];
 const ACT={
  def(el){const P=[["확률","90%","몇 퍼센트로 말해요. ‘절대 안 고장 남’은 신뢰성의 말이 아니에요."],["기능","펑크 없이 잘 굴러가기","무엇을 하면 ‘정상’인지 먼저 정해야 고장을 셀 수 있어요."],["조건","보통 도로, 하루 1시간","험한 산길이면 같은 자전거라도 신뢰도가 달라져요."],["시간","1년 동안","시간을 말하지 않으면 신뢰도는 숫자가 될 수 없어요."]];
   el.innerHTML=`<h3>활동: 문장 속 4요소 찾기</h3><p>아래 문장에서 낱말을 눌러 어떤 요소인지 확인해 보세요.</p>
@@ -185,7 +185,7 @@ const ACT={
    const z=[[0,.24,"#ffcf33","초기 고장","β<1 · 감소"],[.24,.76,"#2f7bf6","우발 고장","β=1 · 일정"],[.76,1,"#ff5a4e","마모 고장","β>1 · 증가"]],sm=W<440;
    s.innerHTML=z.map(([a,b,c,t,u])=>`<rect x="${X(a)}" y="${T-8}" width="${X(b)-X(a)}" height="${B-T+8}" fill="${c}" opacity=".18"/><text x="${(X(a)+X(b))/2}" y="${T-30}" text-anchor="middle" font-family="Jua" font-size="${sm?15:19}" fill="${css('--ink')}">${t}</text><text x="${(X(a)+X(b))/2}" y="${T-12}" text-anchor="middle" font-size="${sm?12:14}" fill="${css('--soft')}">${u}</text>`).join("")+
    `<line x1="${Lm}" y1="${B}" x2="${R}" y2="${B}" stroke="${css('--ink')}" stroke-width="2"/><line x1="${Lm}" y1="${T-8}" x2="${Lm}" y2="${B}" stroke="${css('--ink')}" stroke-width="2"/><path d="${d}" fill="none" stroke="${css('--ink')}" stroke-width="5" stroke-linecap="round"/><text x="${R}" y="${B+24}" text-anchor="end" font-size="14" fill="${css('--soft')}">시간 →</text><text x="${Lm+6}" y="${B+24}" font-size="14" fill="${css('--soft')}">↑ 고장률</text>`};
-  ro=new ResizeObserver(draw);ro.observe($("#tubF"));
+  ROS.push(ro=new ResizeObserver(draw));ro.observe($("#tubF"));
   sorter($("#ts"),[["Burn-in·ESS로 걸러낸다","초기"],["예방보전(미리 교체)이 효과적","마모"],["지수분포, λ 일정","우발"],["납땜 불량 같은 숨은 제조 결함","초기"],["베어링이 닳고 금속 피로가 쌓임","마모"],["번개 같은 예상 못 한 외부 충격","우발"]],["초기","우발","마모"]);},
  exp(el){el.innerHTML=`<h3>활동: 신뢰도 곡선 만지기</h3>
   <div class="two"><div class="fig" id="expF"><svg id="expS" role="img" aria-label="지수분포 신뢰도 곡선 R(t)"></svg></div>
@@ -205,7 +205,7 @@ const ACT={
    <line x1="${X(k)}" y1="${Y(R)}" x2="${X(k)}" y2="${B}" stroke="${css('--tom')}" stroke-dasharray="5 4" stroke-width="2"/><line x1="${a}" y1="${Y(R)}" x2="${X(k)}" y2="${Y(R)}" stroke="${css('--tom')}" stroke-dasharray="5 4" stroke-width="2"/>
    <circle cx="${X(k)}" cy="${Y(R)}" r="8" fill="${css('--tom')}"/>`};
   $("#eM").oninput=draw;$("#eT").oninput=draw;el.querySelectorAll("[data-t]").forEach(b=>b.onclick=()=>{$("#eT").value=b.dataset.t;draw()});
-  ro=new ResizeObserver(draw);ro.observe($("#expF"));},
+  ROS.push(ro=new ResizeObserver(draw));ro.observe($("#expF"));},
  sim(el){el.innerHTML=`<h3>활동: 기계 한 대의 1만 시간 일기</h3><p>기계가 돌다가(초록) 고장 나면 수리(빨강)하고 다시 돌아요. 목표값을 바꾸고 ‘다시 돌리기’를 눌러 실제 기록에서 MTBF·MTTR·가용도를 계산해 보세요.</p>
   <div class="row"><label for="sM">목표 MTBF</label><input id="sM" type="number" min="50" value="800"><span class="note">시간</span></div>
   <div class="row"><label for="sR">목표 MTTR</label><input id="sR" type="number" min="1" value="60"><span class="note">시간</span><button class="btn alt" id="sGo">다시 돌리기</button></div>
@@ -250,5 +250,5 @@ const ACT={
   sorter($("#lf"),[["신뢰성 목표(요구사항) 정하기","개념"],["FMEA·디레이팅·신뢰성 예측","설계"],["시제품 시험으로 신뢰성 성장","개발"],["ESS·Burn-in으로 초기 불량 걸러내기","생산"],["FRACAS·보증 데이터로 고장 추적","사용"],["시스템 목표를 부품별로 나눠 주기(할당)","개념"]],["개념","설계","개발","생산","사용"]);}
 };
 
-return {L,POOL,ACT,homeDraw:lampsDraw,stopRO:()=>{if(ro){ro.disconnect();ro=null}}};
+return {L,POOL,ACT,homeDraw:lampsDraw,stopRO:()=>{ROS.splice(0).forEach(o=>o.disconnect());ro=null}};
 });

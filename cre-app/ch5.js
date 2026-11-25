@@ -146,7 +146,7 @@ let hm=2;
 function homeDraw(){$("#c5hLine").innerHTML=SN.map((s,i)=>`<button class="stn${i===hm?" on":""}" data-s="${i}"><i>${i+1}</i><span><b>${s[0]}</b><br>${s[1]}</span></button>`).join("");
  const s=SN[hm];$("#c5hSay").innerHTML=`<div class="card"><h3>${s[0]} 단계: 할 일</h3><ul class="hz">${s[2].map(x=>`<li>${x}</li>`).join("")}</ul></div><div class="card"><h3>${s[0]} 단계: 시험</h3><ul class="hz">${s[3].map(x=>`<li>${x}</li>`).join("")}</ul></div>`;
  $$("#c5hLine .stn").forEach(b=>b.onclick=()=>{hm=+b.dataset.s;homeDraw()});}
-let ro=null;
+let ro=null;const ROS=[];
 const ACT={
  plan(el){orderGame(el,"활동: 신뢰성 프로그램 순서 맞추기","제품 개발 동안 할 신뢰성 업무를 올바른 순서대로 눌러 보세요.",["고객 요구 파악: 사용 환경·기대 수명","신뢰성 요구사항 전개: 목표와 할당","신뢰도 예측: 목표를 맞출 수 있나","시험: 가속·성장·입증 시험으로 확인","양산 스크리닝: ESS·HASS","필드·보증 분석: 보증 비용과 고장 피드백"],"기출 순서 ‘요구사항 → 예측 → 시험 → 보증’과 같아요.");},
  alloc(el){const S=[["동력부",300],["제어부",150],["센서부",60]];
@@ -183,7 +183,7 @@ const ACT={
     ln(ci,sky)+ln(T=>ci(T)/(1-a),ink,1)+
     (isFinite(Tg)&&Math.log10(Tg)<=L1?`<circle cx="${X(Tg)}" cy="${Y(g)}" r="8" fill="${tom}"/>`:"")+
     `<text x="${X(100)+8}" y="${Y(ci(100))+22}" font-size="13" fill="${sky}">누적 θc</text><text x="${X(100)+8}" y="${Y(ci(100)/(1-a))-10}" font-size="13" fill="${ink}">순간 θi</text>`};
-  el.querySelectorAll("input").forEach(i=>i.oninput=draw);ro=new ResizeObserver(draw);ro.observe($("#dF"));},
+  el.querySelectorAll("input").forEach(i=>i.oninput=draw);ROS.push(ro=new ResizeObserver(draw));ro.observe($("#dF"));},
  stress(el){el.innerHTML=`<h3>활동: 이 고장은 어떤 스트레스로 드러날까?</h3><p>고장 증상마다 가장 잘 드러내는 환경 스트레스를 골라 보세요.</p><div class="sort" id="st"></div>`;
   sorter($("#st"),[["BGA 납땜 접합부에 생긴 피로 균열","열 사이클"],["커넥터 나사가 점점 풀림","진동"],["회로 기판의 구리 배선 부식","고온 고습"],["전해 커패시터 전해액이 말라 용량 감소","고온 지속"],["정전기 방전으로 칩 입력단 파괴","전기적 스트레스"],["금속 브래킷의 반복 굽힘 피로","진동"]],["열 사이클","진동","고온 고습","고온 지속","전기적 스트레스"]);},
  zero(el){el.innerHTML=`<h3>활동: 무고장 시험 설계기</h3><div class="chips" id="zm"><button class="chip on" data-m="n">시료 수 구하기</button><button class="chip" data-m="r">신뢰도 하한 구하기</button></div>
@@ -215,5 +215,5 @@ const ACT={
  life(el){el.innerHTML=`<h3>활동: 이 일은 어느 정거장에서?</h3><p>신뢰성 활동을 알맞은 수명주기 단계에 연결해 보세요.</p><div class="sort" id="lf"></div>`;
   sorter($("#lf"),[["제품 수명 목표 정하기","개념"],["안전·책임 요건 설정","개념"],["FMEA와 디레이팅","설계"],["가속 수명 시험·HALT","시제품"],["신뢰성 성장 시험","시제품"],["ESS·HASS","양산"],["보증 데이터로 예비품 수량 재검토","사용"]],["개념","설계","시제품","양산","사용"]);}
 };
-return {L,POOL,ACT,homeDraw:homeDraw,stopRO:()=>{if(ro){ro.disconnect();ro=null}}};
+return {L,POOL,ACT,homeDraw:homeDraw,stopRO:()=>{ROS.splice(0).forEach(o=>o.disconnect());ro=null}};
 });

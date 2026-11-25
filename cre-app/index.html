@@ -8,7 +8,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&display=swap">
 <style>
 /*
-VOICE 다정한 선생님, 초등학생 학습지처럼 쉽고 또박또박 — 8개 단원 앱을 한 권으로 묶은 학습지
+VOICE 다정한 선생님, 초등학생 학습지처럼 쉽고 또박또박 — 2025 CRE 시험 영역별로 묶은 한 권짜리 학습지
 IDEA 과학 탐구 학습지 묶음: 차례 쪽(목차), 단원별 활동지, 전 범위 모의고사, 한 권짜리 오답 노트
 PICTURE 목차의 8개 정거장 노선: 정거장마다 단원 색과 차시 진도 링, 단원 안에서는 각 단원의 대표 그림
 COLOUR 종이 흰색, 해바라기 노랑 띠, 단원별 색 점, 하늘 파랑 보조, 토마토 강조, 잎 초록 완료·정답
@@ -237,7 +237,7 @@ footer{color:var(--soft);font-size:14px}
 .chead{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
 .chead .cdot{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;font-family:Jua,sans-serif;font-size:26px;color:#1d1b16;flex:none}
 .chead p{margin:2px 0 0;color:var(--soft);max-width:70ch}
-.rail{position:relative;display:grid;grid-template-columns:repeat(8,minmax(0,1fr));margin:10px 0 24px}
+.rail{position:relative;display:grid;grid-template-columns:repeat(6,minmax(0,1fr));margin:10px 0 24px}
 .rail::before{content:"";position:absolute;left:6%;right:6%;top:33px;height:8px;border-radius:8px;background:var(--line)}
 .rstop{position:relative;display:flex;flex-direction:column;align-items:center;gap:6px;text-decoration:none;color:var(--ink);min-height:44px}
 .rstop .ring{width:74px;height:74px;border-radius:50%;display:grid;place-items:center}
@@ -265,9 +265,12 @@ footer{color:var(--soft);font-size:14px}
 .plan{display:grid;gap:12px;grid-template-columns:repeat(3,minmax(0,1fr));margin-top:12px}
 .plan div{background:var(--paper);border:2px dashed var(--line);border-radius:18px;padding:14px 16px}
 .plan b{font-family:Jua,sans-serif;font-weight:400;font-size:19px;display:block;color:var(--sky)}
+.rstop.pend{opacity:.75}.ccard.pend{border-style:dashed;background:var(--bg)}
+.srch{font-family:Jua,sans-serif;font-size:16px;color:var(--soft);margin:18px 0 4px}
 .loaderr{background:var(--tom2);border-radius:16px;padding:14px 16px}
+.cgrid{grid-template-columns:repeat(3,minmax(0,1fr))}
 @media(max-width:1000px){.cgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:760px){.plan{grid-template-columns:minmax(0,1fr)}.cta{grid-template-columns:minmax(0,1fr)}.rail{grid-template-columns:repeat(4,minmax(0,1fr));row-gap:14px}.rail::before{display:none}}
+@media(max-width:760px){.plan{grid-template-columns:minmax(0,1fr)}.cta{grid-template-columns:minmax(0,1fr)}.rail{grid-template-columns:repeat(3,minmax(0,1fr));row-gap:14px}.rail::before{display:none}}
 @media(max-width:600px){.cgrid{grid-template-columns:minmax(0,1fr)}.rstop .ring{width:62px;height:62px}.rstop .ring i{width:46px;height:46px;font-size:20px}.cres .r{grid-template-columns:5.5em minmax(0,1fr) 4.5em}}
 </style>
 </head>
@@ -276,29 +279,29 @@ footer{color:var(--soft);font-size:14px}
   <div class="top">
     <div class="t">
       <h1>CRE 학습 앱</h1>
-      <p>ASQ 신뢰성 기술자(CRE) 시험 범위 8개 단원을 한곳에서. 단원마다 8번의 짧은 활동, 단원 평가, 전 범위 모의고사와 한 권짜리 오답 노트가 있어요.</p>
+      <p>ASQ 신뢰성 기술자(CRE) 2025 시험 영역 기준으로 묶었어요. 영역마다 시험 비중에 맞춘 차시 활동, 영역 평가, 전 범위 모의고사와 한 권짜리 오답 노트가 있어요.</p>
     </div>
-    <div class="meter"><b id="mTxt">0 / 64 차시 완료</b><div class="mbar"><i id="mBar" style="width:0"></i></div></div>
+    <div class="meter"><b id="mTxt">0 / 53 차시 완료</b><div class="mbar"><i id="mBar" style="width:0"></i></div></div>
   </div>
   <nav id="nav" aria-label="큰 메뉴"></nav>
 </div></div></header>
-<nav class="subnav" id="subnav" aria-label="단원 메뉴" hidden></nav>
+<nav class="subnav" id="subnav" aria-label="영역 메뉴" hidden></nav>
 
 <main id="main">
 <section data-view="home" class="band"><div class="wrap">
   <h2>목차</h2>
-  <p class="lead">정거장의 링은 그 단원의 차시 진도예요. 단원을 눌러 학습 지도부터 시작하세요.</p>
-  <div class="rail" id="rail" role="navigation" aria-label="단원 노선"></div>
+  <p class="lead">정거장의 링은 그 영역의 차시 진도예요. 시험 비중이 큰 영역(Ⅲ·Ⅳ)은 차시가 더 많아요. 영역을 눌러 학습 지도부터 시작하세요.</p>
+  <div class="rail" id="rail" role="navigation" aria-label="영역 노선"></div>
   <div class="hstats" id="hstats"></div>
   <div class="cgrid" id="cgrid"></div>
-  <div class="cta"><a href="#mock"><b>전 범위 모의고사 →</b>8개 단원에서 고르게 뽑아 실제 시험처럼 풀고, 단원별 점수로 약한 곳을 찾아요.</a><a href="#review"><b>전체 오답 노트 →</b>모든 단원에서 틀린 문제가 한곳에 모여요. 다시 맞히면 빠져요.</a></div>
+  <div class="cta"><a href="#mock"><b>전 범위 모의고사 →</b>시험 비중대로 영역에서 뽑아 실제 시험처럼 풀고, 영역별 점수로 약한 곳을 찾아요.</a><a href="#review"><b>전체 오답 노트 →</b>모든 영역에서 틀린 문제가 한곳에 모여요. 다시 맞히면 빠져요.</a></div>
   <h2 style="margin-top:30px">이렇게 공부해 보세요</h2>
-  <div class="plan"><div><b>1. 차시 활동부터</b>단원의 1~8차시를 순서대로. 활동을 만져 보고 확인 문제 2개를 맞히면 차시 완료.</div><div><b>2. 단원 평가</b>단원이 끝나면 단원 평가로 확인. 시험이 가까우면 ‘전부 풀기’로 기출까지.</div><div><b>3. 모의고사 → 오답 노트</b>모의고사로 약한 단원을 찾고, 오답 노트가 빌 때까지 반복.</div></div>
+  <div class="plan"><div><b>1. 차시 활동부터</b>영역의 차시를 순서대로. 활동을 만져 보고 확인 문제 2개를 맞히면 차시 완료.</div><div><b>2. 영역 평가</b>영역이 끝나면 영역 평가로 확인. 시험이 가까우면 ‘전부 풀기’로 기출까지.</div><div><b>3. 모의고사 → 오답 노트</b>모의고사로 약한 영역을 찾고, 오답 노트가 빌 때까지 반복.</div></div>
   <p class="note" style="margin-top:14px">진도와 오답 기록은 이 브라우저에만 저장돼요. <button class="btn alt sm" id="resetAll" style="margin-left:6px">모든 기록 지우기</button></p>
 </div></section>
-<section data-view="c1" class="band" id="v-c1"><div class="wrap">
-<div class="chead"><span class="cdot" style="background:#ffcf33">1</span><div><span class="note">1장 · BOK Ⅰ</span><h2 style="margin:0">신뢰성 기본</h2><p>CRE 시험 첫 단원(Reliability fundamentals)을 8번의 짧은 활동으로 익혀요. 읽고, 만져 보고, 확인 문제를 풀면 차시 완료!</p></div></div>
-<div class="chome"><div class="two">
+<section data-view="d1" class="band" id="v-d1"><div class="wrap">
+<div class="chead"><span class="cdot" style="background:#ffcf33">Ⅰ</span><div><span class="note">영역 Ⅰ</span><h2 style="margin:0">신뢰성 기본</h2><p>신뢰성의 정의와 가치, 기본 용어, 시정조치와 근본 원인, 윤리와 제조물 책임까지 신뢰성 공학의 바탕을 다져요.</p></div></div>
+<p class="srch">대표 그림 · 신뢰성 기본</p><div class="chome" data-ch="1"><div class="two">
     <div>
       <h2>전구 100개로 보는 신뢰성</h2>
       <div class="def">정해진 <b>조건</b>에서, 정해진 <b>시간</b> 동안, 맡은 <b>기능</b>을 고장 없이 해낼 <b>확률</b></div>
@@ -309,14 +312,14 @@ footer{color:var(--soft);font-size:14px}
     </div>
     <div class="lamps" id="c1hLamps" role="img" aria-label="전구 100개 중 켜진 전구 수가 신뢰도를 나타냄"></div>
   </div></div>
-<h2 style="margin-top:34px">1장 학습 지도</h2>
+<h2 style="margin-top:34px">영역 Ⅰ 학습 지도</h2>
 <p class="lead">순서대로 해도 좋고, 궁금한 차시부터 골라도 좋아요. 확인 문제를 모두 맞히면 초록 동그라미가 돼요.</p>
 <div class="path"></div>
-<div class="qnav" style="margin-top:22px"><a class="btn" href="#c1-exam">1장 단원 평가</a><a class="btn alt" href="#review">오답 노트</a><a class="btn alt" href="#home">목차로</a></div>
+<div class="qnav" style="margin-top:22px"><a class="btn" href="#d1-exam">영역 Ⅰ 평가</a><a class="btn alt" href="#review">오답 노트</a><a class="btn alt" href="#home">목차로</a></div>
 </div></section>
-<section data-view="c2" class="band" id="v-c2"><div class="wrap">
-<div class="chead"><span class="cdot" style="background:#ff5a4e">2</span><div><span class="note">2장 · BOK Ⅱ</span><h2 style="margin:0">리스크 관리</h2><p>CRE 시험 둘째 단원(Risk management)을 8번의 짧은 활동으로 익혀요. 무엇이 위험한지 찾고, 점수 매기고, 줄이는 법을 배워요.</p></div></div>
-<div class="chome"><div class="two">
+<section data-view="d2" class="band" id="v-d2"><div class="wrap">
+<div class="chead"><span class="cdot" style="background:#ff5a4e">Ⅱ</span><div><span class="note">영역 Ⅱ</span><h2 style="margin:0">리스크 관리</h2><p>무엇이 위험한지 찾고(식별), 점수를 매기고(분석), 줄이는(완화) 법. FMEA·FTA·공통 원인 고장이 핵심이에요.</p></div></div>
+<p class="srch">대표 그림 · 리스크 관리</p><div class="chome" data-ch="2"><div class="two">
     <div>
       <h2>전기 포트의 위험 지도</h2>
       <div class="def">리스크 = 일어날 <b>가능성</b> × 일어났을 때의 <b>심각도</b></div>
@@ -327,52 +330,36 @@ footer{color:var(--soft);font-size:14px}
     </div>
     <div class="mx" id="c2hMx" role="img" aria-label="가능성과 심각도 5×5 리스크 매트릭스 위의 위험 5가지"></div>
   </div></div>
-<h2 style="margin-top:34px">2장 학습 지도</h2>
+<h2 style="margin-top:34px">영역 Ⅱ 학습 지도</h2>
 <p class="lead">순서대로 해도 좋고, 궁금한 차시부터 골라도 좋아요. 확인 문제를 모두 맞히면 초록 동그라미가 돼요.</p>
 <div class="path"></div>
-<div class="qnav" style="margin-top:22px"><a class="btn" href="#c2-exam">2장 단원 평가</a><a class="btn alt" href="#review">오답 노트</a><a class="btn alt" href="#home">목차로</a></div>
+<div class="qnav" style="margin-top:22px"><a class="btn" href="#d2-exam">영역 Ⅱ 평가</a><a class="btn alt" href="#review">오답 노트</a><a class="btn alt" href="#home">목차로</a></div>
 </div></section>
-<section data-view="c3" class="band" id="v-c3"><div class="wrap">
-<div class="chead"><span class="cdot" style="background:#2f7bf6">3</span><div><span class="note">3장 · BOK Ⅲ.A</span><h2 style="margin:0">통계 개념</h2><p>CRE 시험 셋째 단원(Statistical concepts)을 8번의 짧은 활동으로 익혀요. 고장을 숫자와 그래프로 말하는 법을 배워요.</p></div></div>
-<div class="chome"><h2>부품 100개의 고장 시간, 어떤 모양일까?</h2>
+<section data-view="d3" class="band" id="v-d3"><div class="wrap">
+<div class="chead"><span class="cdot" style="background:#2f7bf6">Ⅲ</span><div><span class="note">영역 Ⅲ</span><h2 style="margin:0">확률·통계</h2><p>확률과 분포, 추정과 검정, 관리도(기본 개념)와 신뢰성 데이터의 수집·분석·FRACAS(데이터 관리)를 함께 다뤄요.</p></div></div>
+<p class="srch">대표 그림 1 · 통계 개념</p><div class="chome" data-ch="3"><h2>부품 100개의 고장 시간, 어떤 모양일까?</h2>
   <p class="lead">점 하나가 부품 하나예요. 고장 난 시간대에 점을 쌓으면 분포의 모양이 보여요. 빨간 곡선은 그 분포의 확률밀도함수 f(t)예요.</p>
   <div class="chips" id="c3hMode"></div>
   <div class="dist">
     <div class="card" id="c3hSay"></div>
     <div class="fig" id="c3hFig"><svg id="c3hS" role="img" aria-label="부품 100개의 고장 시간 점 히스토그램과 확률밀도 곡선"></svg></div>
-  </div></div>
-<h2 style="margin-top:34px">3장 학습 지도</h2>
-<p class="lead">순서대로 해도 좋고, 궁금한 차시부터 골라도 좋아요. 확인 문제를 모두 맞히면 초록 동그라미가 돼요.</p>
-<div class="path"></div>
-<div class="qnav" style="margin-top:22px"><a class="btn" href="#c3-exam">3장 단원 평가</a><a class="btn alt" href="#review">오답 노트</a><a class="btn alt" href="#home">목차로</a></div>
-</div></section>
-<section data-view="c4" class="band" id="v-c4"><div class="wrap">
-<div class="chead"><span class="cdot" style="background:#1f9d6b">4</span><div><span class="note">4장 · BOK Ⅲ.B</span><h2 style="margin:0">데이터 관리</h2><p>CRE 시험 넷째 단원(Reliability data management)을 8번의 짧은 활동으로 익혀요. 고장 기록을 모으고, 분석하고, 다시는 안 나게 하는 법을 배워요.</p></div></div>
-<div class="chome"><h2>고장 하나가 지나가는 길, FRACAS 고리</h2>
+  </div></div><p class="srch">대표 그림 2 · 데이터 관리</p><div class="chome" data-ch="4"><h2>고장 하나가 지나가는 길, FRACAS 고리</h2>
   <p class="lead">FRACAS는 고장 보고 → 분석 → 시정조치를 한 바퀴 도는 닫힌 고리(closed loop)예요. 정거장을 눌러 무엇을 하는지 보세요.</p>
   <div class="loop">
     <div class="fig" id="c4hFig"><svg id="c4hS" role="img" aria-label="FRACAS 닫힌 고리의 여섯 단계"></svg></div>
     <div class="card" id="c4hSay"></div>
   </div></div>
-<h2 style="margin-top:34px">4장 학습 지도</h2>
+<h2 style="margin-top:34px">영역 Ⅲ 학습 지도</h2>
 <p class="lead">순서대로 해도 좋고, 궁금한 차시부터 골라도 좋아요. 확인 문제를 모두 맞히면 초록 동그라미가 돼요.</p>
 <div class="path"></div>
-<div class="qnav" style="margin-top:22px"><a class="btn" href="#c4-exam">4장 단원 평가</a><a class="btn alt" href="#review">오답 노트</a><a class="btn alt" href="#home">목차로</a></div>
+<div class="qnav" style="margin-top:22px"><a class="btn" href="#d3-exam">영역 Ⅲ 평가</a><a class="btn alt" href="#review">오답 노트</a><a class="btn alt" href="#home">목차로</a></div>
 </div></section>
-<section data-view="c5" class="band" id="v-c5"><div class="wrap">
-<div class="chead"><span class="cdot" style="background:#9b6bff">5</span><div><span class="note">5장 · BOK Ⅳ.A</span><h2 style="margin:0">신뢰성 계획</h2><p>CRE 시험 다섯째 단원(Reliability planning, testing)을 8번의 짧은 활동으로 익혀요. 무엇을, 언제, 어떤 시험으로 확인할지 계획하는 법을 배워요.</p></div></div>
-<div class="chome"><h2>제품의 일생 노선도</h2>
+<section data-view="d4" class="band" id="v-d4"><div class="wrap">
+<div class="chead"><span class="cdot" style="background:#9b6bff">Ⅳ</span><div><span class="note">영역 Ⅳ</span><h2 style="margin:0">계획·시험·모델링</h2><p>신뢰성 계획과 요구사항, 시험의 종류와 가속 시험, 무고장·성장 시험, 시스템 신뢰도 모델과 예측·시뮬레이션까지.</p></div></div>
+<p class="srch">대표 그림 1 · 신뢰성 계획</p><div class="chome" data-ch="5"><h2>제품의 일생 노선도</h2>
   <p class="lead">신뢰성 계획은 ‘언제 무엇을 할지’ 정하는 일이에요. 정거장을 눌러 그 단계의 신뢰성 활동과 시험을 보세요.</p>
   <div class="line" id="c5hLine"></div>
-  <div class="stc" id="c5hSay"></div></div>
-<h2 style="margin-top:34px">5장 학습 지도</h2>
-<p class="lead">순서대로 해도 좋고, 궁금한 차시부터 골라도 좋아요. 확인 문제를 모두 맞히면 초록 동그라미가 돼요.</p>
-<div class="path"></div>
-<div class="qnav" style="margin-top:22px"><a class="btn" href="#c5-exam">5장 단원 평가</a><a class="btn alt" href="#review">오답 노트</a><a class="btn alt" href="#home">목차로</a></div>
-</div></section>
-<section data-view="c6" class="band" id="v-c6"><div class="wrap">
-<div class="chead"><span class="cdot" style="background:#ff8a1f">6</span><div><span class="note">6장 · BOK Ⅳ</span><h2 style="margin:0">시험과 모델링</h2><p>CRE 시험 여섯째 단원(Reliability testing &amp; modeling)을 8번의 짧은 활동으로 익혀요. 빨리 시험하고, 시스템을 계산하고, 미래를 예측하는 법을 배워요.</p></div></div>
-<div class="chome"><h2>오븐을 데우면 시간이 빨라져요</h2>
+  <div class="stc" id="c5hSay"></div></div><p class="srch">대표 그림 2 · 시험과 모델링</p><div class="chome" data-ch="6"><h2>오븐을 데우면 시간이 빨라져요</h2>
   <p class="lead">가속 수명 시험은 온도 같은 스트레스를 올려 고장을 빨리 일으키는 시험이에요. 오븐 온도를 올려 보세요. 시험 1,000시간이 상온(25℃) 현장에서 몇 년과 같은지 아레니우스 모델로 계산해요.</p>
   <div class="oven">
     <div class="fig" id="c6hFig"><svg id="c6hS" role="img" aria-label="시험 온도를 나타내는 온도계"></svg></div>
@@ -383,14 +370,14 @@ footer{color:var(--soft);font-size:14px}
       <p class="note">블록 하나 = 현장 1년(하루 24시간 사용). 40년이 넘으면 40개까지만 그려요. 활성화 에너지 Ea가 클수록 같은 온도에서 더 크게 가속돼요.</p>
     </div>
   </div></div>
-<h2 style="margin-top:34px">6장 학습 지도</h2>
+<h2 style="margin-top:34px">영역 Ⅳ 학습 지도</h2>
 <p class="lead">순서대로 해도 좋고, 궁금한 차시부터 골라도 좋아요. 확인 문제를 모두 맞히면 초록 동그라미가 돼요.</p>
 <div class="path"></div>
-<div class="qnav" style="margin-top:22px"><a class="btn" href="#c6-exam">6장 단원 평가</a><a class="btn alt" href="#review">오답 노트</a><a class="btn alt" href="#home">목차로</a></div>
+<div class="qnav" style="margin-top:22px"><a class="btn" href="#d4-exam">영역 Ⅳ 평가</a><a class="btn alt" href="#review">오답 노트</a><a class="btn alt" href="#home">목차로</a></div>
 </div></section>
-<section data-view="c7" class="band" id="v-c7"><div class="wrap">
-<div class="chead"><span class="cdot" style="background:#e0407a">7</span><div><span class="note">7장 · BOK Ⅴ.A–B</span><h2 style="margin:0">신뢰성 설계</h2><p>CRE 시험 일곱째 단원(Design for reliability)을 8번의 짧은 활동으로 익혀요. 처음부터 튼튼하고, 흔들려도 괜찮은 제품을 그리는 법을 배워요.</p></div></div>
-<div class="chome"><h2>부하와 강도가 겹치는 곳에서 고장이 나요</h2>
+<section data-view="d5" class="band" id="v-d5"><div class="wrap">
+<div class="chead"><span class="cdot" style="background:#e0407a">Ⅴ</span><div><span class="note">영역 Ⅴ</span><h2 style="margin:0">수명주기 신뢰성</h2><p>신뢰성 설계 기법(부하-강도, 디레이팅, DOE, 강건 설계, DFX)과 보전성·가용성(예방 교체, RCM, 예비품)을 다뤄요.</p></div></div>
+<p class="srch">대표 그림 1 · 신뢰성 설계</p><div class="chome" data-ch="7"><h2>부하와 강도가 겹치는 곳에서 고장이 나요</h2>
   <p class="lead">부품에 걸리는 힘(부하)도, 부품이 버티는 힘(강도)도 제품마다 조금씩 달라요. 두 분포가 겹치는 빨간 부분은 ‘약한 부품에 센 부하가 걸릴 수 있는’ 구간이에요. 겹칠수록 고장 확률이 커져요. 강도 평균을 키우거나 산포를 줄여 보세요.</p>
   <div class="lsi">
     <div class="fig" id="c7hFig"><svg id="c7hS" role="img" aria-label="부하 분포와 강도 분포가 겹치는 간섭 그림"></svg></div>
@@ -400,15 +387,7 @@ footer{color:var(--soft);font-size:14px}
       <div class="big" id="c7hP"></div><p id="c7hSay"></p>
       <p class="note">부하는 평균 100, 표준편차 12로 고정한 예시예요.</p>
     </div>
-  </div></div>
-<h2 style="margin-top:34px">7장 학습 지도</h2>
-<p class="lead">순서대로 해도 좋고, 궁금한 차시부터 골라도 좋아요. 확인 문제를 모두 맞히면 초록 동그라미가 돼요.</p>
-<div class="path"></div>
-<div class="qnav" style="margin-top:22px"><a class="btn" href="#c7-exam">7장 단원 평가</a><a class="btn alt" href="#review">오답 노트</a><a class="btn alt" href="#home">목차로</a></div>
-</div></section>
-<section data-view="c8" class="band" id="v-c8"><div class="wrap">
-<div class="chead"><span class="cdot" style="background:#00a3a3">8</span><div><span class="note">8장 · BOK Ⅴ.C</span><h2 style="margin:0">보전성</h2><p>CRE 시험 마지막 단원(Maintainability &amp; availability)을 8번의 짧은 활동으로 익혀요. 고장 나도 빨리 고치고, 고장 나기 전에 손보는 법을 배워요.</p></div></div>
-<div class="chome"><h2>같은 기계, 다른 정비 일지</h2>
+  </div></div><p class="srch">대표 그림 2 · 보전성</p><div class="chome" data-ch="8"><h2>같은 기계, 다른 정비 일지</h2>
   <p class="lead">닳아서 고장 나는(마모형, 와이블 β = 3) 베어링 4개를 쓰는 기계의 1년이에요. 정비 전략을 바꾸면 갑작스런 고장 정지(빨강)와 계획 정지(노랑)가 어떻게 달라지는지 보세요.</p>
   <div class="chips" id="c8hM"><button class="chip on" data-m="0">사후 보전 (고장 나면 고치기)</button><button class="chip" data-m="1">예방 보전 (1,500시간마다 교체)</button><button class="chip" data-m="2">예측 보전 (진동 감시 후 교체)</button></div>
   <div class="months" id="c8hMo"></div>
@@ -416,10 +395,10 @@ footer{color:var(--soft);font-size:14px}
   <div class="stats" id="c8hSt"></div>
   <p id="c8hSay"></p>
   <p class="note">예시 시뮬레이션이에요. 베어링 수명은 η = 2,500시간인 와이블 분포에서 뽑았고, 고장 정지는 24시간, 계획 정지는 4시간으로 가정했어요.</p></div>
-<h2 style="margin-top:34px">8장 학습 지도</h2>
+<h2 style="margin-top:34px">영역 Ⅴ 학습 지도</h2>
 <p class="lead">순서대로 해도 좋고, 궁금한 차시부터 골라도 좋아요. 확인 문제를 모두 맞히면 초록 동그라미가 돼요.</p>
 <div class="path"></div>
-<div class="qnav" style="margin-top:22px"><a class="btn" href="#c8-exam">8장 단원 평가</a><a class="btn alt" href="#review">오답 노트</a><a class="btn alt" href="#home">목차로</a></div>
+<div class="qnav" style="margin-top:22px"><a class="btn" href="#d5-exam">영역 Ⅴ 평가</a><a class="btn alt" href="#review">오답 노트</a><a class="btn alt" href="#home">목차로</a></div>
 </div></section>
 <section data-view="lesson" class="band"><div class="wrap" id="lesson"></div></section>
 <section data-view="exam" class="band"><div class="wrap qwrap" id="exam"></div></section>
@@ -432,14 +411,14 @@ footer{color:var(--soft);font-size:14px}
 </main>
 
 <footer class="band"><div class="wrap">
-  “CRE 첫걸음 공부방”과 1~8장 학습 앱을 한 권으로 묶은 통합 앱이에요. 단원 평가에는 올려 주신 기출 노트의 문제가 들어 있고, 오답 보기는 일부 새로 만들었어요. 공식과 정답은 교재·강의로 한 번 더 확인하세요.
+  “CRE 첫걸음 공부방”과 1~8장 학습 앱의 내용을 2025 CRE 시험 영역 기준으로 다시 묶은 통합 앱이에요. 영역 구성과 문제 수는 공개 자료로 확인한 범위를 따랐고, 공식 BoK를 확인하면 맞춰 고칠게요. 단원 평가에는 올려 주신 기출 노트의 문제가 들어 있고, 오답 보기는 일부 새로 만들었어요. 공식과 정답은 교재·강의로 한 번 더 확인하세요.
 </div></footer>
 
 <script>
 /* ───── 공통 도우미 (모든 단원이 같이 씀) ───── */
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
-const STORE={get(k,d){try{return JSON.parse(localStorage.getItem("creall-"+k))??d}catch(e){return d}},set(k,v){try{localStorage.setItem("creall-"+k,JSON.stringify(v))}catch(e){}}};
+const STORE={get(k,d){try{return JSON.parse(localStorage.getItem("cre25-"+k))??d}catch(e){return d}},set(k,v){try{localStorage.setItem("cre25-"+k,JSON.stringify(v))}catch(e){}}};
 function sorter(box,items,cats){box.innerHTML=items.map(([t,a])=>`<div class="sitem" data-a="${a}"><span>${t}</span><span class="chips">${cats.map(c=>`<button class="chip" data-c="${c}">${c}</button>`).join("")}</span></div>`).join("")+`<p class="note" data-sc>0 / ${items.length} 맞힘</p>`;
  box.addEventListener("click",e=>{const b=e.target.closest("[data-c]");if(!b)return;const it=b.closest(".sitem");if(it.classList.contains("ok"))return;
   if(b.dataset.c===it.dataset.a){b.classList.add("ok");it.classList.add("ok")}else{b.classList.add("no");setTimeout(()=>b.classList.remove("no"),600)}
@@ -460,39 +439,71 @@ const CRE={meta:{},fac:{},mod:{},reg(n,meta,fac){this.meta[n]=meta;this.fac[n]=f
 <script src="ch8.js"></script>
 <script>
 {
-const N=[1,2,3,4,5,6,7,8],M=CRE.meta,MOD=CRE.mod;
-/* ───── 단원 모듈 켜기 (한 단원이 고장 나도 나머지는 동작) ───── */
-N.forEach(n=>{const sec=$(`#v-c${n} .chome`);if(!M[n]){if(sec)sec.innerHTML=`<p class="loaderr">이 단원을 불러오지 못했어요.</p>`;return}
- try{MOD[n]=CRE.fac[n]()}catch(e){sec.insertAdjacentHTML("afterbegin",`<p class="loaderr">이 단원의 그림을 준비하다 문제가 생겼어요: ${String(e.message).replace(/[<>&]/g,"")}</p>`)}});
+/* ───── 영역 구성 (2025 BoK 기준으로 공통 확인되는 5개 영역) ─────
+   parts: [원래 장 번호, 원래 차시 id] — 두 개면 합친 차시 */
+const D=[
+ {id:1,name:"신뢰성 기본",roman:"Ⅰ",color:"#ffcf33",w:29,src:[1],desc:"신뢰성의 정의와 가치, 기본 용어, 시정조치와 근본 원인, 윤리와 제조물 책임까지 신뢰성 공학의 바탕을 다져요.",
+  L:[[[1,"l1"]],[[1,"l2"]],[[1,"l3"]],[[1,"l4"]],[[1,"l5"]],[[1,"l6"]],[[1,"l7"]],[[1,"l8"]]]},
+ {id:2,name:"리스크 관리",roman:"Ⅱ",color:"#ff5a4e",w:25,src:[2],desc:"무엇이 위험한지 찾고(식별), 점수를 매기고(분석), 줄이는(완화) 법. FMEA·FTA·공통 원인 고장이 핵심이에요.",
+  L:[[[2,"l1"]],[[2,"l2"]],[[2,"l3"]],[[2,"l4"],[2,"l5"],"FMEA: RPN, 종류와 한계","부품마다 ‘이렇게 고장 나면?’ — 설계용·공정용, 못 보는 것"],[[2,"l6"]],[[2,"l7"]],[[2,"l8"]]]},
+ {id:3,name:"확률·통계",roman:"Ⅲ",color:"#2f7bf6",w:35,src:[3,4],desc:"확률과 분포, 추정과 검정, 관리도(기본 개념)와 신뢰성 데이터의 수집·분석·FRACAS(데이터 관리)를 함께 다뤄요.",
+  L:[[[3,"l1"]],[[3,"l2"]],[[3,"l3"]],[[3,"l4"]],[[3,"l5"]],[[3,"l6"]],[[3,"l7"]],[[3,"l8"]],
+     [[4,"l1"],[4,"l2"],"데이터 출처와 관측 중단","어디서 온 데이터인지, 끝까지 봤는지"],[[4,"l3"]],
+     [[4,"l4"],[4,"l5"],"고장 분석과 고장 메커니즘","부수기 전에 찍고, 밖에서 안으로, 왜 고장 났나"],
+     [[4,"l6"],[4,"l7"],"FRACAS와 파레토","닫힌 고리로 고치고, 중요한 소수부터"],[[4,"l8"]]]},
+ {id:4,name:"계획·시험·모델링",roman:"Ⅳ",color:"#9b6bff",w:35,src:[5,6],desc:"신뢰성 계획과 요구사항, 시험의 종류와 가속 시험, 무고장·성장 시험, 시스템 신뢰도 모델과 예측·시뮬레이션까지.",
+  L:[[[5,"l1"],[5,"l8"],"신뢰성 프로그램 계획과 시기","목표 → 예측 → 시험 → 필드, 언제 무엇을"],[[5,"l2"]],[[5,"l3"]],[[5,"l5"]],
+     [[6,"l1"]],[[6,"l2"]],[[6,"l3"]],[[6,"l4"]],[[5,"l6"]],[[5,"l4"]],[[6,"l5"]],[[6,"l6"]],
+     [[5,"l7"],[6,"l7"],"신뢰도 예측과 시뮬레이션","부품 고장률을 더하고, 주사위로 흉내 내기"],[[6,"l8"]]]},
+ {id:5,name:"수명주기 신뢰성",roman:"Ⅴ",color:"#e0407a",w:26,src:[7,8],desc:"신뢰성 설계 기법(부하-강도, 디레이팅, DOE, 강건 설계, DFX)과 보전성·가용성(예방 교체, RCM, 예비품)을 다뤄요.",
+  L:[[[7,"l1"]],[[7,"l2"]],[[7,"l3"],[7,"l4"],"디레이팅·리던던시·내결함성","살살 쓰고, 여분을 두고, 결함에도 버티게"],[[7,"l5"]],[[7,"l6"]],[[7,"l7"]],[[7,"l8"]],
+     [[8,"l1"],[8,"l2"],"보전성과 보전의 종류","고치기 쉽게, 그리고 사후·예방·예측"],[[8,"l3"],[8,"l4"],"예방 교체와 최적 주기","마모일 때만, 비용이 가장 적을 때"],
+     [[8,"l5"],[8,"l8"],"RCM과 TPM","중요한 정비부터, 모두가 함께"],[[8,"l6"],[8,"l7"],"다운타임·가용도·예비품","기다리는 시간을 줄이기"]]}];
+const PENDING={roman:"Ⅵ",name:"경제·관리·리더십",note:"일부 자료에만 있는 영역이에요. 공식 2025 BoK를 확인한 뒤 추가할게요. 지금은 Ⅰ 신뢰성 기본의 2차시(가치·LCC)와 8차시(프로그램·윤리)가 가까운 내용이에요."};
+const MOD=CRE.mod,DM={};D.forEach(d=>DM[d.id]=d);
+
+/* ───── 원래 장 모듈 켜기 ───── */
+for(let n=1;n<=8;n++){const sec=$(`.chome[data-ch="${n}"]`);if(!CRE.fac[n]){if(sec)sec.innerHTML=`<p class="loaderr">이 내용을 불러오지 못했어요.</p>`;continue}
+ try{MOD[n]=CRE.fac[n]()}catch(e){if(sec)sec.insertAdjacentHTML("afterbegin",`<p class="loaderr">그림을 준비하다 문제가 생겼어요: ${String(e.message).replace(/[<>&]/g,"")}</p>`)}}
+
+/* ───── 영역 차시 만들기 ───── */
+const MAP={};
+D.forEach(d=>{d.lessons=[];d.L.forEach((p,j)=>{const parts=p.filter(x=>Array.isArray(x)),id="l"+(j+1);
+  const src=parts.map(([n,l])=>MOD[n]&&MOD[n].L.find(x=>x.id===l)).filter(Boolean);if(!src.length)return;
+  parts.forEach(([n,l])=>MAP[`${n}:${l}`]={d:d.id,l:id});
+  d.lessons.push({id,t:typeof p[parts.length]==="string"?p[parts.length]:src[0].t,easy:typeof p[parts.length+1]==="string"?p[parts.length+1]:src[0].easy,
+   parts:parts.map(([n,l])=>({n,l:MOD[n]&&MOD[n].L.find(x=>x.id===l)})).filter(x=>x.l)})})});
+/* 문제: 원래 장의 키(c{n}:{k})로 저장, 영역·차시로 다시 묶음. 같은 영역 안 중복 문장은 하나만 */
 const Q={},ALLQ=[];
-N.forEach(n=>{const m=MOD[n];if(!m)return;m.POOL.forEach(q=>{const o={...q,n,g:`c${n}:${q.k}`};Q[o.g]=o;ALLQ.push(o)})});
-const lname=(n,c)=>{const l=MOD[n]&&MOD[n].L.find(x=>x.id===c);return l?l.t:""};
+D.forEach(d=>{const seen=new Set();d.src.forEach(n=>{const m=MOD[n];if(!m)return;m.POOL.forEach(q=>{const t=MAP[`${n}:${q.c}`];if(!t||seen.has(q.q))return;seen.add(q.q);
+ const o={...q,src:n,d:d.id,lc:t.l,g:`c${n}:${q.k}`};Q[o.g]=o;ALLQ.push(o)})})});
+const lt=(d,l)=>{const x=DM[d]&&DM[d].lessons.find(y=>y.id===l);return x?x.t:""};
 
 /* ───── 상태 ───── */
 let done=new Set(STORE.get("done",[])),solved=STORE.get("solved",{}),wrong=new Set(STORE.get("wrong",[]));
 const save=()=>{STORE.set("done",[...done]);STORE.set("solved",solved);STORE.set("wrong",[...wrong]);meter()};
-const cDone=n=>MOD[n]?MOD[n].L.filter(l=>done.has(`c${n}-${l.id}`)).length:0;
-function meter(){const t=N.reduce((a,n)=>a+cDone(n),0);$("#mTxt").textContent=`${t} / 64 차시 완료`;$("#mBar").style.width=t/64*100+"%"}
+const TOT=D.reduce((a,d)=>a+d.lessons.length,0);
+const dDone=d=>DM[d].lessons.filter(l=>done.has(`d${d}-${l.id}`)).length;
+function meter(){const t=D.reduce((a,d)=>a+dDone(d.id),0);$("#mTxt").textContent=`${t} / ${TOT} 차시 완료`;$("#mBar").style.width=t/TOT*100+"%"}
 
-/* ───── 큰 메뉴 & 단원 메뉴 ───── */
-$("#nav").innerHTML=`<a href="#home">목차</a>`+N.map(n=>`<a href="#c${n}">${n}장</a>`).join("")+`<a href="#mock">모의고사</a><a href="#review">오답 노트</a>`;
-function subnav(n,cur){const s=$("#subnav");if(!n||!MOD[n]){s.hidden=true;return}s.hidden=false;
- s.innerHTML=`<a href="#c${n}">${n}장 학습 지도</a>`+MOD[n].L.map((l,i)=>`<a href="#c${n}-${l.id}">${i+1}차시</a>`).join("")+`<a href="#c${n}-exam">단원 평가</a>`;
+/* ───── 메뉴 ───── */
+$("#nav").innerHTML=`<a href="#home">목차</a>`+D.map(d=>`<a href="#d${d.id}">${d.roman} ${d.name}</a>`).join("")+`<a href="#mock">모의고사</a><a href="#review">오답 노트</a>`;
+function subnav(d,cur){const s=$("#subnav");if(!d){s.hidden=true;return}s.hidden=false;
+ s.innerHTML=`<a href="#d${d}">${DM[d].roman} 학습 지도</a>`+DM[d].lessons.map((l,i)=>`<a href="#d${d}-${l.id}">${i+1}차시</a>`).join("")+`<a href="#d${d}-exam">영역 평가</a>`;
  $$("#subnav a").forEach(a=>a.getAttribute("href")==="#"+cur?a.setAttribute("aria-current","page"):a.removeAttribute("aria-current"));
  const c=$("#subnav a[aria-current]");if(c)c.scrollIntoView({block:"nearest",inline:"nearest"})}
 
 /* ───── 라우팅 ───── */
-let curN=0,ro=null;
 function show(v){$$("section[data-view]").forEach(s=>s.classList.toggle("on",s.dataset.view===v))}
 function route(){const h=location.hash.slice(1)||"home";let m;
- N.forEach(n=>MOD[n]&&MOD[n].stopRO());
- const top=(m=h.match(/^c([1-8])/))?"c"+m[1]:h;
+ for(let n=1;n<=8;n++)MOD[n]&&MOD[n].stopRO();
+ const top=(m=h.match(/^d([1-5])/))?"d"+m[1]:h;
  $$("#nav a").forEach(a=>a.getAttribute("href")==="#"+top?a.setAttribute("aria-current","page"):a.removeAttribute("aria-current"));
  const ca=$("#nav a[aria-current]");if(ca)ca.scrollIntoView({block:"nearest",inline:"nearest"});
- if((m=h.match(/^c([1-8])$/))&&MOD[+m[1]]){curN=+m[1];show("c"+curN);subnav(curN,h);paintPath(curN);try{MOD[curN].homeDraw()}catch(e){}return}
- if((m=h.match(/^c([1-8])-(l[1-8])$/))&&MOD[+m[1]]){curN=+m[1];const l=MOD[curN].L.find(x=>x.id===m[2]);if(l){show("lesson");subnav(curN,h);openLesson(curN,l);return}}
- if((m=h.match(/^c([1-8])-exam$/))&&MOD[+m[1]]){curN=+m[1];show("exam");subnav(curN,h);openExam("c"+curN);return}
- curN=0;subnav(0);
+ if((m=h.match(/^d([1-5])$/))){const d=+m[1];show("d"+d);subnav(d,h);paintPath(d);DM[d].src.forEach(n=>{try{MOD[n]&&MOD[n].homeDraw()}catch(e){}});return}
+ if((m=h.match(/^d([1-5])-(l\d{1,2})$/))){const d=+m[1],l=DM[d].lessons.find(x=>x.id===m[2]);if(l){show("lesson");subnav(d,h);openLesson(d,l);return}}
+ if((m=h.match(/^d([1-5])-exam$/))){const d=+m[1];show("exam");subnav(d,h);openExam("d"+d);return}
+ subnav(0);
  if(h==="mock"){show("exam");openExam("mock");return}
  if(h==="review"){show("review");buildReview();return}
  show("home");drawHome();}
@@ -500,34 +511,36 @@ addEventListener("hashchange",()=>{route();scrollTo(0,0)});
 
 /* ───── 목차 ───── */
 function drawHome(){
- $("#rail").innerHTML=N.map(n=>{const mt=M[n]||{name:"?",color:"#ccc"},d=cDone(n);return `<a class="rstop" href="#c${n}"><span class="ring" style="background:conic-gradient(var(--leaf) ${d/8*360}deg,var(--line) 0)"><i style="background:${mt.color}">${d===8?"✓":n}</i></span><span>${mt.name}</span><small>${d}/8 차시</small></a>`}).join("");
- const tot=N.reduce((a,n)=>a+cDone(n),0),sv=Object.keys(solved).filter(k=>Q[k]).length;
- $("#hstats").innerHTML=[[`${tot} / 64`,"차시 완료"],[`${sv} / ${ALLQ.length}`,"맞힌 문제"],[`${[...wrong].filter(k=>Q[k]).length}개`,"오답 노트"]].map(([v,t])=>`<div class="stat"><b>${v}</b><span>${t}</span></div>`).join("");
- $("#cgrid").innerHTML=N.map(n=>{const mt=M[n];if(!mt||!MOD[n])return `<article class="ccard"><h3>${n}장</h3><p class="loaderr">불러오지 못했어요.</p></article>`;const d=cDone(n),w=[...wrong].filter(k=>k.startsWith(`c${n}:`)).length,qn=ALLQ.filter(q=>q.n===n).length;
-  return `<article class="ccard${d===8?" full":""}"><span class="dot" style="background:${mt.color}"></span><span class="no">${n}장 · ${mt.bok}</span><h3>${mt.name}</h3><ul>${mt.keys.map(x=>`<li>${x}</li>`).join("")}</ul>
-  <div class="pbar"><i style="width:${d/8*100}%"></i></div><span class="note">차시 ${d}/8 · 평가 ${qn}문제 · 오답 ${w}</span>
-  <div class="cgo"><a class="btn sm" href="#c${n}">공부하기</a><a class="btn alt sm" href="#c${n}-exam">단원 평가</a></div></article>`}).join("");}
+ $("#rail").innerHTML=D.map(d=>{const k=dDone(d.id),n=d.lessons.length;return `<a class="rstop" href="#d${d.id}"><span class="ring" style="background:conic-gradient(var(--leaf) ${k/n*360}deg,var(--line) 0)"><i style="background:${d.color}">${k===n?"✓":d.roman}</i></span><span>${d.name}</span><small>${k}/${n} 차시</small></a>`}).join("")+
+  `<span class="rstop pend"><span class="ring" style="background:var(--line)"><i style="background:var(--paper);border:3px dashed var(--soft)">${PENDING.roman}</i></span><span>${PENDING.name}</span><small>확인 후 추가</small></span>`;
+ const tot=D.reduce((a,d)=>a+dDone(d.id),0),sv=Object.keys(solved).filter(k=>Q[k]).length;
+ $("#hstats").innerHTML=[[`${tot} / ${TOT}`,"차시 완료"],[`${sv} / ${ALLQ.length}`,"맞힌 문제"],[`${[...wrong].filter(k=>Q[k]).length}개`,"오답 노트"]].map(([v,t])=>`<div class="stat"><b>${v}</b><span>${t}</span></div>`).join("");
+ $("#cgrid").innerHTML=D.map(d=>{const k=dDone(d.id),n=d.lessons.length,w=[...wrong].filter(g=>Q[g]&&Q[g].d===d.id).length,qn=ALLQ.filter(q=>q.d===d.id).length;
+  return `<article class="ccard${k===n?" full":""}"><span class="dot" style="background:${d.color}"></span><span class="no">영역 ${d.roman} · 시험 약 ${d.w}문제</span><h3>${d.name}</h3><p class="note" style="margin:0">${d.desc}</p>
+  <div class="pbar"><i style="width:${k/n*100}%"></i></div><span class="note">차시 ${k}/${n} · 평가 ${qn}문제 · 오답 ${w}</span>
+  <div class="cgo"><a class="btn sm" href="#d${d.id}">공부하기</a><a class="btn alt sm" href="#d${d.id}-exam">영역 평가</a></div></article>`}).join("")+
+  `<article class="ccard pend"><span class="no">영역 ${PENDING.roman} · 확인 중</span><h3>${PENDING.name}</h3><p class="note" style="margin:0">${PENDING.note}</p></article>`;}
 $("#resetAll").onclick=e=>{if(e.target.dataset.sure){done.clear();solved={};wrong.clear();save();drawHome();e.target.textContent="모든 기록 지우기";delete e.target.dataset.sure}else{e.target.dataset.sure=1;e.target.textContent="한 번 더 누르면 모두 지워져요"}};
 
-/* ───── 단원 학습 지도의 차시 카드 ───── */
-function paintPath(n){const el=$(`#v-c${n} .path`);if(!el||!MOD[n])return;
- el.innerHTML=MOD[n].L.map((l,i)=>{const k=`c${n}-${l.id}`;return `<a class="stop${done.has(k)?" done":""}" href="#${k}"><span class="n">${done.has(k)?"✓":i+1}</span>${done.has(k)?'<span class="st">완료</span>':""}<h3>${l.t}</h3><span>${l.easy}</span></a>`}).join("")}
+/* ───── 영역 학습 지도의 차시 카드 ───── */
+function paintPath(d){const el=$(`#v-d${d} .path`);if(!el)return;
+ el.innerHTML=DM[d].lessons.map((l,i)=>{const k=`d${d}-${l.id}`;return `<a class="stop${done.has(k)?" done":""}" href="#${k}"><span class="n">${done.has(k)?"✓":i+1}</span>${done.has(k)?'<span class="st">완료</span>':""}<h3>${l.t}</h3><span>${l.easy}</span>${l.parts.length>1?'<span class="note" style="display:block;margin-top:4px">활동 2개</span>':""}</a>`}).join("")}
 
-/* ───── 차시 화면 ───── */
-function openLesson(n,l){const m=MOD[n],L=m.L,i=L.indexOf(l);
- $("#lesson").innerHTML=`<div class="lhead"><span class="n" style="background:${M[n].color}">${i+1}</span><div><span class="note">${n}장 ${M[n].name} · ${i+1}차시</span><h2 style="margin:0">${l.t}</h2></div></div>
+/* ───── 차시 화면 (합친 차시는 설명·활동·문제를 이어 붙임) ───── */
+function openLesson(d,l){const dd=DM[d],L=dd.lessons,i=L.indexOf(l),one=l.parts.length===1;
+ const checks=l.parts.flatMap(p=>p.l.q.map((_,j)=>`c${p.n}:${p.l.id}-${j}`)).filter(g=>Q[g]);
+ $("#lesson").innerHTML=`<div class="lhead"><span class="n" style="background:${dd.color}">${i+1}</span><div><span class="note">영역 ${dd.roman} ${dd.name} · ${i+1}차시</span><h2 style="margin:0">${l.t}</h2></div></div>
  <div class="easy">한마디로: ${l.easy}</div>
- <ul class="pts">${l.pts.map(([a,b])=>`<li><b>${a}</b>${b}</li>`).join("")}</ul>
- <div class="tip"><b>시험 꿀팁</b> ${l.tip}</div>
- <div class="act" id="act"></div>
- <h3 style="margin-top:28px;font-size:24px">확인 문제</h3><p class="note">두 문제를 모두 맞히면 차시 완료!</p>
- <div class="checks">${l.q.map((q,j)=>qCard(Q[`c${n}:${l.id}-${j}`],"문제 "+(j+1))).join("")}</div>
- <div class="lnav">${i>0?`<a class="btn alt" href="#c${n}-${L[i-1].id}">← ${L[i-1].t}</a>`:`<a class="btn alt" href="#c${n}">← ${n}장 학습 지도</a>`}${i<L.length-1?`<a class="btn" href="#c${n}-${L[i+1].id}">${L[i+1].t} →</a>`:`<a class="btn" href="#c${n}-exam">${n}장 단원 평가 →</a>`}</div>`;
- try{m.ACT[l.act]($("#act"))}catch(e){$("#act").innerHTML=`<p class="loaderr">이 활동을 여는 중 문제가 생겼어요.</p>`}
- $$("#lesson .qc").forEach(c=>bindQ(c,()=>{if(l.q.every((_,j)=>solved[`c${n}:${l.id}-${j}`])){done.add(`c${n}-${l.id}`);save()}}));}
+ ${l.parts.map((p,k)=>`${one?"":`<h3 style="margin-top:${k?26:10}px;font-size:22px">${k+1}. ${p.l.t}</h3>`}<ul class="pts">${p.l.pts.map(([a,b])=>`<li><b>${a}</b>${b}</li>`).join("")}</ul><div class="tip"><b>시험 꿀팁</b> ${p.l.tip}</div>`).join("")}
+ ${l.parts.map((p,k)=>`<div class="act" id="act${k}"></div>`).join("")}
+ <h3 style="margin-top:28px;font-size:24px">확인 문제</h3><p class="note">${checks.length}문제를 모두 맞히면 차시 완료!</p>
+ <div class="checks">${checks.map((g,j)=>qCard(Q[g],"문제 "+(j+1))).join("")}</div>
+ <div class="lnav">${i>0?`<a class="btn alt" href="#d${d}-${L[i-1].id}">← ${L[i-1].t}</a>`:`<a class="btn alt" href="#d${d}">← 영역 ${dd.roman} 학습 지도</a>`}${i<L.length-1?`<a class="btn" href="#d${d}-${L[i+1].id}">${L[i+1].t} →</a>`:`<a class="btn" href="#d${d}-exam">영역 ${dd.roman} 평가 →</a>`}</div>`;
+ l.parts.forEach((p,k)=>{try{MOD[p.n].ACT[p.l.act]($("#act"+k))}catch(e){$("#act"+k).innerHTML=`<p class="loaderr">이 활동을 여는 중 문제가 생겼어요.</p>`}});
+ $$("#lesson .qc").forEach(c=>bindQ(c,()=>{if(checks.every(g=>solved[g])){done.add(`d${d}-${l.id}`);save()}}));}
 
 /* ───── 문제 카드 ───── */
-function qCard(q,label){if(!q)return "";return `<div class="card qc" data-g="${q.g}"><span class="note">${label||`${q.n}장 · ${lname(q.n,q.c)}`}</span><p class="qtext">${q.q}</p>
+function qCard(q,label){if(!q)return "";return `<div class="card qc" data-g="${q.g}"><span class="note">${label||`영역 ${DM[q.d].roman} · ${lt(q.d,q.lc)}`}</span><p class="qtext">${q.q}</p>
  <div class="opts">${q.o.map((t,i)=>`<button class="opt" data-i="${i}">${i+1}) ${t}</button>`).join("")}</div><div class="exp" hidden></div></div>`}
 function bindQ(card,cb,noRetry){const q=Q[card.dataset.g];if(!q)return;let used=false;
  card.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{if(used)return;used=true;const i=+b.dataset.i,ok=i===q.a;
@@ -538,56 +551,63 @@ function bindQ(card,cb,noRetry){const q=Q[card.dataset.g];if(!q)return;let used=
   const r=e.querySelector(".retry");if(r)r.onclick=()=>{used=false;e.hidden=true;card.querySelectorAll(".opt").forEach(x=>{x.disabled=false;x.classList.remove("ok","no")})};
   cb&&cb(ok)});}
 
-/* ───── 단원 평가 & 모의고사 ───── */
+/* ───── 영역 평가 & 모의고사 ───── */
 const shuffle=a=>a.map(v=>[Math.random(),v]).sort((x,y)=>x[0]-y[0]).map(v=>v[1]);
-let ex={key:"",list:[],i:0,score:0,res:{},size:10,pick:new Set(N)};
-function openExam(key){if(ex.key!==key||!ex.list.length){ex.key=key;ex.list=[];}
- if(!ex.list.length)return examSetup();showE()}
-function examSetup(){const isM=ex.key==="mock",n=isM?0:+ex.key.slice(1);
+let ex={key:"",list:[],i:0,score:0,res:{},size:10,pick:new Set(D.map(d=>d.id)),mode:"w"};
+function openExam(key){if(ex.key!==key){ex.key=key;ex.list=[]}if(!ex.list.length)return examSetup();showE()}
+function examSetup(){const isM=ex.key==="mock",d=isM?0:+ex.key.slice(1);
  const sizes=isM?[[25,"25문제"],[50,"50문제"],[100,"100문제"],[0,"전부"]]:[[10,"빠르게 10문제"],[20,"실전 20문제"],[0,"전부 풀기"]];
- if(![...sizes.map(s=>s[0])].includes(ex.size))ex.size=sizes[0][0];
- $("#exam").innerHTML=`<h2>${isM?"전 범위 모의고사":`${n}장 ${M[n].name} 단원 평가`}</h2>
- <p class="lead">${isM?"고른 단원들에서 고르게 뽑아 섞어요. 끝나면 단원별 점수로 약한 곳을 알려 줘요.":"차시 확인 문제와 기출 문제를 섞었어요. 틀린 문제는 오답 노트에 자동으로 모여요."}</p>
+ if(!sizes.some(s=>s[0]===ex.size))ex.size=sizes[isM?1:0][0];
+ $("#exam").innerHTML=`<h2>${isM?"전 범위 모의고사":`영역 ${DM[d].roman} ${DM[d].name} 평가`}</h2>
+ <p class="lead">${isM?"고른 영역에서 뽑아 섞어요. 끝나면 영역별 점수로 약한 곳을 알려 줘요.":"차시 확인 문제와 기출 문제를 섞었어요. 틀린 문제는 오답 노트에 자동으로 모여요."}</p>
  <h3 style="margin-top:10px">문제 수</h3><div class="chips" id="eSize">${sizes.map(([v,t])=>`<button class="chip${ex.size===v?" on":""}" data-s="${v}">${t}</button>`).join("")}</div>
- ${isM?`<h3>범위</h3><div class="chips" id="ePick">${N.filter(k=>MOD[k]).map(k=>`<button class="chip${ex.pick.has(k)?" on":""}" data-k="${k}">${k}장 ${M[k].name}</button>`).join("")}</div>`:""}
- <div class="qnav"><button class="btn" id="eGo">시작하기</button>${isM?"":`<a class="btn alt" href="#c${n}">학습 지도로</a>`}</div>`;
+ ${isM?`<h3>뽑는 방식</h3><div class="chips" id="eMode"><button class="chip${ex.mode==="w"?" on":""}" data-m="w">시험 비중대로</button><button class="chip${ex.mode==="e"?" on":""}" data-m="e">영역마다 똑같이</button></div>
+ <p class="note">시험 비중은 비공식 자료의 대략적인 영역별 문제 수(29 · 25 · 35 · 35 · 26)를 썼어요.</p>
+ <h3>범위</h3><div class="chips" id="ePick">${D.map(x=>`<button class="chip${ex.pick.has(x.id)?" on":""}" data-k="${x.id}">${x.roman} ${x.name}</button>`).join("")}</div>`:""}
+ <div class="qnav"><button class="btn" id="eGo">시작하기</button>${isM?"":`<a class="btn alt" href="#d${d}">학습 지도로</a>`}</div>`;
  $("#eSize").onclick=e=>{const b=e.target.closest("[data-s]");if(!b)return;ex.size=+b.dataset.s;$$("#eSize .chip").forEach(x=>x.classList.toggle("on",x===b))};
- if(isM)$("#ePick").onclick=e=>{const b=e.target.closest("[data-k]");if(!b)return;const k=+b.dataset.k;ex.pick.has(k)?ex.pick.delete(k):ex.pick.add(k);if(!ex.pick.size)ex.pick.add(k);b.classList.toggle("on",ex.pick.has(k))};
+ if(isM){$("#eMode").onclick=e=>{const b=e.target.closest("[data-m]");if(!b)return;ex.mode=b.dataset.m;$$("#eMode .chip").forEach(x=>x.classList.toggle("on",x===b))};
+  $("#ePick").onclick=e=>{const b=e.target.closest("[data-k]");if(!b)return;const k=+b.dataset.k;ex.pick.has(k)?ex.pick.delete(k):ex.pick.add(k);if(!ex.pick.size)ex.pick.add(k);b.classList.toggle("on",ex.pick.has(k))}}
  $("#eGo").onclick=()=>{startExam();showE()};}
 function startExam(){const isM=ex.key==="mock";let list;
- if(!isM)list=shuffle(ALLQ.filter(q=>`c${q.n}`===ex.key));
- else{const ch=N.filter(k=>ex.pick.has(k)&&MOD[k]),by=ch.map(k=>shuffle(ALLQ.filter(q=>q.n===k)));list=[];let r=0;const want=ex.size||ALLQ.length;
-  while(list.length<want&&by.some(b=>b.length)){const b=by[r%by.length];if(b.length)list.push(b.pop());r++}list=shuffle(list)}
+ if(!isM)list=shuffle(ALLQ.filter(q=>`d${q.d}`===ex.key));
+ else{const ds=D.filter(x=>ex.pick.has(x.id)),by={};ds.forEach(x=>by[x.id]=shuffle(ALLQ.filter(q=>q.d===x.id)));const want=ex.size||ALLQ.length;list=[];
+  if(!ex.size)ds.forEach(x=>list.push(...by[x.id]));
+  else if(ex.mode==="w"){const W=ds.reduce((a,x)=>a+x.w,0);let quota=ds.map(x=>[x.id,Math.floor(want*x.w/W)]);let rest=want-quota.reduce((a,q)=>a+q[1],0);
+   quota.sort((a,b)=>DM[b[0]].w-DM[a[0]].w).forEach(q=>{if(rest>0){q[1]++;rest--}});quota.forEach(([id,c])=>list.push(...by[id].splice(0,c)))}
+  else{let r=0;while(list.length<want&&ds.some(x=>by[x.id].length)){const a=by[ds[r%ds.length].id];if(a.length)list.push(a.pop());r++}}
+  list=shuffle(list)}
  if(ex.size)list=list.slice(0,ex.size);ex.list=list;ex.i=0;ex.score=0;ex.res={};}
 function showE(){const L=ex.list,isM=ex.key==="mock";
  if(ex.i>=L.length){const p=Math.round(ex.score/L.length*100);
-  const rows=Object.entries(ex.res).sort((a,b)=>a[0]-b[0]).map(([n,[o,t]])=>{const r=o/t;return `<div class="r"><span>${n}장 ${M[n].name}</span><div class="bar"><i style="width:${r*100}%;background:${r>=.8?"var(--leaf)":r>=.5?"var(--sun)":"var(--tom)"}"></i></div><span class="v">${o}/${t}</span></div>`}).join("");
-  const weak=Object.entries(ex.res).filter(([n,[o,t]])=>o/t<.6).map(([n])=>`<a class="btn alt sm" href="#c${n}">${n}장 복습</a>`).join("");
-  $("#exam").innerHTML=`<h2>${isM?"모의고사":"단원 평가"} 결과</h2><div class="card"><div class="big" style="margin:6px 0">${ex.score} / ${L.length}</div><p>${p>=80?"아주 잘했어요!":p>=60?"좋아요! 오답 노트로 틀린 문제만 다시 보세요.":"괜찮아요. 약한 단원의 차시 활동을 한 번 더 해 보고 다시 도전!"}</p>
-  ${Object.keys(ex.res).length>1?`<h3 style="margin-top:12px">단원별 점수</h3><div class="cres">${rows}</div>`:""}${weak?`<div class="qnav">${weak}</div>`:""}
+  const rows=Object.entries(ex.res).sort((a,b)=>a[0]-b[0]).map(([d,[o,t]])=>{const r=o/t;return `<div class="r"><span>${DM[d].roman} ${DM[d].name}</span><div class="bar"><i style="width:${r*100}%;background:${r>=.8?"var(--leaf)":r>=.5?"var(--sun)":"var(--tom)"}"></i></div><span class="v">${o}/${t}</span></div>`}).join("");
+  const weak=Object.entries(ex.res).filter(([d,[o,t]])=>o/t<.6).map(([d])=>`<a class="btn alt sm" href="#d${d}">영역 ${DM[d].roman} 복습</a>`).join("");
+  $("#exam").innerHTML=`<h2>${isM?"모의고사":"영역 평가"} 결과</h2><div class="card"><div class="big" style="margin:6px 0">${ex.score} / ${L.length}</div><p>${p>=80?"아주 잘했어요!":p>=60?"좋아요! 오답 노트로 틀린 문제만 다시 보세요.":"괜찮아요. 약한 영역의 차시 활동을 한 번 더 해 보고 다시 도전!"}</p>
+  ${Object.keys(ex.res).length>1?`<h3 style="margin-top:12px">영역별 점수</h3><div class="cres">${rows}</div>`:""}${weak?`<div class="qnav">${weak}</div>`:""}
   <div class="qnav"><button class="btn" id="eAgain">새로 섞어서 다시</button><button class="btn alt" id="eSet">설정 바꾸기</button><a class="btn alt" href="#review">오답 노트 (${[...wrong].filter(k=>Q[k]).length})</a></div></div>`;
   $("#eAgain").onclick=()=>{startExam();showE()};$("#eSet").onclick=()=>{ex.list=[];examSetup()};return}
  const q=L[ex.i];
- $("#exam").innerHTML=`<h2>${isM?"전 범위 모의고사":`${q.n}장 단원 평가`}</h2><div class="qbar"><i style="width:${ex.i/L.length*100}%"></i></div>`+
-  qCard(q,`${ex.i+1} / ${L.length} · 맞힌 개수 ${ex.score} · ${q.n}장 ${lname(q.n,q.c)}`)+`<div class="qnav"><button class="btn" id="eNext" disabled>다음 문제 →</button><a class="btn alt" href="#c${q.n}-${q.c}">이 차시 복습</a><button class="btn alt" id="eQuit">그만하고 결과 보기</button></div>`;
- bindQ($("#exam .qc"),ok=>{if(ok)ex.score++;const r=ex.res[q.n]||(ex.res[q.n]=[0,0]);r[1]++;if(ok)r[0]++;const b=$("#eNext");b.disabled=false;b.focus()},true);
+ $("#exam").innerHTML=`<h2>${isM?"전 범위 모의고사":`영역 ${DM[q.d].roman} 평가`}</h2><div class="qbar"><i style="width:${ex.i/L.length*100}%"></i></div>`+
+  qCard(q,`${ex.i+1} / ${L.length} · 맞힌 개수 ${ex.score} · 영역 ${DM[q.d].roman} ${lt(q.d,q.lc)}`)+`<div class="qnav"><button class="btn" id="eNext" disabled>다음 문제 →</button><a class="btn alt" href="#d${q.d}-${q.lc}">이 차시 복습</a><button class="btn alt" id="eQuit">그만하고 결과 보기</button></div>`;
+ bindQ($("#exam .qc"),ok=>{if(ok)ex.score++;const r=ex.res[q.d]||(ex.res[q.d]=[0,0]);r[1]++;if(ok)r[0]++;const b=$("#eNext");b.disabled=false;b.focus()},true);
  $("#eNext").onclick=()=>{ex.i++;showE()};$("#eQuit").onclick=()=>{const k=ex.i+($("#eNext").disabled?0:1);if(!k){ex.list=[];examSetup();return}ex.list=ex.list.slice(0,k);ex.i=k;showE()};}
 
 /* ───── 전체 오답 노트 ───── */
 let rf=0;
 function buildReview(){const all=ALLQ.filter(q=>wrong.has(q.g));
- $("#rFilter").innerHTML=`<button class="chip${rf?"":" on"}" data-f="0">전체 (${all.length})</button>`+N.filter(n=>MOD[n]).map(n=>{const c=all.filter(q=>q.n===n).length;return c?`<button class="chip${rf===n?" on":""}" data-f="${n}">${n}장 (${c})</button>`:""}).join("");
- const list=all.filter(q=>!rf||q.n===rf);
+ $("#rFilter").innerHTML=`<button class="chip${rf?"":" on"}" data-f="0">전체 (${all.length})</button>`+D.map(d=>{const c=all.filter(q=>q.d===d.id).length;return c?`<button class="chip${rf===d.id?" on":""}" data-f="${d.id}">${d.roman} ${d.name} (${c})</button>`:""}).join("");
+ const list=all.filter(q=>!rf||q.d===rf);
  $("#rBox").innerHTML=list.length?`<div class="checks">${list.map(q=>qCard(q)).join("")}</div>`:`<div class="card"><h3>오답 노트가 비어 있어요</h3><p>틀린 문제가 생기면 여기에 모여요.</p><div class="qnav"><a class="btn" href="#mock">모의고사 풀기</a></div></div>`;
  $$("#rBox .qc").forEach(c=>bindQ(c,null));}
 $("#rFilter").addEventListener("click",e=>{const b=e.target.closest("[data-f]");if(!b)return;rf=+b.dataset.f;buildReview()});
 
 /* ───── 테마가 바뀌면 그림 다시 그리기 ───── */
-const redraw=()=>{const h=location.hash.slice(1);if(/^c[1-8]-l[1-8]$/.test(h)||/^c[1-8]$/.test(h))route()};
+const redraw=()=>{const h=location.hash.slice(1);if(/^d[1-5](-l\d{1,2})?$/.test(h))route()};
 matchMedia("(prefers-color-scheme:dark)").addEventListener("change",redraw);
 const themeObs=new MutationObserver(redraw);themeObs.observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
 meter();route();
 }
+
 </script>
 </body>
 </html>
