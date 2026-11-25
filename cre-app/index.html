@@ -265,6 +265,13 @@ footer{color:var(--soft);font-size:14px}
 .plan{display:grid;gap:12px;grid-template-columns:repeat(3,minmax(0,1fr));margin-top:12px}
 .plan div{background:var(--paper);border:2px dashed var(--line);border-radius:18px;padding:14px 16px}
 .plan b{font-family:Jua,sans-serif;font-weight:400;font-size:19px;display:block;color:var(--sky)}
+.fxt tr.hot td{background:color-mix(in srgb,var(--sun) 22%,var(--paper))}
+.fxt tr.hot .fn{box-shadow:inset 5px 0 0 var(--sun)}
+.fxt tr.hot .ff{color:var(--ink)}
+.tgh{background:var(--sun);color:#1d1b16;border:1.5px solid #b88a00}
+.fxleg{float:right;font-size:14px;color:var(--soft);font-family:"Gowun Dodum",sans-serif}
+.fsrc{display:block;margin-top:3px;font-size:13px;color:var(--ink);font-weight:700}
+@media(max-width:600px){.fxleg{float:none;display:block;margin-top:4px}.fxt tr.hot{background:color-mix(in srgb,var(--sun) 22%,var(--paper));box-shadow:inset 5px 0 0 var(--sun)}.fxt tr.hot td{background:none;box-shadow:none}}
 .fx{margin-top:14px;border:2px solid var(--sky);border-radius:16px;overflow:hidden;background:var(--paper)}
 .fx h4{margin:0;padding:10px 14px;background:var(--sky2);font-family:Jua,sans-serif;font-weight:400;font-size:18px;color:var(--sky)}
 .fxt{width:100%;border-collapse:collapse;font-size:15px}
@@ -554,7 +561,7 @@ function openLesson(d,l){const dd=DM[d],L=dd.lessons,i=L.indexOf(l),one=l.parts.
  const checks=l.parts.flatMap(p=>p.l.q.map((_,j)=>`c${p.n}:${p.l.id}-${j}`)).filter(g=>Q[g]);
  $("#lesson").innerHTML=`<div class="lhead"><span class="n" style="background:${dd.color}">${i+1}</span><div><span class="note">영역 ${dd.roman} ${dd.name} · ${i+1}차시</span><h2 style="margin:0">${l.t}</h2></div></div>
  <div class="easy">한마디로: ${l.easy}</div>
- ${l.parts.map((p,k)=>`${one?"":`<h3 style="margin-top:${k?26:10}px;font-size:22px">${k+1}. ${p.l.t}</h3>`}<ul class="pts">${p.l.pts.map(([a,b])=>`<li><b>${a}</b>${b}</li>`).join("")}</ul><div class="tip"><b>시험 꿀팁</b> ${p.l.tip}</div>${p.l.fx?`<div class="fx"><h4>핵심 공식</h4><table class="fxt"><thead><tr><th>무엇</th><th>공식</th><th>언제·주의</th></tr></thead><tbody>${p.l.fx.map(([n,f,w])=>`<tr><td class="fn">${n}</td><td class="ff">${f}</td><td class="fw">${w||""}</td></tr>`).join("")}</tbody></table></div>`:""}`).join("")}
+ ${l.parts.map((p,k)=>`${one?"":`<h3 style="margin-top:${k?26:10}px;font-size:22px">${k+1}. ${p.l.t}</h3>`}<ul class="pts">${p.l.pts.map(([a,b])=>`<li><b>${a}</b>${b}</li>`).join("")}</ul><div class="tip"><b>시험 꿀팁</b> ${p.l.tip}</div>${p.l.fx?`<div class="fx"><h4>핵심 공식 ${p.l.fx.some(r=>r[3])?`<span class="fxleg"><span class="tg tgh">기출</span> 기출 문제에 쓰인 공식 ${p.l.fx.filter(r=>r[3]).length}개</span>`:""}</h4><table class="fxt"><thead><tr><th>무엇</th><th>공식</th><th>언제·주의</th></tr></thead><tbody>${p.l.fx.map(([n,f,w,h])=>`<tr${h?' class="hot"':""}><td class="fn">${h?'<span class="tg tgh">기출</span>':""}${n}</td><td class="ff">${f}</td><td class="fw">${w||""}${h?`<span class="fsrc">기출: ${h}</span>`:""}</td></tr>`).join("")}</tbody></table></div>`:""}`).join("")}
  ${l.parts.map((p,k)=>`<div class="act" id="act${k}"></div>`).join("")}
  <h3 style="margin-top:28px;font-size:24px">확인 문제</h3><p class="note">${checks.length}문제를 모두 맞히면 차시 완료!</p>
  <div class="checks">${checks.map((g,j)=>qCard(Q[g],"문제 "+(j+1))).join("")}</div>
