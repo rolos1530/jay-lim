@@ -489,7 +489,7 @@ D.forEach(d=>{const seen=new Set();d.src.forEach(n=>{const m=MOD[n];if(!m)return
 ALLQ.forEach(q=>{if(!q.tag)q.tag=(CRE.tags||{})[q.g]||"연습"});
 CRE.ALLQ=ALLQ;
 const TG={"기출":"tg1","기출변형":"tg2","연습":"tg3"};
-const KIND={all:[()=>true,"전체"],past:[q=>q.tag!=="연습","기출 + 기출변형"],g:[q=>q.tag==="기출","기출만"],prac:[q=>q.tag==="연습","연습만"],fig:[q=>!!q.fig,"그림 문제만"]};
+const TAGS=["기출","기출변형","연습"];
 const lt=(d,l)=>{const x=DM[d]&&DM[d].lessons.find(y=>y.id===l);return x?x.t:""};
 
 /* ───── 상태 ───── */
@@ -553,7 +553,7 @@ function openLesson(d,l){const dd=DM[d],L=dd.lessons,i=L.indexOf(l),one=l.parts.
  $$("#lesson .qc").forEach(c=>bindQ(c,()=>{if(checks.every(g=>solved[g])){done.add(`d${d}-${l.id}`);save()}}));}
 
 /* ───── 문제 카드 ───── */
-function qCard(q,label){if(!q)return "";return `<div class="card qc" data-g="${q.g}"><span class="note">${label||`영역 ${DM[q.d].roman} · ${lt(q.d,q.lc)}`}</span><p class="qtext"><span class="tg ${TG[q.tag]||"tg3"}">${q.tag}</span>${q.fig?'<span class="tg tg4">그림</span>':""}${q.q}</p>${q.fig||""}
+function qCard(q,label){if(!q)return "";return `<div class="card qc" data-g="${q.g}"><span class="note">${label||`영역 ${DM[q.d].roman} · ${lt(q.d,q.lc)}`}</span><p class="qtext"><span class="tg ${TG[q.tag]||"tg3"}">${q.tag}</span>${q.q}</p>${q.fig||""}
  <div class="opts">${q.o.map((t,i)=>`<button class="opt" data-i="${i}">${i+1}) ${t}</button>`).join("")}</div><div class="exp" hidden></div></div>`}
 function bindQ(card,cb,noRetry){const q=Q[card.dataset.g];if(!q)return;let used=false;
  card.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{if(used)return;used=true;const i=+b.dataset.i,ok=i===q.a;
@@ -566,7 +566,8 @@ function bindQ(card,cb,noRetry){const q=Q[card.dataset.g];if(!q)return;let used=
 
 /* ───── 영역 평가 & 모의고사 ───── */
 const shuffle=a=>a.map(v=>[Math.random(),v]).sort((x,y)=>x[0]-y[0]).map(v=>v[1]);
-let ex={key:"",list:[],i:0,score:0,res:{},size:10,pick:new Set(D.map(d=>d.id)),mode:"w",kind:"all"};
+let ex={key:"",list:[],i:0,score:0,res:{},size:10,pick:new Set(D.map(d=>d.id)),mode:"w",tags:new Set(TAGS)};
+const kindOK=q=>ex.tags.has(q.tag);
 function openExam(key){if(ex.key!==key){ex.key=key;ex.list=[]}if(!ex.list.length)return examSetup();showE()}
 function examSetup(){const isM=ex.key==="mock",d=isM?0:+ex.key.slice(1);
  const sizes=isM?[[25,"25문제"],[50,"50문제"],[100,"100문제"],[0,"전부"]]:[[10,"빠르게 10문제"],[20,"실전 20문제"],[0,"전부 풀기"]];
@@ -574,17 +575,20 @@ function examSetup(){const isM=ex.key==="mock",d=isM?0:+ex.key.slice(1);
  $("#exam").innerHTML=`<h2>${isM?"전 범위 모의고사":`영역 ${DM[d].roman} ${DM[d].name} 평가`}</h2>
  <p class="lead">${isM?"고른 영역에서 뽑아 섞어요. 끝나면 영역별 점수로 약한 곳을 알려 줘요.":"차시 확인 문제와 기출 문제를 섞었어요. 틀린 문제는 오답 노트에 자동으로 모여요."}</p>
  <h3 style="margin-top:10px">문제 수</h3><div class="chips" id="eSize">${sizes.map(([v,t])=>`<button class="chip${ex.size===v?" on":""}" data-s="${v}">${t}</button>`).join("")}</div>
- <h3>문제 종류</h3><div class="chips" id="eKind">${Object.entries(KIND).map(([k,[f,t]])=>`<button class="chip${ex.kind===k?" on":""}" data-k="${k}">${t} (${ALLQ.filter(q=>(isM?ex.pick.has(q.d):q.d===d)&&f(q)).length})</button>`).join("")}</div>
+ ${(()=>{const sc=ALLQ.filter(q=>isM?ex.pick.has(q.d):q.d===d),c=t=>sc.filter(q=>q.tag===t).length,chosen=sc.filter(kindOK).length;
+  return `<h3>문제 종류 <span class="note">(눌러서 켜고 끄기, 여러 개 선택 가능)</span></h3><div class="chips" id="eKind">${TAGS.map(t=>`<button class="chip${ex.tags.has(t)?" on":""}" data-t="${t}" aria-pressed="${ex.tags.has(t)}">${t} ${c(t)}</button>`).join("")}</div>
+  <p class="note">${TAGS.map(t=>`${t} ${c(t)}`).join(" + ")} = 전체 ${sc.length}문제</p>
+  <p class="jua" style="font-size:18px;margin-top:6px">지금 고른 조건의 문제: <b id="eChosen">${chosen}</b>개</p>`})()}
  ${isM?`<h3>뽑는 방식</h3><div class="chips" id="eMode"><button class="chip${ex.mode==="w"?" on":""}" data-m="w">시험 비중대로</button><button class="chip${ex.mode==="e"?" on":""}" data-m="e">영역마다 똑같이</button></div>
  <p class="note">시험 비중은 비공식 자료의 대략적인 영역별 문제 수(29 · 25 · 35 · 35 · 26)를 썼어요.</p>
  <h3>범위</h3><div class="chips" id="ePick">${D.map(x=>`<button class="chip${ex.pick.has(x.id)?" on":""}" data-k="${x.id}">${x.roman} ${x.name}</button>`).join("")}</div>`:""}
  <div class="qnav"><button class="btn" id="eGo">시작하기</button>${isM?"":`<a class="btn alt" href="#d${d}">학습 지도로</a>`}</div>`;
- $("#eKind").onclick=e=>{const b=e.target.closest("[data-k]");if(!b)return;ex.kind=b.dataset.k;$$("#eKind .chip").forEach(x=>x.classList.toggle("on",x===b))};
+ $("#eKind").onclick=e=>{const b=e.target.closest("[data-t]");if(!b)return;const t=b.dataset.t;if(ex.tags.has(t)){if(ex.tags.size>1)ex.tags.delete(t)}else ex.tags.add(t);examSetup()};
  $("#eSize").onclick=e=>{const b=e.target.closest("[data-s]");if(!b)return;ex.size=+b.dataset.s;$$("#eSize .chip").forEach(x=>x.classList.toggle("on",x===b))};
  if(isM){$("#eMode").onclick=e=>{const b=e.target.closest("[data-m]");if(!b)return;ex.mode=b.dataset.m;$$("#eMode .chip").forEach(x=>x.classList.toggle("on",x===b))};
-  $("#ePick").onclick=e=>{const b=e.target.closest("[data-k]");if(!b)return;const k=+b.dataset.k;ex.pick.has(k)?ex.pick.delete(k):ex.pick.add(k);if(!ex.pick.size)ex.pick.add(k);b.classList.toggle("on",ex.pick.has(k))}}
+  $("#ePick").onclick=e=>{const b=e.target.closest("[data-k]");if(!b)return;const k=+b.dataset.k;ex.pick.has(k)?ex.pick.delete(k):ex.pick.add(k);if(!ex.pick.size)ex.pick.add(k);examSetup()}}
  $("#eGo").onclick=()=>{if(startExam()!==false)showE()};}
-function startExam(){const isM=ex.key==="mock",kf=KIND[ex.kind][0],POOLQ=ALLQ.filter(kf);let list;
+function startExam(){const isM=ex.key==="mock",POOLQ=ALLQ.filter(kindOK);let list;
  if(!isM)list=shuffle(POOLQ.filter(q=>`d${q.d}`===ex.key));
  else{const ds=D.filter(x=>ex.pick.has(x.id)),by={};ds.forEach(x=>by[x.id]=shuffle(POOLQ.filter(q=>q.d===x.id)));const want=ex.size||POOLQ.length;list=[];
   if(!ex.size)ds.forEach(x=>list.push(...by[x.id]));
