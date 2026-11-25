@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CRE 학습 앱</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&display=swap">
+<style>
+/*
+VOICE 다정한 선생님, 초등학생 학습지처럼 쉽고 또박또박 — 8개 단원 앱을 한 권으로 묶은 학습지
+IDEA 과학 탐구 학습지 묶음: 차례 쪽(목차), 단원별 활동지, 전 범위 모의고사, 한 권짜리 오답 노트
+PICTURE 목차의 8개 정거장 노선: 정거장마다 단원 색과 차시 진도 링, 단원 안에서는 각 단원의 대표 그림
+COLOUR 종이 흰색, 해바라기 노랑 띠, 단원별 색 점, 하늘 파랑 보조, 토마토 강조, 잎 초록 완료·정답
+TYPE Jua 제목 + Gowun Dodum 본문
+LAYOUT 노랑 띠(제목·전체 진도·큰 메뉴) → 단원 안에서는 작은 탭(학습 지도·차시·단원 평가) → 내용, 600px 아래 세로 쌓기
+*/
+:root{color-scheme:light dark;
+--bg:light-dark(#fffdf6,#14161c);--paper:light-dark(#ffffff,#1d2029);--ink:light-dark(#1d1b16,#f2efe6);--soft:light-dark(#5c574b,#b9b4a6);
+--sun:light-dark(#ffcf33,#e0b020);--sky:light-dark(#2f7bf6,#6ea4ff);--sky2:light-dark(#e3eeff,#1f2b45);--tom:light-dark(#ff5a4e,#ff7b70);--tom2:light-dark(#ffe4e1,#3b2220);
+--leaf:light-dark(#1f9d6b,#4fd19c);--leaf2:light-dark(#e2f7ee,#173528);--line:light-dark(#e8e2d0,#323645);--off:light-dark(#d9d4c4,#3a3e4b);--onsun:#1d1b16}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.6 "Gowun Dodum",system-ui,sans-serif;overflow-x:clip}
+h1,h2,h3,.jua{font-family:Jua,"Gowun Dodum",sans-serif;font-weight:400;line-height:1.15;text-wrap:balance;margin:0}
+h1{font-size:clamp(30px,5vw,48px)}h2{font-size:clamp(25px,3.4vw,34px);margin-bottom:8px}h3{font-size:21px;margin-bottom:6px}
+p{margin:.45em 0}
+.band{padding:clamp(22px,4vw,52px) max(5vw,16px)}
+.wrap{max-width:1180px;margin:0 auto}
+header{background:var(--sun);color:var(--onsun)}
+header .band{padding-bottom:0}
+.top{display:flex;gap:18px;align-items:center;flex-wrap:wrap}
+.top .t{flex:1 1 300px}
+.top p{font-size:18px;max-width:62ch}
+.meter{flex:0 1 260px;background:#fff8;border-radius:16px;padding:10px 14px}
+.meter b{font-family:Jua,sans-serif;font-weight:400;font-size:22px}
+.mbar{height:12px;background:#0002;border-radius:99px;overflow:hidden;margin-top:6px}.mbar i{display:block;height:100%;background:var(--onsun);transition:width .4s}
+nav{display:flex;gap:4px;overflow-x:auto;margin-top:18px;scrollbar-width:none}
+nav a{flex:none;font-family:Jua,sans-serif;font-size:18px;color:var(--onsun);text-decoration:none;padding:11px 14px 9px;border-radius:14px 14px 0 0;min-height:44px}
+nav a[aria-current=page]{background:var(--bg);color:var(--ink)}
+a{color:var(--sky)}
+:focus-visible{outline:3px solid var(--sky);outline-offset:2px}
+section[data-view]{display:none}section[data-view].on{display:block}
+.lead{font-size:18px;color:var(--soft);max-width:68ch}
+.card{background:var(--paper);border:2px solid var(--line);border-radius:20px;padding:18px 20px}
+.two{display:grid;gap:20px;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);align-items:start}
+.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(min(100%,250px),1fr))}
+.def{font-size:20px;background:var(--sky2);border-radius:18px;padding:16px 18px;margin:12px 0}
+.def b{color:var(--sky)}
+.note{color:var(--soft);font-size:15px}
+.tip{margin-top:14px;background:var(--tom2);border-radius:16px;padding:12px 16px}.tip b{color:var(--tom)}
+.big{font-family:Jua,sans-serif;font-size:clamp(38px,6.5vw,60px);line-height:1;color:var(--sky);white-space:nowrap}
+.nw{white-space:nowrap}
+/* lamps */
+.lamps{display:grid;grid-template-columns:repeat(10,minmax(0,1fr));gap:6px;padding:14px;background:var(--sky2);border-radius:20px;aspect-ratio:1/1;max-width:520px;width:100%;justify-self:end}
+.lamp{border-radius:50% 50% 45% 45%;background:var(--sun);box-shadow:0 0 12px color-mix(in srgb,var(--sun) 70%,transparent);transition:background .25s,box-shadow .25s;position:relative}
+.lamp::after{content:"";position:absolute;left:30%;right:30%;bottom:-3px;height:22%;border-radius:3px;background:var(--soft);opacity:.6}
+.lamp.off{background:var(--off);box-shadow:none}
+.ctrl{display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;margin:10px 0}
+input[type=range]{width:min(100%,340px);accent-color:var(--sky);height:44px}
+input[type=number]{font:inherit;font-size:16px;width:110px;padding:9px 12px;border-radius:12px;border:2px solid var(--line);background:var(--paper);color:var(--ink)}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:8px 0}.row label{min-width:8.5em}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.chip{font:inherit;font-size:16px;border:2px solid var(--line);background:var(--paper);color:var(--ink);border-radius:999px;padding:8px 14px;min-height:44px;cursor:pointer}
+.chip.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chip.ok{background:var(--leaf2);border-color:var(--leaf)}.chip.no{background:var(--tom2);border-color:var(--tom)}
+.btn{font-family:Jua,sans-serif;font-size:19px;border:0;border-radius:14px;padding:11px 20px;min-height:48px;background:var(--ink);color:var(--bg);cursor:pointer;text-decoration:none;display:inline-flex;align-items:center}
+.btn.alt{background:var(--paper);color:var(--ink);border:2px solid var(--ink)}
+.btn:disabled{opacity:.4;cursor:default}
+/* map */
+.path{display:grid;gap:14px;grid-template-columns:repeat(auto-fill,minmax(min(100%,260px),1fr));margin-top:16px}
+.stop{display:block;text-decoration:none;color:var(--ink);background:var(--paper);border:2px solid var(--line);border-radius:20px;padding:16px 18px;position:relative}
+.stop:hover{border-color:var(--ink)}
+.stop .n{font-family:Jua,sans-serif;display:inline-grid;place-items:center;width:40px;height:40px;border-radius:50%;background:var(--sun);color:var(--onsun);font-size:20px;margin-bottom:8px}
+.stop.done .n{background:var(--leaf);color:#fff}
+.stop h3{margin:0 0 4px}.stop span{color:var(--soft);font-size:15px}
+.stop .st{position:absolute;right:16px;top:18px;font-family:Jua,sans-serif;font-size:15px;color:var(--leaf)}
+/* lesson */
+.lhead{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:6px}
+.lhead .n{font-family:Jua,sans-serif;width:52px;height:52px;border-radius:50%;background:var(--sun);color:var(--onsun);display:grid;place-items:center;font-size:24px;flex:none}
+.easy{font-size:19px;background:var(--sun);color:var(--onsun);display:inline-block;padding:6px 14px;border-radius:12px;margin:6px 0 10px}
+.pts{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));padding:0;list-style:none;margin:12px 0 0}
+.pts li{border:2px dashed var(--line);border-radius:16px;padding:12px 14px}
+.pts b{font-family:Jua,sans-serif;font-weight:400;font-size:19px;display:block;color:var(--sky)}
+.act{margin-top:22px;border:3px solid var(--ink);border-radius:24px;padding:clamp(16px,3vw,28px);background:var(--paper)}
+.act>h3{font-size:24px}
+.fig{position:relative;min-height:300px}.fig>svg{position:absolute;inset:0;width:100%;height:100%}
+svg text{paint-order:stroke;stroke:var(--paper);stroke-width:4px}
+.coins{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;align-items:end;min-height:250px;padding:12px;background:var(--sky2);border-radius:18px}
+.stack{display:flex;flex-direction:column-reverse;align-items:center;gap:2px}
+.coin{width:min(70px,80%);height:10px;border-radius:50%;background:var(--sun);border:2px solid #b88a00}
+.stack .cap{font-family:Jua,sans-serif;margin-top:6px;text-align:center}
+.stack.hl .cap{color:var(--tom)}
+.tl{display:flex;height:46px;border-radius:12px;overflow:hidden;background:var(--line);margin:12px 0 4px}
+.tl i{display:block;height:100%}.tl .u{background:var(--leaf)}.tl .d{background:var(--tom);min-width:3px}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:15px;color:var(--soft)}
+.legend span::before{content:"";display:inline-block;width:14px;height:14px;border-radius:4px;margin-right:6px;vertical-align:-2px;background:var(--c)}
+.stats{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(9em,1fr));margin-top:12px}
+.stat{background:var(--sky2);border-radius:14px;padding:10px 14px}.stat b{font-family:Jua,sans-serif;font-weight:400;font-size:26px;display:block;white-space:nowrap}.stat span{font-size:14px;color:var(--soft)}
+.sbar{display:flex;height:40px;border-radius:10px;overflow:hidden;margin:6px 0 2px}
+.sbar i{display:block;height:100%}
+.av{display:grid;gap:10px;margin-top:10px}
+.avr{display:grid;grid-template-columns:4.5em minmax(0,1fr) 5.5em;gap:10px;align-items:center}
+.avr b{font-family:Jua,sans-serif;font-weight:400;font-size:20px}
+.avr .v{font-family:Jua,sans-serif;font-size:22px;text-align:right;white-space:nowrap}
+.sort{display:grid;gap:10px}
+.sitem{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between;border:2px solid var(--line);border-radius:16px;padding:10px 12px;background:var(--bg)}
+.sitem>span{font-size:17px;flex:1 1 180px}
+.sitem .chips{margin:0}
+.sitem.ok{border-color:var(--leaf);background:var(--leaf2)}
+.order{display:grid;gap:8px;counter-reset:o}
+.order li{list-style:none;border:2px solid var(--leaf);background:var(--leaf2);border-radius:14px;padding:10px 14px}
+.why{display:grid;gap:8px;margin-top:10px}
+.why div{border-left:6px solid var(--sky);background:var(--sky2);border-radius:0 14px 14px 0;padding:10px 14px}
+.why div.root{border-color:var(--tom);background:var(--tom2)}
+/* quiz */
+.qwrap{max-width:820px}
+.qtext{font-size:20px;margin:6px 0 12px}
+.opts{display:grid;gap:10px}
+.opt{font:inherit;text-align:left;background:var(--paper);color:var(--ink);border:2px solid var(--line);border-radius:16px;padding:12px 16px;min-height:52px;cursor:pointer}
+.opt:hover:not(:disabled){border-color:var(--ink)}
+.opt.ok{border-color:var(--leaf);background:var(--leaf2)}.opt.no{border-color:var(--tom);background:var(--tom2)}
+.opt:disabled{cursor:default}
+.exp{margin-top:12px;border-radius:16px;padding:12px 16px;background:var(--sky2)}
+.qbar{height:12px;background:var(--line);border-radius:99px;overflow:hidden;margin:10px 0 18px}.qbar i{display:block;height:100%;background:var(--leaf);transition:width .3s}
+.qnav{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;align-items:center}
+.checks{display:grid;gap:16px;margin-top:22px}
+.lnav{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:24px}
+footer{color:var(--soft);font-size:14px}
+@media(max-width:760px){.two{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:600px){nav a{font-size:16px;padding:10px 10px 8px}.avr{grid-template-columns:3.6em minmax(0,1fr) 4.8em}}
+@media(prefers-reduced-motion:reduce){.lamp,.qbar i,.mbar i{transition:none}}
+/* matrix */
+.mx{display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto;gap:6px;max-width:520px;width:100%;justify-self:end}
+.ylab{writing-mode:vertical-rl;font-family:Jua,sans-serif;color:var(--soft);text-align:center}
+.xlab{grid-column:2;font-family:Jua,sans-serif;color:var(--soft);text-align:center}
+.mgrid{display:grid;grid-template-columns:1.6em repeat(5,minmax(0,1fr));gap:5px;padding:12px;background:var(--paper);border:2px solid var(--line);border-radius:20px}
+.mgrid .ax{display:grid;place-items:center;font-family:Jua,sans-serif;color:var(--soft);font-size:15px}
+.cell{aspect-ratio:1/1;border-radius:10px;display:flex;flex-wrap:wrap;align-content:center;justify-content:center;gap:3px;cursor:pointer;border:3px solid transparent}
+.cell.lo{background:light-dark(#c9eedb,#1e4433)}.cell.md{background:light-dark(#ffe9a3,#55471a)}.cell.hi{background:light-dark(#ffc2bc,#5a2622)}
+.cell.pk{border-color:var(--ink)}
+.dot{font-style:normal;font-family:Jua,sans-serif;width:clamp(20px,4vw,28px);height:clamp(20px,4vw,28px);border-radius:50%;background:var(--ink);color:var(--bg);display:grid;place-items:center;font-size:14px;transition:transform .3s}
+.hz{padding-left:1.4em;margin:10px 0;display:grid;gap:6px}
+.tag{font-family:Jua,sans-serif;font-weight:400;font-size:14px;padding:2px 8px;border-radius:8px;white-space:nowrap;color:#1d1b16}
+.tag.lo{background:#c9eedb}.tag.md{background:#ffe9a3}.tag.hi{background:#ffc2bc}
+.hit{color:var(--tom)}.mdt{color:light-dark(#b07a00,#ffcf33)}.lot{color:var(--leaf)}
+.scroll{overflow-x:auto}
+.ft{border-collapse:collapse;width:100%;min-width:620px;font-size:15px}
+.ft th,.ft td{border-bottom:1px solid var(--line);padding:8px 6px;text-align:left}
+.ft th{font-family:Jua,sans-serif;font-weight:400;font-size:16px}
+.ft input{width:58px;padding:6px 8px}
+.ft .rpn{font-family:Jua,sans-serif;font-size:20px;color:var(--sky);text-align:right}
+.sw{display:none}@media(max-width:700px){.sw{display:block}}
+.rank{display:grid;gap:6px;padding-left:1.4em}
+@media(max-width:760px){.mx{justify-self:center}}
+@media(prefers-reduced-motion:reduce){.dot,.lamp,.qbar i,.mbar i{transition:none}}
+.dist{display:grid;gap:14px;grid-template-columns:minmax(0,1fr) minmax(0,1.5fr);align-items:stretch}
+.dist .fig{min-height:340px;background:var(--paper);border:2px solid var(--line);border-radius:20px}
+.bars{display:flex;align-items:flex-end;gap:3px;height:220px;padding:10px 8px 0;background:var(--sky2);border-radius:16px}
+.bars>div{flex:1 1 0;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%}
+.bars i{display:block;width:100%;background:var(--sky);border-radius:5px 5px 0 0;min-height:1px}
+.bars i.hl{background:var(--tom)}
+.bars span{font-size:13px;color:var(--soft);height:22px;line-height:22px}
+.sq{position:relative;aspect-ratio:1/1;max-width:340px;width:100%;background:var(--paper);border:3px solid var(--ink);border-radius:6px;overflow:hidden}
+.sq i{position:absolute;display:block;mix-blend-mode:multiply;opacity:.75}
+.sq .a{background:#ffcf33;top:0;bottom:0;left:0}.sq .b{background:#2f7bf6;left:0;right:0;bottom:0}
+.sq .lab{position:absolute;font-family:Jua,sans-serif;font-size:16px;background:var(--paper);padding:0 6px;border-radius:6px}
+.four{display:grid;gap:12px;grid-template-columns:repeat(2,minmax(0,1fr))}
+.four .fig{min-height:170px;background:var(--bg);border-radius:14px}
+.four h4{margin:0 0 2px;font-family:Jua,sans-serif;font-weight:400;font-size:17px}
+@media(max-width:760px){.dist{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:520px){.four{grid-template-columns:minmax(0,1fr)}}/* lamps */
+@media(max-width:520px){.four{grid-template-columns:minmax(0,1fr)}}.loop{display:grid;gap:16px;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);align-items:center}
+.loop .fig{min-height:400px}
+.units{display:grid;gap:6px;margin:12px 0}
+.unit{display:grid;grid-template-columns:4.2em minmax(0,1fr);gap:8px;align-items:center;font-size:14px;color:var(--soft)}
+.track{position:relative;height:22px;background:var(--line);border-radius:6px}
+.track i{position:absolute;left:0;top:0;bottom:0;background:var(--sky);border-radius:6px 0 0 6px}
+.track b{position:absolute;top:-2px;font-family:Jua,sans-serif;font-weight:400;font-size:18px;line-height:22px;transform:translateX(-50%)}
+.track b.x{color:var(--tom)}.track b.s{color:var(--ink)}
+.track .cut{position:absolute;top:-6px;bottom:-6px;width:0;border-left:3px dashed var(--tom);padding:0;border-radius:0;background:none}
+.par{display:grid;gap:6px;margin-top:12px}
+.parr{display:grid;grid-template-columns:9em minmax(0,1fr) 6.5em;gap:10px;align-items:center}
+.parr .bar{height:26px;border-radius:8px;background:var(--line);overflow:hidden}
+.parr .bar i{display:block;height:100%;background:var(--sky)}
+.parr.vf .bar i{background:var(--tom)}
+.parr .v{font-family:Jua,sans-serif;text-align:right;white-space:nowrap}
+.ta{font:inherit;font-size:16px;width:100%;min-height:70px;padding:10px 12px;border-radius:12px;border:2px solid var(--line);background:var(--paper);color:var(--ink)}
+@media(max-width:760px){.loop{grid-template-columns:minmax(0,1fr)}.loop .fig{min-height:340px}}
+@media(max-width:520px){.parr{grid-template-columns:6.5em minmax(0,1fr) 5em}}/* lamps */
+@media(max-width:520px){.four{grid-template-columns:minmax(0,1fr)}}.line{position:relative;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin:18px 0 10px}
+.line::before{content:"";position:absolute;left:10%;right:10%;top:34px;height:10px;border-radius:9px;background:var(--sky);opacity:.85}
+.stn{position:relative;display:flex;flex-direction:column;align-items:center;gap:8px;background:none;border:0;font:inherit;color:var(--ink);cursor:pointer;padding:0 0 6px;min-height:44px}
+.stn i{width:56px;height:56px;margin-top:11px;border-radius:50%;background:var(--paper);border:5px solid var(--ink);display:grid;place-items:center;font-style:normal;font-family:Jua,sans-serif;font-size:22px}
+.stn.on i{background:var(--tom);color:#fff;border-color:var(--tom);transform:scale(1.12)}
+.stn b{font-family:Jua,sans-serif;font-weight:400;font-size:19px}
+.stn span{font-size:13px;color:var(--soft);text-align:center}
+.stc{display:grid;gap:14px;grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.tbl{width:100%;border-collapse:collapse;font-size:15px}
+.tbl th,.tbl td{border-bottom:1px solid var(--line);padding:7px 6px;text-align:left}
+.tbl th{font-family:Jua,sans-serif;font-weight:400}
+.tbl td.n{text-align:right;white-space:nowrap}
+.tbl input{width:78px;padding:6px 8px}
+.tbl tr.top td{background:var(--tom2)}
+@media(max-width:760px){.stc{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:600px){.line{grid-template-columns:minmax(0,1fr);gap:0}.line::before{left:23px;right:auto;width:10px;top:30px;bottom:30px;height:auto}.stn{flex-direction:row;align-items:center;justify-content:flex-start;gap:12px;text-align:left}.stn i{margin:4px 0;flex:none}.stn span{text-align:left}}/* lamps */
+@media(max-width:520px){.four{grid-template-columns:minmax(0,1fr)}}.oven{display:grid;gap:20px;grid-template-columns:minmax(0,.7fr) minmax(0,1.3fr);align-items:center}
+.oven .fig{min-height:380px}
+.yrs{display:flex;flex-wrap:wrap;gap:4px;margin:10px 0}
+.yrs i{width:22px;height:22px;border-radius:5px;background:var(--sky)}
+.yrs i.p{background:color-mix(in srgb,var(--sky) 45%,transparent)}
+.rbd{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;padding:14px;background:var(--sky2);border-radius:16px;margin:10px 0;min-height:110px}
+.rbd .blk{background:var(--paper);border:3px solid var(--sky);border-radius:12px;padding:8px 12px;font-family:Jua,sans-serif;white-space:nowrap}
+.rbd .knote{flex-basis:100%;text-align:center;font-family:Jua,sans-serif;color:var(--soft)}
+@media(max-width:760px){.oven{grid-template-columns:minmax(0,1fr)}.oven .fig{min-height:300px}}/* lamps */
+@media(max-width:520px){.four{grid-template-columns:minmax(0,1fr)}}.lsi{display:grid;gap:18px;grid-template-columns:minmax(0,1.4fr) minmax(0,.9fr);align-items:stretch}
+.lsi .fig{min-height:360px;background:var(--paper);border:2px solid var(--line);border-radius:20px}
+.zone{display:flex;height:34px;border-radius:10px;overflow:hidden;margin:8px 0 2px;position:relative}
+.zone span{display:grid;place-items:center;font-size:13px;color:#1d1b16}
+.zone b{position:absolute;top:-6px;bottom:-6px;width:4px;background:var(--ink);border-radius:2px}
+.fac{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.fac span{font-family:Jua,sans-serif;background:var(--sky2);border:2px solid var(--sky);border-radius:12px;padding:6px 12px}
+@media(max-width:760px){.lsi{grid-template-columns:minmax(0,1fr)}.lsi .fig{min-height:300px}}/* lamps */
+@media(max-width:520px){.four{grid-template-columns:minmax(0,1fr)}}.log{display:grid;gap:8px;margin:14px 0}
+.lrow{display:grid;grid-template-columns:5.5em minmax(0,1fr);gap:10px;align-items:center}
+.lrow>span{font-family:Jua,sans-serif;font-size:16px}
+.lbar{position:relative;height:34px;border-radius:10px;background:var(--sky);overflow:hidden}
+.lbar i{position:absolute;top:0;bottom:0;min-width:4px}
+.lbar i.f{background:var(--tom)}.lbar i.p{background:var(--sun)}
+.months{display:grid;grid-template-columns:5.5em repeat(12,minmax(0,1fr));gap:0 10px;font-size:13px;color:var(--soft)}
+.months span:first-child{grid-column:1}/* lamps */
+/* ───── 통합 앱 전용 ───── */
+.subnav{display:flex;gap:6px;margin:0;overflow-x:auto;scrollbar-width:none;padding:12px max(5vw,16px) 0;background:var(--bg);border-bottom:2px solid var(--line)}
+.subnav a{flex:none;font-family:Jua,sans-serif;font-size:16px;color:var(--ink);text-decoration:none;padding:9px 12px;border-radius:12px 12px 0 0;min-height:44px;display:flex;align-items:center}
+.subnav a[aria-current=page]{background:var(--ink);color:var(--bg)}
+.subnav[hidden]{display:none}
+.chead{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.chead .cdot{width:58px;height:58px;border-radius:50%;display:grid;place-items:center;font-family:Jua,sans-serif;font-size:26px;color:#1d1b16;flex:none}
+.chead p{margin:2px 0 0;color:var(--soft);max-width:70ch}
+.rail{position:relative;display:grid;grid-template-columns:repeat(8,minmax(0,1fr));margin:10px 0 24px}
+.rail::before{content:"";position:absolute;left:6%;right:6%;top:33px;height:8px;border-radius:8px;background:var(--line)}
+.rstop{position:relative;display:flex;flex-direction:column;align-items:center;gap:6px;text-decoration:none;color:var(--ink);min-height:44px}
+.rstop .ring{width:74px;height:74px;border-radius:50%;display:grid;place-items:center}
+.rstop .ring i{width:56px;height:56px;border-radius:50%;display:grid;place-items:center;font-style:normal;font-family:Jua,sans-serif;font-size:24px;color:#1d1b16;border:3px solid var(--bg)}
+.rstop span{font-family:Jua,sans-serif;font-size:15px;text-align:center}
+.rstop small{font-size:13px;color:var(--soft)}
+.cgrid{display:grid;gap:16px;grid-template-columns:repeat(4,minmax(0,1fr))}
+.ccard{background:var(--paper);border:2px solid var(--line);border-radius:22px;padding:18px 18px 14px;display:flex;flex-direction:column;gap:8px;position:relative;overflow:hidden}
+.ccard.full{border-color:var(--leaf)}
+.ccard .dot{position:absolute;right:-22px;top:-22px;width:84px;height:84px;border-radius:50%;opacity:.9}
+.ccard .no{font-family:Jua,sans-serif;font-size:15px;color:var(--soft)}
+.ccard h3{padding-right:34px}
+.ccard ul{margin:0;padding-left:1.1em;font-size:15px;color:var(--soft)}
+.ccard .pbar{height:10px;background:var(--line);border-radius:99px;overflow:hidden}.ccard .pbar i{display:block;height:100%;background:var(--leaf)}
+.ccard .cgo{margin-top:auto;display:flex;gap:8px;flex-wrap:wrap}
+.btn.sm{font-size:16px;padding:8px 14px;min-height:44px}
+.hstats{display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(10em,1fr));margin:14px 0 22px}
+.cta{display:grid;gap:14px;grid-template-columns:repeat(2,minmax(0,1fr));margin-top:24px}
+.cta a{display:block;text-decoration:none;color:var(--ink);background:var(--sky2);border-radius:20px;padding:18px 20px}
+.cta b{font-family:Jua,sans-serif;font-weight:400;font-size:22px;display:block}
+.cres{display:grid;gap:8px;margin:12px 0}
+.cres .r{display:grid;grid-template-columns:7.5em minmax(0,1fr) 5em;gap:10px;align-items:center}
+.cres .r .bar{height:20px;border-radius:8px;background:var(--line);overflow:hidden}.cres .r .bar i{display:block;height:100%}
+.cres .r .v{font-family:Jua,sans-serif;text-align:right;white-space:nowrap}
+.plan{display:grid;gap:12px;grid-template-columns:repeat(3,minmax(0,1fr));margin-top:12px}
+.plan div{background:var(--paper);border:2px dashed var(--line);border-radius:18px;padding:14px 16px}
+.plan b{font-family:Jua,sans-serif;font-weight:400;font-size:19px;display:block;color:var(--sky)}
+.loaderr{background:var(--tom2);border-radius:16px;padding:14px 16px}
+@media(max-width:1000px){.cgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.plan{grid-template-columns:minmax(0,1fr)}.cta{grid-template-columns:minmax(0,1fr)}.rail{grid-template-columns:repeat(4,minmax(0,1fr));row-gap:14px}.rail::before{display:none}}
+@media(max-width:600px){.cgrid{grid-template-columns:minmax(0,1fr)}.rstop .ring{width:62px;height:62px}.rstop .ring i{width:46px;height:46px;font-size:20px}.cres .r{grid-template-columns:5.5em minmax(0,1fr) 4.5em}}
+</style>
+</head>
+<body>
+<header><div class="band"><div class="wrap">
+  <div class="top">
+    <div class="t">
+      <h1>CRE 학습 앱</h1>
+      <p>ASQ 신뢰성 기술자(CRE) 시험 범위 8개 단원을 한곳에서. 단원마다 8번의 짧은 활동, 단원 평가, 전 범위 모의고사와 한 권짜리 오답 노트가 있어요.</p>
+    </div>
+    <div class="meter"><b id="mTxt">0 / 64 차시 완료</b><div class="mbar"><i id="mBar" style="width:0"></i></div></div>
+  </div>
+  <nav id="nav" aria-label="큰 메뉴"></nav>
+</div></div></header>
+<nav class="subnav" id="subnav" aria-label="단원 메뉴" hidden></nav>
+
+<main id="main">
+<section data-view="home" class="band"><div class="wrap">
+  <h2>목차</h2>
+  <p class="lead">정거장의 링은 그 단원의 차시 진도예요. 단원을 눌러 학습 지도부터 시작하세요.</p>
+  <div class="rail" id="rail" role="navigation" aria-label="단원 노선"></div>
+  <div class="hstats" id="hstats"></div>
+  <div class="cgrid" id="cgrid"></div>
+  <div class="cta"><a href="#mock"><b>전 범위 모의고사 →</b>8개 단원에서 고르게 뽑아 실제 시험처럼 풀고, 단원별 점수로 약한 곳을 찾아요.</a><a href="#review"><b>전체 오답 노트 →</b>모든 단원에서 틀린 문제가 한곳에 모여요. 다시 맞히면 빠져요.</a></div>
+  <h2 style="margin-top:30px">이렇게 공부해 보세요</h2>
+  <div class="plan"><div><b>1. 차시 활동부터</b>단원의 1~8차시를 순서대로. 활동을 만져 보고 확인 문제 2개를 맞히면 차시 완료.</div><div><b>2. 단원 평가</b>단원이 끝나면 단원 평가로 확인. 시험이 가까우면 ‘전부 풀기’로 기출까지.</div><div><b>3. 모의고사 → 오답 노트</b>모의고사로 약한 단원을 찾고, 오답 노트가 빌 때까지 반복.</div></div>
+  <p class="note" style="margin-top:14px">진도와 오답 기록은 이 브라우저에만 저장돼요. <button class="btn alt sm" id="resetAll" style="margin-left:6px">모든 기록 지우기</button></p>
+</div></section>
+<section data-view="c1" class="band" id="v-c1"><div class="wrap">
+<div class="chead"><span class="cdot" style="background:#ffcf33">1</span><div><span class="note">1장 · BOK Ⅰ</span><h2 style="margin:0">신뢰성 기본</h2><p>CRE 시험 첫 단원(Reliability fundamentals)을 8번의 짧은 활동으로 익혀요. 읽고, 만져 보고, 확인 문제를 풀면 차시 완료!</p></div></div>
+<div class="chome"><div class="two">
+    <div>
+      <h2>전구 100개로 보는 신뢰성</h2>
+      <div class="def">정해진 <b>조건</b>에서, 정해진 <b>시간</b> 동안, 맡은 <b>기능</b>을 고장 없이 해낼 <b>확률</b></div>
+      <p>전구 100개를 켜 놓고 시간을 흘려 보세요. 처음엔 다 켜져 있지만(이건 <b>품질</b>), 시간이 지나면 하나둘 꺼져요. <b>t 시간에 아직 켜져 있는 비율</b>이 바로 신뢰도 R(t)예요.</p>
+      <div class="ctrl"><label for="c1hT" class="jua" style="font-size:20px">시간 t = <span id="c1hTv" class="nw"></span></label><input id="c1hT" type="range" min="0" max="3000" step="10" value="700"></div>
+      <div class="row"><span class="big" id="c1hR"></span><span class="note" id="c1hNote"></span></div>
+      <p class="note">전구의 평균 수명(MTBF)은 1,000시간으로 정했어요. 실제로 꺼진 수와 공식 e<sup>−t/1000</sup>이 거의 같아지는 걸 확인해 보세요.</p>
+    </div>
+    <div class="lamps" id="c1hLamps" role="img" aria-label="전구 100개 중 켜진 전구 수가 신뢰도를 나타냄"></div>
+  </div></div>
+<h2 style="margin-top:34px">1장 학습 지도</h2>
+<p class="lead">순서대로 해도 좋고, 궁금한 차시부터 골라도 좋아요. 확인 문제를 모두 맞히면 초록 동그라미가 돼요.</p>
+<div class="path"></div>
+<div class="qnav" style="margin-top:22px"><a class="btn" href="#c1-exam">1장 단원 평가</a><a class="btn alt" href="#review">오답 노트</a><a class="btn alt" href="#home">목차로</a></div>
+</div></section>
+<section data-view="c2" class="band" id="v-c2"><div class="wrap">
+<div class="chead"><span class="cdot" style="background:#ff5a4e">2</span><div><span class="note">2장 · BOK Ⅱ</span><h2 style="margin:0">리스크 관리</h2><p>CRE 시험 둘째 단원(Risk management)을 8번의 짧은 활동으로 익혀요. 무엇이 위험한지 찾고, 점수 매기고, 줄이는 법을 배워요.</p></div></div>
+<div class="chome"><div class="two">
+    <div>
+      <h2>전기 포트의 위험 지도</h2>
+      <div class="def">리스크 = 일어날 <b>가능성</b> × 일어났을 때의 <b>심각도</b></div>
+      <p>전기 포트에서 생길 수 있는 위험 5가지를 지도 위에 올려 봤어요. 오른쪽 위(빨강)로 갈수록 위험해요. <b>대책 적용</b>을 눌러 점들이 어디로 옮겨 가는지 보세요.</p>
+      <div class="chips" id="c2hMode"><button class="chip on" data-m="0">대책 전</button><button class="chip" data-m="1">대책 적용 후</button></div>
+      <ol class="hz" id="c2hList"></ol>
+      <p class="note">점수 구간(15 이상 높음, 8~14 중간, 7 이하 낮음)과 예시는 학습용으로 정한 값이에요. 회사마다 기준표가 달라요.</p>
+    </div>
+    <div class="mx" id="c2hMx" role="img" aria-label="가능성과 심각도 5×5 리스크 매트릭스 위의 위험 5가지"></div>
+  </div></div>
+<h2 style="margin-top:34px">2장 학습 지도</h2>
+<p class="lead">순서대로 해도 좋고, 궁금한 차시부터 골라도 좋아요. 확인 문제를 모두 맞히면 초록 동그라미가 돼요.</p>
+<div class="path"></div>
+<div class="qnav" style="margin-top:22px"><a class="btn" href="#c2-exam">2장 단원 평가</a><a class="btn alt" href="#review">오답 노트</a><a class="btn alt" href="#home">목차로</a></div>
+</div></section>
+<section data-view="c3" class="band" id="v-c3"><div class="wrap">
+<div class="chead"><span class="cdot" style="background:#2f7bf6">3</span><div><span class="note">3장 · BOK Ⅲ.A</span><h2 style="margin:0">통계 개념</h2><p>CRE 시험 셋째 단원(Statistical concepts)을 8번의 짧은 활동으로 익혀요. 고장을 숫자와 그래프로 말하는 법을 배워요.</p></div></div>
+<div class="chome"><h2>부품 100개의 고장 시간, 어떤 모양일까?</h2>
+  <p class="lead">점 하나가 부품 하나예요. 고장 난 시간대에 점을 쌓으면 분포의 모양이 보여요. 빨간 곡선은 그 분포의 확률밀도함수 f(t)예요.</p>
+  <div class="chips" id="c3hMode"></div>
+  <div class="dist">
+    <div class="card" id="c3hSay"></div>
+    <div class="fig" id="c3hFig"><svg id="c3hS" role="img" aria-label="부품 100개의 고장 시간 점 히스토그램과 확률밀도 곡선"></svg></div>
+  </div></div>
+<h2 style="margin-top:34px">3장 학습 지도</h2>
+<p class="lead">순서대로 해도 좋고, 궁금한 차시부터 골라도 좋아요. 확인 문제를 모두 맞히면 초록 동그라미가 돼요.</p>
+<div class="path"></div>
+<div class="qnav" style="margin-top:22px"><a class="btn" href="#c3-exam">3장 단원 평가</a><a class="btn alt" href="#review">오답 노트</a><a class="btn alt" href="#home">목차로</a></div>
+</div></section>
+<section data-view="c4" class="band" id="v-c4"><div class="wrap">
+<div class="chead"><span class="cdot" style="background:#1f9d6b">4</span><div><span class="note">4장 · BOK Ⅲ.B</span><h2 style="margin:0">데이터 관리</h2><p>CRE 시험 넷째 단원(Reliability data management)을 8번의 짧은 활동으로 익혀요. 고장 기록을 모으고, 분석하고, 다시는 안 나게 하는 법을 배워요.</p></div></div>
+<div class="chome"><h2>고장 하나가 지나가는 길, FRACAS 고리</h2>
+  <p class="lead">FRACAS는 고장 보고 → 분석 → 시정조치를 한 바퀴 도는 닫힌 고리(closed loop)예요. 정거장을 눌러 무엇을 하는지 보세요.</p>
+  <div class="loop">
+    <div class="fig" id="c4hFig"><svg id="c4hS" role="img" aria-label="FRACAS 닫힌 고리의 여섯 단계"></svg></div>
+    <div class="card" id="c4hSay"></div>
+  </div></div>
+<h2 style="margin-top:34px">4장 학습 지도</h2>
+<p class="lead">순서대로 해도 좋고, 궁금한 차시부터 골라도 좋아요. 확인 문제를 모두 맞히면 초록 동그라미가 돼요.</p>
+<div class="path"></div>
+<div class="qnav" style="margin-top:22px"><a class="btn" href="#c4-exam">4장 단원 평가</a><a class="btn alt" href="#review">오답 노트</a><a class="btn alt" href="#home">목차로</a></div>
+</div></section>
+<section data-view="c5" class="band" id="v-c5"><div class="wrap">
+<div class="chead"><span class="cdot" style="background:#9b6bff">5</span><div><span class="note">5장 · BOK Ⅳ.A</span><h2 style="margin:0">신뢰성 계획</h2><p>CRE 시험 다섯째 단원(Reliability planning, testing)을 8번의 짧은 활동으로 익혀요. 무엇을, 언제, 어떤 시험으로 확인할지 계획하는 법을 배워요.</p></div></div>
+<div class="chome"><h2>제품의 일생 노선도</h2>
+  <p class="lead">신뢰성 계획은 ‘언제 무엇을 할지’ 정하는 일이에요. 정거장을 눌러 그 단계의 신뢰성 활동과 시험을 보세요.</p>
+  <div class="line" id="c5hLine"></div>
+  <div class="stc" id="c5hSay"></div></div>
+<h2 style="margin-top:34px">5장 학습 지도</h2>
+<p class="lead">순서대로 해도 좋고, 궁금한 차시부터 골라도 좋아요. 확인 문제를 모두 맞히면 초록 동그라미가 돼요.</p>
+<div class="path"></div>
+<div class="qnav" style="margin-top:22px"><a class="btn" href="#c5-exam">5장 단원 평가</a><a class="btn alt" href="#review">오답 노트</a><a class="btn alt" href="#home">목차로</a></div>
+</div></section>
+<section data-view="c6" class="band" id="v-c6"><div class="wrap">
+<div class="chead"><span class="cdot" style="background:#ff8a1f">6</span><div><span class="note">6장 · BOK Ⅳ</span><h2 style="margin:0">시험과 모델링</h2><p>CRE 시험 여섯째 단원(Reliability testing &amp; modeling)을 8번의 짧은 활동으로 익혀요. 빨리 시험하고, 시스템을 계산하고, 미래를 예측하는 법을 배워요.</p></div></div>
+<div class="chome"><h2>오븐을 데우면 시간이 빨라져요</h2>
+  <p class="lead">가속 수명 시험은 온도 같은 스트레스를 올려 고장을 빨리 일으키는 시험이에요. 오븐 온도를 올려 보세요. 시험 1,000시간이 상온(25℃) 현장에서 몇 년과 같은지 아레니우스 모델로 계산해요.</p>
+  <div class="oven">
+    <div class="fig" id="c6hFig"><svg id="c6hS" role="img" aria-label="시험 온도를 나타내는 온도계"></svg></div>
+    <div class="card">
+      <div class="ctrl"><label for="c6hT" class="jua" style="font-size:20px">오븐 온도 <span id="c6hTv" class="nw"></span></label><input id="c6hT" type="range" min="25" max="150" step="5" value="105"></div>
+      <div class="chips" id="c6hE"><button class="chip" data-e="0.5">Ea 0.5 eV</button><button class="chip on" data-e="0.7">Ea 0.7 eV</button><button class="chip" data-e="1.0">Ea 1.0 eV</button></div>
+      <div class="big" id="c6hAF"></div><p id="c6hSay"></p><div class="yrs" id="c6hY"></div>
+      <p class="note">블록 하나 = 현장 1년(하루 24시간 사용). 40년이 넘으면 40개까지만 그려요. 활성화 에너지 Ea가 클수록 같은 온도에서 더 크게 가속돼요.</p>
+    </div>
+  </div></div>
+<h2 style="margin-top:34px">6장 학습 지도</h2>
+<p class="lead">순서대로 해도 좋고, 궁금한 차시부터 골라도 좋아요. 확인 문제를 모두 맞히면 초록 동그라미가 돼요.</p>
+<div class="path"></div>
+<div class="qnav" style="margin-top:22px"><a class="btn" href="#c6-exam">6장 단원 평가</a><a class="btn alt" href="#review">오답 노트</a><a class="btn alt" href="#home">목차로</a></div>
+</div></section>
+<section data-view="c7" class="band" id="v-c7"><div class="wrap">
+<div class="chead"><span class="cdot" style="background:#e0407a">7</span><div><span class="note">7장 · BOK Ⅴ.A–B</span><h2 style="margin:0">신뢰성 설계</h2><p>CRE 시험 일곱째 단원(Design for reliability)을 8번의 짧은 활동으로 익혀요. 처음부터 튼튼하고, 흔들려도 괜찮은 제품을 그리는 법을 배워요.</p></div></div>
+<div class="chome"><h2>부하와 강도가 겹치는 곳에서 고장이 나요</h2>
+  <p class="lead">부품에 걸리는 힘(부하)도, 부품이 버티는 힘(강도)도 제품마다 조금씩 달라요. 두 분포가 겹치는 빨간 부분은 ‘약한 부품에 센 부하가 걸릴 수 있는’ 구간이에요. 겹칠수록 고장 확률이 커져요. 강도 평균을 키우거나 산포를 줄여 보세요.</p>
+  <div class="lsi">
+    <div class="fig" id="c7hFig"><svg id="c7hS" role="img" aria-label="부하 분포와 강도 분포가 겹치는 간섭 그림"></svg></div>
+    <div class="card">
+      <div class="row"><label for="c7hM">강도 평균</label><input id="c7hM" type="range" min="100" max="180" step="1" value="135"><span id="c7hMv" class="nw"></span></div>
+      <div class="chips" id="c7hSd"><button class="chip" data-s="8">강도 산포 작게</button><button class="chip on" data-s="15">보통</button><button class="chip" data-s="25">크게</button></div>
+      <div class="big" id="c7hP"></div><p id="c7hSay"></p>
+      <p class="note">부하는 평균 100, 표준편차 12로 고정한 예시예요.</p>
+    </div>
+  </div></div>
+<h2 style="margin-top:34px">7장 학습 지도</h2>
+<p class="lead">순서대로 해도 좋고, 궁금한 차시부터 골라도 좋아요. 확인 문제를 모두 맞히면 초록 동그라미가 돼요.</p>
+<div class="path"></div>
+<div class="qnav" style="margin-top:22px"><a class="btn" href="#c7-exam">7장 단원 평가</a><a class="btn alt" href="#review">오답 노트</a><a class="btn alt" href="#home">목차로</a></div>
+</div></section>
+<section data-view="c8" class="band" id="v-c8"><div class="wrap">
+<div class="chead"><span class="cdot" style="background:#00a3a3">8</span><div><span class="note">8장 · BOK Ⅴ.C</span><h2 style="margin:0">보전성</h2><p>CRE 시험 마지막 단원(Maintainability &amp; availability)을 8번의 짧은 활동으로 익혀요. 고장 나도 빨리 고치고, 고장 나기 전에 손보는 법을 배워요.</p></div></div>
+<div class="chome"><h2>같은 기계, 다른 정비 일지</h2>
+  <p class="lead">닳아서 고장 나는(마모형, 와이블 β = 3) 베어링 4개를 쓰는 기계의 1년이에요. 정비 전략을 바꾸면 갑작스런 고장 정지(빨강)와 계획 정지(노랑)가 어떻게 달라지는지 보세요.</p>
+  <div class="chips" id="c8hM"><button class="chip on" data-m="0">사후 보전 (고장 나면 고치기)</button><button class="chip" data-m="1">예방 보전 (1,500시간마다 교체)</button><button class="chip" data-m="2">예측 보전 (진동 감시 후 교체)</button></div>
+  <div class="months" id="c8hMo"></div>
+  <div class="log" id="c8hLog"></div>
+  <div class="stats" id="c8hSt"></div>
+  <p id="c8hSay"></p>
+  <p class="note">예시 시뮬레이션이에요. 베어링 수명은 η = 2,500시간인 와이블 분포에서 뽑았고, 고장 정지는 24시간, 계획 정지는 4시간으로 가정했어요.</p></div>
+<h2 style="margin-top:34px">8장 학습 지도</h2>
+<p class="lead">순서대로 해도 좋고, 궁금한 차시부터 골라도 좋아요. 확인 문제를 모두 맞히면 초록 동그라미가 돼요.</p>
+<div class="path"></div>
+<div class="qnav" style="margin-top:22px"><a class="btn" href="#c8-exam">8장 단원 평가</a><a class="btn alt" href="#review">오답 노트</a><a class="btn alt" href="#home">목차로</a></div>
+</div></section>
+<section data-view="lesson" class="band"><div class="wrap" id="lesson"></div></section>
+<section data-view="exam" class="band"><div class="wrap qwrap" id="exam"></div></section>
+<section data-view="review" class="band"><div class="wrap qwrap">
+  <h2>전체 오답 노트</h2>
+  <p class="lead">모든 단원에서 틀린 문제와 해설이에요. 다시 풀어서 맞히면 노트에서 빠져요.</p>
+  <div class="chips" id="rFilter"></div>
+  <div id="rBox"></div>
+</div></section>
+</main>
+
+<footer class="band"><div class="wrap">
+  “CRE 첫걸음 공부방”과 1~8장 학습 앱을 한 권으로 묶은 통합 앱이에요. 단원 평가에는 올려 주신 기출 노트의 문제가 들어 있고, 오답 보기는 일부 새로 만들었어요. 공식과 정답은 교재·강의로 한 번 더 확인하세요.
+</div></footer>
+
+<script>
+/* ───── 공통 도우미 (모든 단원이 같이 씀) ───── */
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const STORE={get(k,d){try{return JSON.parse(localStorage.getItem("creall-"+k))??d}catch(e){return d}},set(k,v){try{localStorage.setItem("creall-"+k,JSON.stringify(v))}catch(e){}}};
+function sorter(box,items,cats){box.innerHTML=items.map(([t,a])=>`<div class="sitem" data-a="${a}"><span>${t}</span><span class="chips">${cats.map(c=>`<button class="chip" data-c="${c}">${c}</button>`).join("")}</span></div>`).join("")+`<p class="note" data-sc>0 / ${items.length} 맞힘</p>`;
+ box.addEventListener("click",e=>{const b=e.target.closest("[data-c]");if(!b)return;const it=b.closest(".sitem");if(it.classList.contains("ok"))return;
+  if(b.dataset.c===it.dataset.a){b.classList.add("ok");it.classList.add("ok")}else{b.classList.add("no");setTimeout(()=>b.classList.remove("no"),600)}
+  const n=box.querySelectorAll(".sitem.ok").length;box.querySelector("[data-sc]").textContent=`${n} / ${items.length} 맞힘${n===items.length?" · 모두 맞혔어요!":""}`});}
+function orderGame(el,title,desc,ST,end){el.innerHTML=`<h3>${title}</h3><p>${desc}</p><div class="chips" id="oPool"></div><ol class="order" id="oOut" style="padding:0"></ol><p class="note" id="oMsg"></p>`;
+ let k=0;const order=ST.map((s,i)=>i).sort((a,b)=>((a*7+3)%ST.length)-((b*7+3)%ST.length));
+ const pool=()=>{el.querySelector("#oPool").innerHTML=order.filter(i=>i>=k).map(i=>`<button class="chip" data-r="${i}">${ST[i].split(":")[0]}</button>`).join("")||`<span class="jua" style="color:var(--leaf);font-size:20px">완벽해요! ${end}</span>`;
+  el.querySelectorAll("[data-r]").forEach(b=>b.onclick=()=>{if(+b.dataset.r===k){el.querySelector("#oOut").insertAdjacentHTML("beforeend",`<li>${k+1}. ${ST[k]}</li>`);k++;el.querySelector("#oMsg").textContent="";pool()}else{b.classList.add("no");el.querySelector("#oMsg").textContent="앗, 그 단계는 아직이에요. 먼저 해야 할 일을 생각해 보세요.";setTimeout(()=>b.classList.remove("no"),600)}})};pool();}
+const CRE={meta:{},fac:{},mod:{},reg(n,meta,fac){this.meta[n]=meta;this.fac[n]=fac}};
+</script>
+<script src="ch1.js"></script>
+<script src="ch2.js"></script>
+<script src="ch3.js"></script>
+<script src="ch4.js"></script>
+<script src="ch5.js"></script>
+<script src="ch6.js"></script>
+<script src="ch7.js"></script>
+<script src="ch8.js"></script>
+<script>
+{
+const N=[1,2,3,4,5,6,7,8],M=CRE.meta,MOD=CRE.mod;
+/* ───── 단원 모듈 켜기 (한 단원이 고장 나도 나머지는 동작) ───── */
+N.forEach(n=>{const sec=$(`#v-c${n} .chome`);if(!M[n]){if(sec)sec.innerHTML=`<p class="loaderr">이 단원을 불러오지 못했어요.</p>`;return}
+ try{MOD[n]=CRE.fac[n]()}catch(e){sec.insertAdjacentHTML("afterbegin",`<p class="loaderr">이 단원의 그림을 준비하다 문제가 생겼어요: ${String(e.message).replace(/[<>&]/g,"")}</p>`)}});
+const Q={},ALLQ=[];
+N.forEach(n=>{const m=MOD[n];if(!m)return;m.POOL.forEach(q=>{const o={...q,n,g:`c${n}:${q.k}`};Q[o.g]=o;ALLQ.push(o)})});
+const lname=(n,c)=>{const l=MOD[n]&&MOD[n].L.find(x=>x.id===c);return l?l.t:""};
+
+/* ───── 상태 ───── */
+let done=new Set(STORE.get("done",[])),solved=STORE.get("solved",{}),wrong=new Set(STORE.get("wrong",[]));
+const save=()=>{STORE.set("done",[...done]);STORE.set("solved",solved);STORE.set("wrong",[...wrong]);meter()};
+const cDone=n=>MOD[n]?MOD[n].L.filter(l=>done.has(`c${n}-${l.id}`)).length:0;
+function meter(){const t=N.reduce((a,n)=>a+cDone(n),0);$("#mTxt").textContent=`${t} / 64 차시 완료`;$("#mBar").style.width=t/64*100+"%"}
+
+/* ───── 큰 메뉴 & 단원 메뉴 ───── */
+$("#nav").innerHTML=`<a href="#home">목차</a>`+N.map(n=>`<a href="#c${n}">${n}장</a>`).join("")+`<a href="#mock">모의고사</a><a href="#review">오답 노트</a>`;
+function subnav(n,cur){const s=$("#subnav");if(!n||!MOD[n]){s.hidden=true;return}s.hidden=false;
+ s.innerHTML=`<a href="#c${n}">${n}장 학습 지도</a>`+MOD[n].L.map((l,i)=>`<a href="#c${n}-${l.id}">${i+1}차시</a>`).join("")+`<a href="#c${n}-exam">단원 평가</a>`;
+ $$("#subnav a").forEach(a=>a.getAttribute("href")==="#"+cur?a.setAttribute("aria-current","page"):a.removeAttribute("aria-current"));
+ const c=$("#subnav a[aria-current]");if(c)c.scrollIntoView({block:"nearest",inline:"nearest"})}
+
+/* ───── 라우팅 ───── */
+let curN=0,ro=null;
+function show(v){$$("section[data-view]").forEach(s=>s.classList.toggle("on",s.dataset.view===v))}
+function route(){const h=location.hash.slice(1)||"home";let m;
+ N.forEach(n=>MOD[n]&&MOD[n].stopRO());
+ const top=(m=h.match(/^c([1-8])/))?"c"+m[1]:h;
+ $$("#nav a").forEach(a=>a.getAttribute("href")==="#"+top?a.setAttribute("aria-current","page"):a.removeAttribute("aria-current"));
+ const ca=$("#nav a[aria-current]");if(ca)ca.scrollIntoView({block:"nearest",inline:"nearest"});
+ if((m=h.match(/^c([1-8])$/))&&MOD[+m[1]]){curN=+m[1];show("c"+curN);subnav(curN,h);paintPath(curN);try{MOD[curN].homeDraw()}catch(e){}return}
+ if((m=h.match(/^c([1-8])-(l[1-8])$/))&&MOD[+m[1]]){curN=+m[1];const l=MOD[curN].L.find(x=>x.id===m[2]);if(l){show("lesson");subnav(curN,h);openLesson(curN,l);return}}
+ if((m=h.match(/^c([1-8])-exam$/))&&MOD[+m[1]]){curN=+m[1];show("exam");subnav(curN,h);openExam("c"+curN);return}
+ curN=0;subnav(0);
+ if(h==="mock"){show("exam");openExam("mock");return}
+ if(h==="review"){show("review");buildReview();return}
+ show("home");drawHome();}
+addEventListener("hashchange",()=>{route();scrollTo(0,0)});
+
+/* ───── 목차 ───── */
+function drawHome(){
+ $("#rail").innerHTML=N.map(n=>{const mt=M[n]||{name:"?",color:"#ccc"},d=cDone(n);return `<a class="rstop" href="#c${n}"><span class="ring" style="background:conic-gradient(var(--leaf) ${d/8*360}deg,var(--line) 0)"><i style="background:${mt.color}">${d===8?"✓":n}</i></span><span>${mt.name}</span><small>${d}/8 차시</small></a>`}).join("");
+ const tot=N.reduce((a,n)=>a+cDone(n),0),sv=Object.keys(solved).filter(k=>Q[k]).length;
+ $("#hstats").innerHTML=[[`${tot} / 64`,"차시 완료"],[`${sv} / ${ALLQ.length}`,"맞힌 문제"],[`${[...wrong].filter(k=>Q[k]).length}개`,"오답 노트"]].map(([v,t])=>`<div class="stat"><b>${v}</b><span>${t}</span></div>`).join("");
+ $("#cgrid").innerHTML=N.map(n=>{const mt=M[n];if(!mt||!MOD[n])return `<article class="ccard"><h3>${n}장</h3><p class="loaderr">불러오지 못했어요.</p></article>`;const d=cDone(n),w=[...wrong].filter(k=>k.startsWith(`c${n}:`)).length,qn=ALLQ.filter(q=>q.n===n).length;
+  return `<article class="ccard${d===8?" full":""}"><span class="dot" style="background:${mt.color}"></span><span class="no">${n}장 · ${mt.bok}</span><h3>${mt.name}</h3><ul>${mt.keys.map(x=>`<li>${x}</li>`).join("")}</ul>
+  <div class="pbar"><i style="width:${d/8*100}%"></i></div><span class="note">차시 ${d}/8 · 평가 ${qn}문제 · 오답 ${w}</span>
+  <div class="cgo"><a class="btn sm" href="#c${n}">공부하기</a><a class="btn alt sm" href="#c${n}-exam">단원 평가</a></div></article>`}).join("");}
+$("#resetAll").onclick=e=>{if(e.target.dataset.sure){done.clear();solved={};wrong.clear();save();drawHome();e.target.textContent="모든 기록 지우기";delete e.target.dataset.sure}else{e.target.dataset.sure=1;e.target.textContent="한 번 더 누르면 모두 지워져요"}};
+
+/* ───── 단원 학습 지도의 차시 카드 ───── */
+function paintPath(n){const el=$(`#v-c${n} .path`);if(!el||!MOD[n])return;
+ el.innerHTML=MOD[n].L.map((l,i)=>{const k=`c${n}-${l.id}`;return `<a class="stop${done.has(k)?" done":""}" href="#${k}"><span class="n">${done.has(k)?"✓":i+1}</span>${done.has(k)?'<span class="st">완료</span>':""}<h3>${l.t}</h3><span>${l.easy}</span></a>`}).join("")}
+
+/* ───── 차시 화면 ───── */
+function openLesson(n,l){const m=MOD[n],L=m.L,i=L.indexOf(l);
+ $("#lesson").innerHTML=`<div class="lhead"><span class="n" style="background:${M[n].color}">${i+1}</span><div><span class="note">${n}장 ${M[n].name} · ${i+1}차시</span><h2 style="margin:0">${l.t}</h2></div></div>
+ <div class="easy">한마디로: ${l.easy}</div>
+ <ul class="pts">${l.pts.map(([a,b])=>`<li><b>${a}</b>${b}</li>`).join("")}</ul>
+ <div class="tip"><b>시험 꿀팁</b> ${l.tip}</div>
+ <div class="act" id="act"></div>
+ <h3 style="margin-top:28px;font-size:24px">확인 문제</h3><p class="note">두 문제를 모두 맞히면 차시 완료!</p>
+ <div class="checks">${l.q.map((q,j)=>qCard(Q[`c${n}:${l.id}-${j}`],"문제 "+(j+1))).join("")}</div>
+ <div class="lnav">${i>0?`<a class="btn alt" href="#c${n}-${L[i-1].id}">← ${L[i-1].t}</a>`:`<a class="btn alt" href="#c${n}">← ${n}장 학습 지도</a>`}${i<L.length-1?`<a class="btn" href="#c${n}-${L[i+1].id}">${L[i+1].t} →</a>`:`<a class="btn" href="#c${n}-exam">${n}장 단원 평가 →</a>`}</div>`;
+ try{m.ACT[l.act]($("#act"))}catch(e){$("#act").innerHTML=`<p class="loaderr">이 활동을 여는 중 문제가 생겼어요.</p>`}
+ $$("#lesson .qc").forEach(c=>bindQ(c,()=>{if(l.q.every((_,j)=>solved[`c${n}:${l.id}-${j}`])){done.add(`c${n}-${l.id}`);save()}}));}
+
+/* ───── 문제 카드 ───── */
+function qCard(q,label){if(!q)return "";return `<div class="card qc" data-g="${q.g}"><span class="note">${label||`${q.n}장 · ${lname(q.n,q.c)}`}</span><p class="qtext">${q.q}</p>
+ <div class="opts">${q.o.map((t,i)=>`<button class="opt" data-i="${i}">${i+1}) ${t}</button>`).join("")}</div><div class="exp" hidden></div></div>`}
+function bindQ(card,cb,noRetry){const q=Q[card.dataset.g];if(!q)return;let used=false;
+ card.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{if(used)return;used=true;const i=+b.dataset.i,ok=i===q.a;
+  card.querySelectorAll(".opt").forEach(x=>{x.disabled=true;if(+x.dataset.i===q.a)x.classList.add("ok")});if(!ok)b.classList.add("no");
+  if(ok){solved[q.g]=1;wrong.delete(q.g)}else wrong.add(q.g);save();
+  const e=card.querySelector(".exp");e.hidden=false;
+  e.innerHTML=`<b class="jua" style="font-size:20px;color:${ok?"var(--leaf)":"var(--tom)"}">${ok?"정답이에요!":"아쉬워요. 정답은 "+(q.a+1)+"번"}</b><p>${q.w}</p>${ok||noRetry?"":`<button class="btn alt retry">다시 풀기</button>`}`;
+  const r=e.querySelector(".retry");if(r)r.onclick=()=>{used=false;e.hidden=true;card.querySelectorAll(".opt").forEach(x=>{x.disabled=false;x.classList.remove("ok","no")})};
+  cb&&cb(ok)});}
+
+/* ───── 단원 평가 & 모의고사 ───── */
+const shuffle=a=>a.map(v=>[Math.random(),v]).sort((x,y)=>x[0]-y[0]).map(v=>v[1]);
+let ex={key:"",list:[],i:0,score:0,res:{},size:10,pick:new Set(N)};
+function openExam(key){if(ex.key!==key||!ex.list.length){ex.key=key;ex.list=[];}
+ if(!ex.list.length)return examSetup();showE()}
+function examSetup(){const isM=ex.key==="mock",n=isM?0:+ex.key.slice(1);
+ const sizes=isM?[[25,"25문제"],[50,"50문제"],[100,"100문제"],[0,"전부"]]:[[10,"빠르게 10문제"],[20,"실전 20문제"],[0,"전부 풀기"]];
+ if(![...sizes.map(s=>s[0])].includes(ex.size))ex.size=sizes[0][0];
+ $("#exam").innerHTML=`<h2>${isM?"전 범위 모의고사":`${n}장 ${M[n].name} 단원 평가`}</h2>
+ <p class="lead">${isM?"고른 단원들에서 고르게 뽑아 섞어요. 끝나면 단원별 점수로 약한 곳을 알려 줘요.":"차시 확인 문제와 기출 문제를 섞었어요. 틀린 문제는 오답 노트에 자동으로 모여요."}</p>
+ <h3 style="margin-top:10px">문제 수</h3><div class="chips" id="eSize">${sizes.map(([v,t])=>`<button class="chip${ex.size===v?" on":""}" data-s="${v}">${t}</button>`).join("")}</div>
+ ${isM?`<h3>범위</h3><div class="chips" id="ePick">${N.filter(k=>MOD[k]).map(k=>`<button class="chip${ex.pick.has(k)?" on":""}" data-k="${k}">${k}장 ${M[k].name}</button>`).join("")}</div>`:""}
+ <div class="qnav"><button class="btn" id="eGo">시작하기</button>${isM?"":`<a class="btn alt" href="#c${n}">학습 지도로</a>`}</div>`;
+ $("#eSize").onclick=e=>{const b=e.target.closest("[data-s]");if(!b)return;ex.size=+b.dataset.s;$$("#eSize .chip").forEach(x=>x.classList.toggle("on",x===b))};
+ if(isM)$("#ePick").onclick=e=>{const b=e.target.closest("[data-k]");if(!b)return;const k=+b.dataset.k;ex.pick.has(k)?ex.pick.delete(k):ex.pick.add(k);if(!ex.pick.size)ex.pick.add(k);b.classList.toggle("on",ex.pick.has(k))};
+ $("#eGo").onclick=()=>{startExam();showE()};}
+function startExam(){const isM=ex.key==="mock";let list;
+ if(!isM)list=shuffle(ALLQ.filter(q=>`c${q.n}`===ex.key));
+ else{const ch=N.filter(k=>ex.pick.has(k)&&MOD[k]),by=ch.map(k=>shuffle(ALLQ.filter(q=>q.n===k)));list=[];let r=0;const want=ex.size||ALLQ.length;
+  while(list.length<want&&by.some(b=>b.length)){const b=by[r%by.length];if(b.length)list.push(b.pop());r++}list=shuffle(list)}
+ if(ex.size)list=list.slice(0,ex.size);ex.list=list;ex.i=0;ex.score=0;ex.res={};}
+function showE(){const L=ex.list,isM=ex.key==="mock";
+ if(ex.i>=L.length){const p=Math.round(ex.score/L.length*100);
+  const rows=Object.entries(ex.res).sort((a,b)=>a[0]-b[0]).map(([n,[o,t]])=>{const r=o/t;return `<div class="r"><span>${n}장 ${M[n].name}</span><div class="bar"><i style="width:${r*100}%;background:${r>=.8?"var(--leaf)":r>=.5?"var(--sun)":"var(--tom)"}"></i></div><span class="v">${o}/${t}</span></div>`}).join("");
+  const weak=Object.entries(ex.res).filter(([n,[o,t]])=>o/t<.6).map(([n])=>`<a class="btn alt sm" href="#c${n}">${n}장 복습</a>`).join("");
+  $("#exam").innerHTML=`<h2>${isM?"모의고사":"단원 평가"} 결과</h2><div class="card"><div class="big" style="margin:6px 0">${ex.score} / ${L.length}</div><p>${p>=80?"아주 잘했어요!":p>=60?"좋아요! 오답 노트로 틀린 문제만 다시 보세요.":"괜찮아요. 약한 단원의 차시 활동을 한 번 더 해 보고 다시 도전!"}</p>
+  ${Object.keys(ex.res).length>1?`<h3 style="margin-top:12px">단원별 점수</h3><div class="cres">${rows}</div>`:""}${weak?`<div class="qnav">${weak}</div>`:""}
+  <div class="qnav"><button class="btn" id="eAgain">새로 섞어서 다시</button><button class="btn alt" id="eSet">설정 바꾸기</button><a class="btn alt" href="#review">오답 노트 (${[...wrong].filter(k=>Q[k]).length})</a></div></div>`;
+  $("#eAgain").onclick=()=>{startExam();showE()};$("#eSet").onclick=()=>{ex.list=[];examSetup()};return}
+ const q=L[ex.i];
+ $("#exam").innerHTML=`<h2>${isM?"전 범위 모의고사":`${q.n}장 단원 평가`}</h2><div class="qbar"><i style="width:${ex.i/L.length*100}%"></i></div>`+
+  qCard(q,`${ex.i+1} / ${L.length} · 맞힌 개수 ${ex.score} · ${q.n}장 ${lname(q.n,q.c)}`)+`<div class="qnav"><button class="btn" id="eNext" disabled>다음 문제 →</button><a class="btn alt" href="#c${q.n}-${q.c}">이 차시 복습</a><button class="btn alt" id="eQuit">그만하고 결과 보기</button></div>`;
+ bindQ($("#exam .qc"),ok=>{if(ok)ex.score++;const r=ex.res[q.n]||(ex.res[q.n]=[0,0]);r[1]++;if(ok)r[0]++;const b=$("#eNext");b.disabled=false;b.focus()},true);
+ $("#eNext").onclick=()=>{ex.i++;showE()};$("#eQuit").onclick=()=>{const k=ex.i+($("#eNext").disabled?0:1);if(!k){ex.list=[];examSetup();return}ex.list=ex.list.slice(0,k);ex.i=k;showE()};}
+
+/* ───── 전체 오답 노트 ───── */
+let rf=0;
+function buildReview(){const all=ALLQ.filter(q=>wrong.has(q.g));
+ $("#rFilter").innerHTML=`<button class="chip${rf?"":" on"}" data-f="0">전체 (${all.length})</button>`+N.filter(n=>MOD[n]).map(n=>{const c=all.filter(q=>q.n===n).length;return c?`<button class="chip${rf===n?" on":""}" data-f="${n}">${n}장 (${c})</button>`:""}).join("");
+ const list=all.filter(q=>!rf||q.n===rf);
+ $("#rBox").innerHTML=list.length?`<div class="checks">${list.map(q=>qCard(q)).join("")}</div>`:`<div class="card"><h3>오답 노트가 비어 있어요</h3><p>틀린 문제가 생기면 여기에 모여요.</p><div class="qnav"><a class="btn" href="#mock">모의고사 풀기</a></div></div>`;
+ $$("#rBox .qc").forEach(c=>bindQ(c,null));}
+$("#rFilter").addEventListener("click",e=>{const b=e.target.closest("[data-f]");if(!b)return;rf=+b.dataset.f;buildReview()});
+
+/* ───── 테마가 바뀌면 그림 다시 그리기 ───── */
+const redraw=()=>{const h=location.hash.slice(1);if(/^c[1-8]-l[1-8]$/.test(h)||/^c[1-8]$/.test(h))route()};
+matchMedia("(prefers-color-scheme:dark)").addEventListener("change",redraw);
+const themeObs=new MutationObserver(redraw);themeObs.observe(document.documentElement,{attributes:true,attributeFilter:["data-theme"]});
+meter();route();
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,283 @@
+/* CRE 학습 앱 · 3장 통계 개념 — 내용·활동·문제 */
+CRE.reg(3,{"name": "통계 개념", "bok": "BOK Ⅲ.A", "color": "#2f7bf6", "keys": ["확률·이산 분포", "f·F·R·h, 정규·Z", "신뢰구간·검정 분포, 관리도"], "desc": "CRE 시험 셋째 단원(Statistical concepts)을 8번의 짧은 활동으로 익혀요. 고장을 숫자와 그래프로 말하는 법을 배워요."},function(){
+
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const store={get(k,d){try{return JSON.parse(localStorage.getItem("cre3-"+k))??d}catch(e){return d}},set(k,v){try{localStorage.setItem("cre3-"+k,JSON.stringify(v))}catch(e){}}};
+const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+const pct=(v,d=1)=>(v*100).toFixed(d)+"%";
+/* ───── 수학 도우미 ───── */
+const erf=x=>{const t=1/(1+.3275911*Math.abs(x)),y=1-(((((1.061405429*t-1.453152027)*t)+1.421413741)*t-.284496736)*t+.254829592)*t*Math.exp(-x*x);return x>=0?y:-y};
+const Phi=z=>.5*(1+erf(z/Math.SQRT2));
+const lf=n=>{let s=0;for(let i=2;i<=n;i++)s+=Math.log(i);return s};
+const binom=(n,k,p)=>Math.exp(lf(n)-lf(k)-lf(n-k)+k*Math.log(p)+(n-k)*Math.log(1-p));
+const pois=(l,k)=>Math.exp(-l+k*Math.log(l)-lf(k));
+const hyper=(N,D,n,k)=>(k>D||n-k>N-D)?0:Math.exp(lf(D)-lf(k)-lf(D-k)+lf(N-D)-lf(n-k)-lf(N-D-n+k)-lf(N)+lf(n)+lf(N-n));
+function rng(seed){let s=seed%2147483647||1;return()=>(s=s*16807%2147483647)/2147483647}
+const f2=v=>(+v).toFixed(2),f3=v=>(+v).toFixed(3);
+/* 곡선 그리기 공통: o={fn,xmax,ymax,col,shade:[x0,x1],mark,ticks,ylab,lines:[{y,col,t,dash}]} */
+function lineChart(s,o){const W=s.clientWidth,H=s.clientHeight;if(!W)return;const a=o.left??40,b=W-12,T=12,B=H-26,X=x=>a+x/o.xmax*(b-a),Y=y=>B-Math.min(y,o.ymax)/o.ymax*(B-T);
+ const pts=[];for(let i=0;i<=160;i++){const x=i/160*o.xmax;pts.push([X(x),Y(Math.max(0,o.fn(x)))])}
+ const d=pts.map((p,i)=>(i?"L":"M")+p[0].toFixed(1)+" "+p[1].toFixed(1)).join("");
+ let sh="";if(o.shade){const [x0,x1]=o.shade;const q=[];for(let i=0;i<=80;i++){const x=x0+(x1-x0)*i/80;q.push(X(x).toFixed(1)+" "+Y(Math.max(0,o.fn(x))).toFixed(1))}sh=`<path d="M${X(x0)} ${B} L${q.join(" L")} L${X(x1)} ${B}Z" fill="${o.col}" opacity=".22"/>`}
+ const ink=css('--ink'),soft=css('--soft');
+ s.innerHTML=sh+`<line x1="${a}" y1="${B}" x2="${b}" y2="${B}" stroke="${ink}" stroke-width="2"/><line x1="${a}" y1="${T}" x2="${a}" y2="${B}" stroke="${ink}" stroke-width="2"/>`+
+  (o.lines||[]).map(l=>`<line x1="${a}" x2="${b}" y1="${Y(l.y)}" y2="${Y(l.y)}" stroke="${l.col}" stroke-width="2" ${l.dash?'stroke-dasharray="6 5"':""}/><text x="${b}" y="${Y(l.y)-5}" text-anchor="end" font-size="13" fill="${l.col}">${l.t}</text>`).join("")+
+  `<path d="${d}" fill="none" stroke="${o.col}" stroke-width="4" stroke-linejoin="round"/>`+
+  (o.ticks||[]).filter((t,i)=>W>=520||i%2===0).map(t=>`<text x="${X(t[0])}" y="${B+19}" text-anchor="middle" font-size="13" fill="${soft}">${t[1]}</text>`).join("")+
+  (o.ylab?`<text x="${a+6}" y="${T+12}" font-size="13" fill="${soft}">${o.ylab}</text>`:"")+
+  (o.mark!=null?`<line x1="${X(o.mark)}" x2="${X(o.mark)}" y1="${T}" y2="${B}" stroke="${css('--tom')}" stroke-width="2" stroke-dasharray="5 4"/><circle cx="${X(o.mark)}" cy="${Y(Math.max(0,o.fn(o.mark)))}" r="6" fill="${css('--tom')}"/>`:"");}
+
+/* ───── 차시 데이터 ───── */
+const L=[
+ {id:"l1",t:"확률의 기초",easy:"‘그리고’는 곱하기, ‘또는’은 더하고 겹친 것 빼기",
+  pts:[["확률이란?","0(절대 안 일어남)부터 1(반드시 일어남) 사이의 숫자. 고장 확률 + 안 고장 확률 = 1."],
+       ["독립 사건","하나가 일어나도 다른 것의 확률이 안 바뀜. P(A 그리고 B) = P(A) × P(B)."],
+       ["배반 사건","동시에 일어날 수 없음(앞면과 뒷면). P(A 또는 B) = P(A) + P(B)."],
+       ["덧셈 법칙 (일반)","P(A 또는 B) = P(A) + P(B) − P(A 그리고 B). 겹친 부분을 두 번 세지 않게 빼요."],
+       ["조건부 확률","B가 일어났을 때 A일 확률: P(A|B) = P(A 그리고 B) / P(B)."]],
+  tip:"직렬 시스템 신뢰도 = 곱하기(모두 살아야 함), 병렬 = 1 − 고장 확률의 곱. 둘 다 독립 사건의 곱셈 법칙이에요.",
+  act:"prob",
+  q:[["독립 사건 A(확률 0.1)와 B(확률 0.2)가 둘 다 일어날 확률은?",["0.02","0.28","0.30","0.15"],0,"독립이면 곱하기: 0.1 × 0.2 = 0.02."],
+     ["배반 사건 A(0.3)와 B(0.4) 중 하나라도 일어날 확률은?",["0.12","0.58","0.70","1.00"],2,"배반이면 겹치는 부분이 없으니 그냥 더해요: 0.3 + 0.4 = 0.7."]]},
+ {id:"l2",t:"이산 분포",easy:"개수를 세는 분포: 이항·포아송·초기하",
+  pts:[["이항 분포","성공/실패 둘 중 하나인 시행을 n번(복원 추출). 평균 np, 분산 np(1−p). p·np 관리도."],
+       ["포아송 분포","단위(시간·면적)당 일어나는 횟수(결점 수). 평균 = 분산 = λ. c·u 관리도."],
+       ["초기하 분포","작은 로트에서 다시 넣지 않고 뽑을 때(비복원 추출)의 불량 개수."],
+       ["언제 무엇을?","n이 크고 p가 작으면 이항을 포아송(λ = np)으로 근사할 수 있어요."]],
+  tip:"P(X=0)는 ‘불량 0개’, 즉 무고장 확률이에요. 이항: (1−p)ⁿ, 포아송: e^(−λ).",
+  act:"discrete",
+  q:[["단위당 결점 수(예: 철판 1m²당 흠 개수)를 다루는 분포는?",["이항 분포","포아송 분포","정규 분포","와이블 분포"],1,"단위당 발생 횟수는 포아송 분포예요."],
+     ["포아송 분포의 특징으로 맞는 것은?",["평균과 분산이 같다","항상 대칭이다","연속형 분포다","평균이 항상 0이다"],0,"포아송은 평균 = 분산 = λ 예요."]]},
+ {id:"l3",t:"연속 분포의 4가지 함수",easy:"f, F, R, h — 고장을 보는 네 개의 창문",
+  pts:[["f(t) 확률밀도함수","시간 t 근처에서 고장이 몰리는 정도. 곡선 아래 넓이가 확률이에요(전체 넓이 = 1)."],
+       ["F(t) 누적분포함수","시간 t까지 이미 고장 난 비율(불신뢰도). 0에서 1로 올라가요."],
+       ["R(t) 신뢰도함수","R(t) = 1 − F(t). 시간 t까지 살아남은 비율. 1에서 0으로 내려가요."],
+       ["h(t) 고장률함수","h(t) = f(t) / R(t). 지금까지 살아남은 것 중 바로 지금 고장 나는 비율(순간 고장률)."]],
+  tip:"f는 ‘전체 중에서’, h는 ‘살아남은 것 중에서’예요. 이 차이가 시험에 잘 나와요.",
+  act:"four",
+  q:[["누적분포함수 F(t)의 의미는?",["시간 t까지 살아남은 비율","시간 t까지 고장 난 비율","시간 t의 순간 고장률","평균 수명"],1,"F(t)는 불신뢰도, 즉 t까지 고장 난 비율이에요."],
+     ["순간 고장률 h(t)를 바르게 나타낸 것은?",["f(t) × R(t)","f(t) / R(t)","1 − R(t)","R(t) / f(t)"],1,"h(t) = f(t) / R(t). 살아남은 것 중 지금 고장 나는 비율이에요."]]},
+ {id:"l4",t:"정규분포와 Z",easy:"종 모양, 그리고 Z로 바꿔서 표 찾기",
+  pts:[["정규분포","평균 μ를 중심으로 좌우 대칭인 종 모양. 마모 고장, 치수, 강도에 잘 맞아요."],
+       ["Z 변환","Z = (x − μ) / σ. 어떤 정규분포든 평균 0, 표준편차 1인 표준정규분포로 바꿔요."],
+       ["68-95-99.7","±1σ 안에 68%, ±2σ 안에 95%, ±3σ 안에 99.7%."],
+       ["꼭 외울 Z 값","양쪽 95% → ±1.96, 한쪽 95% → 1.645, 양쪽 99% → ±2.576."],
+       ["신뢰도 계산","고장 시간이 정규분포일 때 R(t) = 1 − Φ((t − μ)/σ)."]],
+  tip:"Z표가 ‘왼쪽 넓이’인지 ‘오른쪽 넓이’인지 먼저 확인! 신뢰도는 오른쪽(아직 안 고장 난 쪽) 넓이예요.",
+  act:"normal",
+  q:[["정규분포에서 양쪽으로 전체의 95%를 포함하는 Z 값은?",["±1.00","±1.645","±1.96","±3.00"],2,"양쪽 95% 구간은 ±1.96. 한쪽 95%는 1.645예요."],
+     ["고장 시간이 평균 50, 표준편차 10인 정규분포일 때 40시간 동작 신뢰도는 약?",["0.16","0.50","0.84","0.98"],2,"Z = (40−50)/10 = −1 → 고장 확률 0.1587 → 신뢰도 ≈ 0.84."]]},
+ {id:"l5",t:"지수 · 와이블 · 대수정규",easy:"신뢰성에서 제일 자주 만나는 세 친구",
+  pts:[["지수분포","고장률 λ 일정. ‘과거를 기억하지 못함(무기억성)’: 이미 100시간 쓴 부품도 새것과 같아요. 전자 부품, 우발 고장."],
+       ["와이블 분포","모양 β, 척도(특성수명) η. β<1 초기, β=1 지수, β>1 마모. t = η에서 언제나 63.2% 고장."],
+       ["대수정규(로그정규)","log(t)가 정규분포. 오른쪽 꼬리가 긴 비대칭 모양. 피로, 반도체 열화, 수리 시간(MTTR)에 자주 써요."],
+       ["정규분포","대칭 종 모양. 마모가 쌓여 일정 시점 근처에서 몰려 고장 나는 경우."]],
+  tip:"수리 시간 분포는 대부분 금방 끝나고 가끔 아주 오래 걸려서 대수정규를 많이 써요.",
+  act:"which",
+  q:[["와이블 분포에서 사용 시간이 특성수명 η와 같을 때 고장 난 비율은?",["36.8%","50%","63.2%","95%"],2,"F(η) = 1 − e^(−1) ≈ 63.2%. β가 몇이든 똑같아요."],
+     ["로그정규(대수정규)분포의 모양에 대한 설명은?",["좌우 대칭이다","오른쪽 꼬리가 긴 비대칭이다","봉우리가 두 개다","이산형이다"],1,"오른쪽 꼬리가 긴 비대칭 분포예요. 로그를 취하면 정규분포가 돼요."]]},
+ {id:"l6",t:"기술 통계와 중심극한정리",easy:"평균들의 분포는 종 모양이 된다",
+  pts:[["중심 경향","평균(다 더해 나누기), 중앙값(가운데), 최빈값(가장 많이 나온 값)."],
+       ["퍼짐","범위(최대−최소), 분산, 표준편차(분산의 제곱근)."],
+       ["치우친 분포","오른쪽 꼬리가 길면 평균 > 중앙값. 고장 시간 데이터에 흔해요."],
+       ["중심극한정리","모집단이 어떤 모양이든 표본 크기 n이 커지면 ‘표본 평균’의 분포는 정규분포에 가까워져요."],
+       ["평균의 표준오차","표본 평균의 표준편차 = σ / √n. n이 4배면 퍼짐은 절반."]],
+  tip:"X̄ 관리도가 정규분포 가정을 쓸 수 있는 이유가 바로 중심극한정리예요.",
+  act:"clt",
+  q:[["중심극한정리의 내용으로 맞는 것은?",["표본이 커지면 모집단이 정규분포가 된다","표본이 커지면 표본 평균의 분포가 정규분포에 가까워진다","표본이 커지면 분산이 커진다","표본 평균은 항상 0이다"],1,"모집단 모양과 상관없이 ‘표본 평균’의 분포가 정규에 가까워져요."],
+     ["모표준편차 σ = 10, 표본 크기 n = 25일 때 표본 평균의 표준편차는?",["0.4","2","10","50"],1,"σ/√n = 10/5 = 2."]]},
+ {id:"l7",t:"추정과 검정의 분포",easy:"Z, t, χ², F — 상황 따라 고르기",
+  pts:[["Z (정규)","모표준편차를 알거나 표본이 클 때(30개 이상) 모평균 추정."],
+       ["t 분포","표본이 작고(30개 미만) 모표준편차를 모를 때 모평균 추정. 정규보다 꼬리가 두꺼워요."],
+       ["χ² (카이제곱)","모분산 추정, 적합도 검정, 그리고 MTBF 신뢰구간(정시중단 자유도 2r+2, 정수중단 2r)."],
+       ["F 분포","두 집단의 분산 비교(분산비), 분산분석(ANOVA)."],
+       ["두 가지 오류","1종 오류 α: 좋은 로트를 불합격(생산자 위험). 2종 오류 β: 나쁜 로트를 합격(소비자 위험)."]],
+  tip:"신뢰수준 = 1 − α. 95% 신뢰수준이면 α = 0.05예요.",
+  act:"tests",
+  q:[["모분산의 신뢰구간을 구할 때 쓰는 분포는?",["Z 분포","t 분포","χ² 분포","포아송 분포"],2,"분산의 신뢰구간과 검정은 카이제곱 분포를 써요."],
+     ["표본 8개, 모표준편차를 모를 때 모평균의 신뢰구간에 쓰는 분포는?",["Z 분포","t 분포","F 분포","이항 분포"],1,"작은 표본 + 모표준편차 모름 → t 분포."]]},
+ {id:"l8",t:"관리도",easy:"우연 변동과 이상 원인 가려내기",
+  pts:[["두 종류의 변동","우연 원인: 늘 있는 작은 흔들림. 이상(특별) 원인: 고쳐야 할 진짜 문제(공구 마모, 재료 변경)."],
+       ["관리 한계","중심선 ± 3σ. 공정 데이터에서 계산해요. 고객이 정한 ‘규격 한계’와 달라요!"],
+       ["계량형 관리도","X̄-R, X̄-s, I-MR. 길이·무게·온도처럼 재는 값."],
+       ["계수형 관리도","p(불량률)·np(불량 개수)는 이항, c(결점 수)·u(단위당 결점 수)는 포아송."],
+       ["이상 신호","한계선 밖의 점, 중심선 한쪽에 연속 7점(규칙에 따라 8~9점), 연속 상승·하강 등."]],
+  tip:"관리 상태(안정)라고 규격을 만족한다는 뜻은 아니에요. 공정 능력(Cp, Cpk)은 따로 봐요.",
+  act:"spc",
+  q:[["X̄-R 관리도는 공정 데이터를 무엇과 비교하나요?",["규격 한계","관리 한계","제조 결함","설계 결함"],1,"관리도는 데이터로 계산한 ‘관리 한계’와 비교해요."],
+     ["로트별 부적합품률(불량률)을 관리할 때 쓰는 관리도는?",["X̄-R 관리도","p 관리도","c 관리도","I-MR 관리도"],1,"불량률은 이항 분포를 따르는 p 관리도예요."]]}
+];
+const EXTRA=[
+ ["l4","수도관 수명이 평균 15년, 표준편차 3.5년 정규분포. 10년 생존 확률은 약?",["0.08","0.42","0.58","0.92"],3,"Z = (10−15)/3.5 = −1.43 → 고장 확률 0.076 → 생존 ≈ 0.92."],
+ ["l4","한쪽(단측) 95% 신뢰한계에 쓰는 Z 값은?",["1.282","1.645","1.96","2.576"],1,"단측 95%는 1.645, 양측 95%는 1.96."],
+ ["l2","불량률 10%인 공정에서 10개를 뽑았을 때 불량이 하나도 없을 확률은 약? (이항)",["0.10","0.35","0.65","0.90"],1,"(1 − 0.1)^10 = 0.9^10 ≈ 0.349."],
+ ["l2","시간당 평균 2번 고장 나는 설비가 1시간 동안 한 번도 고장 나지 않을 확률은? (포아송)",["0.135","0.271","0.5","0.865"],0,"P(0) = e^(−2) ≈ 0.135."],
+ ["l2","작은 로트에서 뽑은 시료를 다시 넣지 않을 때(비복원) 불량 개수의 분포는?",["이항","포아송","초기하","지수"],2,"비복원 추출은 초기하 분포예요."],
+ ["l2","n = 100, p = 0.05인 이항분포의 평균과 분산은?",["5, 4.75","5, 5","0.05, 4.75","95, 5"],0,"평균 np = 5, 분산 np(1−p) = 5 × 0.95 = 4.75."],
+ ["l5","‘과거를 기억하지 못하는(무기억성)’ 성질을 가진 분포는?",["정규분포","지수분포","대수정규분포","와이블(β=3)"],1,"지수분포는 이미 쓴 시간과 상관없이 고장률이 같아요."],
+ ["l5","와이블 분포에서 β = 1이면 어떤 분포와 같아질까요?",["정규분포","지수분포","레일리 분포","균일분포"],1,"β = 1이면 고장률이 일정한 지수분포예요. (β = 2는 레일리)"],
+ ["l7","좋은 로트를 불합격시키는 1종 오류(α)를 다른 말로?",["소비자 위험","생산자 위험","검출력","신뢰도"],1,"1종 오류 α = 생산자 위험, 2종 오류 β = 소비자 위험."],
+ ["l8","관리도에서 연속 7점이 중심선 위쪽에만 찍혔다. 해석은?",["정상 변동","이상 원인이 있을 가능성","규격 이탈","데이터 오류 확정"],1,"한쪽으로 연속된 점은 평균이 이동한 이상 신호예요."],
+ ["l6","고장 시간처럼 오른쪽 꼬리가 긴 분포에서 일반적인 관계는?",["평균 < 중앙값","평균 = 중앙값","평균 > 중앙값","알 수 없음"],2,"긴 꼬리의 큰 값들이 평균을 끌어올려서 평균 > 중앙값이 돼요."],
+ ["l6", "모집단에서 표본을 뽑는 주된 목적은?", ["모집단 전체를 대체하기 위해", "모집단에 대해 추론하거나 알아내기 위해", "표본을 버리기 위해", "분산을 키우기 위해"], 1, "표본으로 모집단의 특성을 추론해요."],
+ ["l7", "15개의 수리 불가 부품을 시험해 총 1,200시간이 누적되고 4번째 고장에서 중단했다(정수중단). MTTF의 95% 단측 하한은? (χ²(0.05, 8) = 15.507)", ["154.8시간", "77.4시간", "240.0시간", "300.0시간"], 0, "정수중단: 2T/χ²(α, 2r) = 2 × 1,200 / 15.507 ≈ 154.8시간. (점추정은 300시간)"],
+ ["l7", "모터 100개의 회전 속도 평균 1,600rpm, 표준편차 160rpm. 평균의 95% 신뢰구간은?", ["1,440 ~ 1,760", "1,286.4 ~ 1,913.6", "1,584.0 ~ 1,616.0", "1,568.6 ~ 1,631.4"], 3, "1,600 ± 1.96 × 160/√100 = 1,600 ± 31.4."],
+ ["l7", "분산분석(ANOVA)에서 인자가 유의하다고 판단하는 경우는?", ["관찰 F값이 임계값보다 작을 때", "관찰 F값이 0일 때", "관찰 F값이 임계 F값보다 클 때", "F값과 무관하다"], 2, "군간 변동/군내 변동 비(F)가 임계값을 넘으면 유의해요."],
+ ["l3", "고장률 λi인 n개 부품이 직렬(중복 없음)이고 부품 i의 운영 시간이 τi일 때 시스템 신뢰도는?", ["Σ exp(−λiτi)", "exp(−Σ λiτi)", "1 − Π(1 − exp(−λiτi))", "Π λiτi"], 1, "직렬이면 신뢰도를 곱하므로 지수끼리 더해져 exp(−Σλiτi)."],
+ ["l2", "성공 확률이 일정한 독립적인 유한 번 시행에서 성공 횟수를 모델링하는 분포는?", ["이항", "정규", "포아송", "지수"], 0, "n번 시행, 성공 확률 p → 이항분포."],
+ ["l2", "불량률 2%인 제품군에서 10개를 뽑았을 때 불량이 0개일 확률은 약?", ["0.200", "0.083", "0.980", "0.817"], 3, "0.98^10 ≈ 0.817."],
+ ["l1", "X와 Y가 독립 사건일 때만 성립하는 식은?", ["P(X∪Y) = P(X) + P(Y)", "P(X) + P(X') = 1", "P(X∩Y) = P(X) × P(Y)", "P(X|Y) = 1"], 2, "곱셈 법칙은 독립일 때만 성립해요."],
+ ["l6", "통계적 요약 정보보다 그림으로 나타낼 때 더 쉽게 이해되는 것은?", ["평균값 하나", "데이터 분포", "표본 크기", "최댓값"], 1, "분포 모양은 히스토그램 같은 그림으로 봐야 한눈에 보여요."],
+ ["l2", "P(X=x) = n!/(x!(n−x)!) · pˣ(1−p)ⁿ⁻ˣ 은 어느 분포의 함수인가요?", ["이항", "포아송", "초기하", "정규"], 0, "이항분포의 확률질량함수예요. 식을 보고 분포를 묻는 문제도 나와요."],
+ ["l6", "단순 회귀분석에서 완전한 (양의) 선형 관계를 나타내는 상관계수 r은?", ["0", "0.5", "100", "1"], 3, "r = ±1이면 완전 선형, 0이면 선형 관계 없음."],
+ ["l1", "A와 B가 상호 배타적(배반)일 때 옳은 식은?", ["P(A∩B) = P(A)P(B)", "P(A∪B) = P(A)P(B)", "P(A∪B) = P(A) + P(B)", "P(A) = P(B)"], 2, "동시에 일어날 수 없으니 그냥 더해요. 독립인지 배반인지 먼저 확인!"],
+ ["l6", "독립 공정에서 만든 길이 AB(s = 0.001)와 CD(s = 0.003)의 차이의 표준편차는 약?", ["0.002", "0.0032", "0.004", "0.000010"], 1, "분산은 더해요: √(0.001² + 0.003²) ≈ 0.0032."],
+ ["l7", "두 무작위 표본의 분산 비를 다룰 때 쓰는 분포는?", ["F 분포", "t 분포", "Z 분포", "포아송"], 0, "분산 대 분산의 비는 F 분포."],
+ ["l2", "한 번 연결할 때 커넥터 불일치 확률이 0.0006이다. 100번 연결에서 정확히 1번 불일치할 확률은 약?", ["0.0006", "0.942", "0.060", "0.0565"], 3, "100 × 0.0006 × 0.9994^99 ≈ 0.06 × 0.942 ≈ 0.0565."],
+ ["l1", "순열에 대한 설명으로 맞는 것은?", ["n개 중 r개를 순서 없이 뽑는 경우의 수", "n개를 모두 더한 값", "n개 중 r개를 뽑아 순서를 붙여 나열하는 경우의 수", "r개의 평균"], 2, "순서를 따지면 순열, 순서 없이 뽑기만 하면 조합이에요."],
+ ["l1", "새 냉장고가 처음 켰을 때 잘 작동할 확률 0.985, 찌그러짐 없이 배송될 확률 0.947. 손상 없이 도착해 처음에 잘 작동할 확률은 약?", ["0.947", "0.933", "0.966", "0.985"], 1, "독립이므로 곱해요: 0.985 × 0.947 ≈ 0.933."],
+ ["l6", "데이터로부터 추정하려는 모집단의 참값(μ, σ 등)을 무엇이라 하나요?", ["모수(파라미터)", "통계량", "표본", "잔차"], 0, "모집단의 값은 모수, 표본에서 계산한 값은 통계량이에요. (통계량은 자주 고르는 오답)"],
+ ["l4", "부품 수명이 평균 26시간, 표준편차 2시간인 정규분포다. 수명이 21시간 미만일 확률은 약?", ["0.994", "0.062", "0.494", "0.006"], 3, "Z = (21 − 26)/2 = −2.5 → 왼쪽 꼬리 0.0062. ‘미만’이니 왼쪽, 신뢰도라면 오른쪽!"],
+ ["l7", "총 50,000시간 수명 시험에서 4개 고장(고장 시 교체, 정시중단). MTTF의 90% 단측 하한은? (χ²(0.10, 10) = 15.987)", ["3,128시간", "12,500시간", "6,255시간", "15,987시간"], 2, "정시중단: 2T/χ²(α, 2r+2) = 100,000/15.987 ≈ 6,255시간."],
+ ["l2", "신뢰도 0.9인 밸브 4개를 시험할 때 정확히 3개가 통과할 확률은?", ["0.0036", "0.2916", "0.6561", "0.9477"], 1, "4C3 × 0.9³ × 0.1 = 4 × 0.729 × 0.1 = 0.2916."],
+ ["l6", "다른 연속 변수 값으로 하나의 연속 변수 값을 예측하는 기법은?", ["회귀분석", "파레토 분석", "관리도", "FMEA"], 0, "예측은 회귀분석. 상관계수 r도 함께 물어볼 수 있어요."],
+ ["l2", "R = 0.80인 부품 4개 중 2개 이상만 작동하면 되는 시스템의 신뢰도는?", ["0.8192", "0.4096", "0.9984", "0.9728"], 3, "1 − [P(0) + P(1)] = 1 − (0.2⁴ + 4 × 0.8 × 0.2³) = 1 − 0.0272 = 0.9728."],
+ ["l7", "200개 부품 수명 시험에서 14개가 고장 났다. 신뢰도의 95% 양측 신뢰구간은?", ["0.860 ≤ R ≤ 1.000", "0.910 ≤ R ≤ 0.950", "0.895 ≤ R ≤ 0.965", "0.930 ≤ R ≤ 0.990"], 2, "R̂ = 186/200 = 0.93, 0.93 ± 1.96√(0.93×0.07/200) = 0.93 ± 0.035."],
+ ["l7", "20개를 고장 시 교체하며 시험했고 10번째 고장(80시간)에서 끝냈다(정수중단). MTTF 점추정과 95% 단측 하한은? (χ²(0.05, 20) = 31.41)", ["80시간 / 약 51시간", "160시간 / 약 102시간", "160시간 / 약 82시간", "1,600시간 / 약 1,019시간"], 1, "T = 20 × 80 = 1,600 → MTTF = 1,600/10 = 160. 하한 = 2 × 1,600 / 31.41 ≈ 102시간."],
+ ["l7", "부품 100개를 100시간 정시중단 시험, 10번 고장 났고 바로 수리해 다시 넣었다(지수분포). 시간당 고장률은?", ["0.001", "0.0001", "0.01", "0.1"], 0, "T = 100 × 100 = 10,000시간, r = 10 → MTBF 1,000시간 → λ = 0.001/시간."],
+ ["l4", "안전 장치 강도 평균 20,000, 표준편차 1,000파운드. 사고 시 외력 평균 15,000, 표준편차 2,000파운드. 고장 확률은 약?", ["0.0013", "0.1587", "0.0228", "0.0125"], 3, "Z = (20,000 − 15,000)/√(1,000² + 2,000²) = 5,000/2,236 ≈ 2.24 → 약 0.0125."],
+ ["l5", "장비 A는 평균 수명 100시간 지수분포, 장비 B는 평균 100시간·표준편차 40시간 정규분포. 10시간 임무 성공 확률은?", ["A가 더 높다", "둘이 같다", "B가 더 높다", "알 수 없다"], 2, "A: e^(−0.1) ≈ 0.905, B: Z = (10−100)/40 = −2.25 → 0.988. 마모형(정규)은 초기에 잘 안 고장 나요."],
+ ["l7", "95% 신뢰도, 최대 오차 0.2로 평균을 추정하려 한다. 추정 표준편차가 0.76이면 필요한 표본 크기는?", ["14", "56", "28", "111"], 1, "n = (1.96 × 0.76 / 0.2)² ≈ 55.5 → 올림해서 56."],
+ ["l5", "고장의 30%는 지수분포(MTTF 5,000사이클), 70%는 와이블(η = 4,000, β = 2) 모드로 생긴다. 1,000사이클 신뢰도는 약?", ["0.9032", "0.8187", "0.9394", "0.7690"], 0, "0.3 × e^(−0.2) + 0.7 × e^(−(0.25)²) = 0.2456 + 0.6576 ≈ 0.9032."],
+ ["l2", "전력선 고장이 1,000피트당 연 0.052회(포아송)일 때 200,000피트 전력선이 1년간 무고장일 확률은 약?", ["10.4", "0.052", "0.95", "3.0 × 10⁻⁵"], 3, "μ = 0.052 × 200 = 10.4 → P(0) = e^(−10.4) ≈ 3.0 × 10⁻⁵."],
+ ["l3", "시험 50시간 동안 3번 고장 났다(고장률 일정). 1,000시간 동안 예상 고장 수는?", ["3", "20", "60", "150"], 2, "λ = 3/50 = 0.06/시간 → 1,000 × 0.06 = 60번."],
+ ["l2", "신뢰성에서 P(x) = e^(−μ)μˣ/x! 는 무엇을 추정하는 데 쓰이나요?", ["연속 수명 분포", "고장 확률이 작고 표본이 클 때의 이항분포", "정규분포의 꼬리", "표본 평균의 분포"], 1, "포아송은 p가 작고(0.1 미만) n이 클 때 이항분포의 근사로 써요(평균 np)."],
+ ["l4", "부하 평균 40(표준편차 3), 강도 평균 50(표준편차 4)인 재료의 고장 확률은 약?", ["0.023", "0.0013", "0.159", "0.5"], 0, "Z = (50 − 40)/√(3² + 4²) = 10/5 = 2 → 0.023."],
+ ["l7", "표본 n = 90, 평균 11cm, 표준편차 3cm일 때 평균의 95% 신뢰구간은?", ["8 ~ 14", "5.12 ~ 16.88", "10.48 ~ 11.52", "10.38 ~ 11.62"], 3, "11 ± 1.96 × 3/√90 = 11 ± 0.62. n이 커서 Z를 써요(작으면 t)."],
+ ["l7", "두 제품의 평균 비교: x̄₁ = 0.014, s₁ = 0.0038, x̄₂ = 0.012, s₂ = 0.0054, n₁ = n₂ = 20. 검정 통계량 t는 약?", ["0.37", "2.02", "1.355", "5.26"], 2, "t = (0.014 − 0.012)/√(0.0038²/20 + 0.0054²/20) = 0.002/0.00148 ≈ 1.355."],
+ ["l6", "응력 A와 B를 받는 시스템의 고장 시간을 나타내는 선형 회귀 모델은?", ["y = abAB", "y = a + bA + cB + e", "y = e^(A+B)", "y = A/B"], 1, "독립 변수 2개의 다중 선형 회귀식이에요."],
+ ["l6", "분산 값으로 알 수 있는 분포의 특성은?", ["퍼진 정도", "중심 위치", "대칭성", "최빈값"], 0, "분산·표준편차는 퍼짐을 나타내요."],
+ ["l6", "분포의 대칭성을 나타내는 지표는?", ["표준편차", "평균", "범위", "왜도(비대칭도, skewness)"], 3, "치우침 정도는 왜도. (표준편차는 오답)"],
+ ["l7", "신뢰성 공학에서 2종 오류(β)는 무엇으로 표현하나요?", ["생산자 위험", "검출력", "소비자 위험", "신뢰수준"], 2, "나쁜 것을 합격시키는 2종 오류 = 소비자 위험."],
+ ["l7", "데이터가 어떤 분포를 따르는지 적합도를 평가하는 방법은?", ["t 검정", "카이제곱(적합도) 검정", "F 검정", "Z 검정"], 1, "Goodness-of-fit은 카이제곱(또는 AD 통계량)."],
+ ["l8", "공정에 장기간 만성적 또는 산발적 문제가 있는지 확인하는 도구는?", ["관리도", "파레토", "특성요인도", "산점도"], 0, "시간에 따른 공정 변동을 보는 도구가 관리도예요."],
+ ["l3", "사이클당 고장률이 5 × 10⁻⁴로 일정하다. 신뢰도 90%를 유지하려면 최대 몇 사이클까지 작동할 수 있나요?", ["1", "21", "4,605", "210"], 3, "0.9 = e^(−0.0005t) → t = 0.1054/0.0005 ≈ 210사이클."],
+ ["l3", "MTBF가 100사이클인 기계(지수분포)가 적어도 90% 신뢰도로 운전될 수 있는 사이클 수는?", ["5", "23", "10", "90"], 2, "t = −100 × ln(0.9) ≈ 10.5 → 10사이클."],
+ ["l3", "직렬 부품의 고장률이 3 × 10⁻⁹, 2 × 10⁻⁸, 7 × 10⁻⁸ /시간이다. 24시간·365일로 25년 작동할 때 신뢰도는 약?", ["0.90", "0.98", "0.80", "0.50"], 1, "λ 합 = 9.3 × 10⁻⁸, t = 219,000 → λt ≈ 0.0204 → R = e^(−0.0204) ≈ 0.98. 소수점 자리 조심!"],
+ ["l8", "USL = 72, LSL = 32, 평균 61, 표준편차 3인 공정의 Cpk는?", ["1.222", "2.222", "3.222", "4.444"], 0, "Cpk = min((72−61)/9, (61−32)/9) = min(1.222, 3.222) = 1.222."]
+];
+const POOL=[...L.flatMap(l=>l.q.map((q,i)=>({k:l.id+"-"+i,c:l.id,q:q[0],o:q[1],a:q[2],w:q[3]}))),...EXTRA.map((q,i)=>({k:"x"+i,c:q[0],q:q[1],o:q[2],a:q[3],w:q[4]}))];
+const lname=id=>L.find(l=>l.id===id).t;
+
+/* ───── 홈: 점 히스토그램 ───── */
+const DS=(()=>{const r=rng(31415),nrm=()=>Math.sqrt(-2*Math.log(1-r()))*Math.cos(2*Math.PI*r());
+ const wf=(t,b,e)=>b/e*(t/e)**(b-1)*Math.exp(-((t/e)**b));
+ return [
+  {n:"정규",p:"μ = 60, σ = 15",s:Array.from({length:100},()=>60+15*nrm()),f:t=>Math.exp(-(((t-60)/15)**2)/2)/(15*Math.sqrt(2*Math.PI)),say:"평균 근처에 몰리고 좌우가 대칭이에요. 닳아서 비슷한 시기에 고장 나는 마모 부품(타이어, 브레이크 패드)에 잘 맞아요."},
+  {n:"지수",p:"평균 40",s:Array.from({length:100},()=>-40*Math.log(1-r())),f:t=>Math.exp(-t/40)/40,say:"처음이 가장 높고 계속 줄어들어요. 고장률이 일정한 우발 고장(전자 부품)의 모양이에요. 오른쪽 꼬리가 길어요."},
+  {n:"와이블",p:"β = 2.5, η = 70",s:Array.from({length:100},()=>70*(-Math.log(1-r()))**(1/2.5)),f:t=>wf(t,2.5,70),say:"β에 따라 모양이 바뀌는 만능 분포예요. β = 2.5면 마모 쪽이라 가운데가 볼록해요. t = η(70)에서 63.2%가 고장 나 있어요."},
+  {n:"대수정규",p:"중앙값 45, σ(ln) = 0.5",s:Array.from({length:100},()=>45*Math.exp(.5*nrm())),f:t=>t<=0?0:Math.exp(-((Math.log(t/45)/.5)**2)/2)/(t*.5*Math.sqrt(2*Math.PI)),say:"왼쪽에 몰리고 오른쪽 꼬리가 길어요. 피로 수명, 반도체 열화, 수리 시간에 자주 써요."}]})();
+let hm=0;
+$("#c3hMode").innerHTML=DS.map((d,i)=>`<button class="chip${i?"":" on"}" data-m="${i}">${d.n} 분포</button>`).join("");
+function homeDraw(){const d=DS[hm],s=$("#c3hS"),W=s.clientWidth,H=s.clientHeight;
+ const v=d.s.slice().sort((a,b)=>a-b),mean=v.reduce((a,b)=>a+b,0)/100,med=(v[49]+v[50])/2;
+ $("#c3hSay").innerHTML=`<h3>${d.n} 분포</h3><p class="note">${d.p}</p><p>${d.say}</p><div class="stats"><div class="stat"><b>${mean.toFixed(1)}</b><span>평균</span></div><div class="stat"><b>${med.toFixed(1)}</b><span>중앙값</span></div></div><p class="note">평균과 중앙값이 벌어질수록 한쪽으로 치우친 분포예요.</p>`;
+ if(!W)return;const a=16,b=W-14,T=14,B=H-30,bw=5,nb=32,xm=nb*bw,cnt=Array(nb).fill(0);
+ const X=x=>a+x/xm*(b-a),cw=(b-a)/nb,r=Math.max(2,Math.min(cw/2-1,(B-T)/22/2)),ink=css('--ink'),soft=css('--soft');
+ let dots="";d.s.forEach(t=>{const k=Math.max(0,Math.min(nb-1,Math.floor(t/bw)));const y=B-r-cnt[k]*2*r;cnt[k]++;dots+=`<circle cx="${(X(k*bw)+cw/2).toFixed(1)}" cy="${y.toFixed(1)}" r="${(r-.6).toFixed(1)}" fill="${css('--sky')}"/>`});
+ let p="";for(let i=0;i<=200;i++){const t=i/200*xm;const y=B-d.f(t)*100*bw*2*r;p+=(i?"L":"M")+X(t).toFixed(1)+" "+Math.max(T,y).toFixed(1)}
+ s.innerHTML=dots+`<path d="${p}" fill="none" stroke="${css('--tom')}" stroke-width="4"/><line x1="${a}" x2="${b}" y1="${B}" y2="${B}" stroke="${ink}" stroke-width="2"/>`+
+  [0,40,80,120,160].map(t=>`<text x="${X(t)}" y="${B+20}" text-anchor="${t?t===160?"end":"middle":"start"}" font-size="13" fill="${soft}">${t}${t===160?"시간":""}</text>`).join("")+
+  `<line x1="${X(mean)}" x2="${X(mean)}" y1="${T}" y2="${B}" stroke="${ink}" stroke-dasharray="5 4" stroke-width="2"/><text x="${X(mean)+6}" y="${T+12}" font-size="13" fill="${ink}">평균</text>`;}
+$("#c3hMode").addEventListener("click",e=>{const b=e.target.closest("[data-m]");if(!b)return;hm=+b.dataset.m;$$("#c3hMode .chip").forEach(x=>x.classList.toggle("on",x===b));homeDraw()});
+const homeRO=new ResizeObserver(homeDraw);homeRO.observe($("#c3hFig"));
+let ro=null;
+const ACT={
+ prob(el){el.innerHTML=`<h3>활동: 넓이로 보는 확률</h3><p>네모 전체가 1(모든 경우)이에요. 노랑 띠가 A, 파랑 띠가 B. 겹친 초록 부분이 ‘A 그리고 B’예요.</p>
+  <div class="chips" id="pm"><button class="chip on" data-m="i">독립 사건</button><button class="chip" data-m="x">배반 사건</button></div>
+  <div class="two" style="align-items:center"><div class="sq" id="sq"><i class="a"></i><i class="b"></i></div>
+  <div><div class="row"><label for="pa">P(A) 부품 A 고장</label><input id="pa" type="range" min="0" max="0.6" step="0.01" value="0.3"><span id="pav" class="nw"></span></div>
+  <div class="row"><label for="pb">P(B) 부품 B 고장</label><input id="pb" type="range" min="0" max="0.6" step="0.01" value="0.4"><span id="pbv" class="nw"></span></div>
+  <div class="stats" id="pst"></div><p class="note" id="pn"></p></div></div>`;
+  let m="i";const draw=()=>{const a=+$("#pa").value,b=+$("#pb").value,A=el.querySelector(".a"),B=el.querySelector(".b");$("#pav").textContent=f2(a);$("#pbv").textContent=f2(b);
+   A.style.width=a*100+"%";A.style.left=m==="i"?"0":(1-a)*100+"%";
+   if(m==="i"){B.style.cssText=`height:${b*100}%;left:0;right:0;bottom:0;top:auto;width:auto`}else{B.style.cssText=`width:${b*100}%;left:0;top:0;bottom:0;right:auto;height:auto`}
+   const both=m==="i"?a*b:Math.max(0,a+b-1),either=a+b-both;
+   $("#pst").innerHTML=[[f3(both),"A 그리고 B"],[f3(either),"A 또는 B"],[f3(1-either),"둘 다 아님"]].map(([v,t])=>`<div class="stat"><b>${v}</b><span>${t}</span></div>`).join("");
+   $("#pn").textContent=m==="i"?`독립: ${f2(a)} × ${f2(b)} = ${f3(both)},  또는: ${f2(a)} + ${f2(b)} − ${f3(both)} = ${f3(either)}  → 두 부품 병렬이면 시스템 고장 확률이 ${f3(both)}!`:`배반: 겹치지 않으니 또는 = ${f2(a)} + ${f2(b)} = ${f3(either)}, 그리고 = 0`;};
+  el.querySelectorAll("input").forEach(i=>i.oninput=draw);
+  $("#pm").addEventListener("click",e=>{const b=e.target.closest("[data-m]");if(!b)return;m=b.dataset.m;$$("#pm .chip").forEach(x=>x.classList.toggle("on",x===b));draw()});draw();},
+ discrete(el){el.innerHTML=`<h3>활동: 막대로 보는 이산 분포</h3><p>분포를 고르고 숫자를 바꿔 보세요. 빨간 막대가 P(X = 0), 즉 불량(고장) 0개일 확률이에요.</p>
+  <div class="chips" id="dm"><button class="chip on" data-m="b">이항</button><button class="chip" data-m="p">포아송</button><button class="chip" data-m="h">초기하</button></div>
+  <div id="dc"></div><div class="bars" id="db"></div><div class="stats" id="ds"></div><p class="note" id="dn"></p>`;
+  const CF={b:[["dn1","시행 수 n",1,20,1,10],["dp1","불량률 p",.01,.6,.01,.1]],p:[["dl1","평균 λ",.2,8,.1,2]],h:[["dN","로트 크기 N",10,50,1,20],["dD","로트 속 불량 D",0,10,1,3],["dn2","뽑는 수 n",1,10,1,5]]};
+  let m="b";const ctl=()=>{$("#dc").innerHTML=CF[m].map(([id,lb,mn,mx,st,v])=>`<div class="row"><label for="${id}">${lb}</label><input id="${id}" type="range" min="${mn}" max="${mx}" step="${st}" value="${v}"><span id="${id}v" class="nw"></span></div>`).join("");$("#dc").querySelectorAll("input").forEach(i=>i.oninput=draw);draw()};
+  const draw=()=>{const g=id=>+$("#"+id).value;CF[m].forEach(c=>$("#"+c[0]+"v").textContent=g(c[0]));let ks=[],P=[],mean,vr,note;
+   if(m==="b"){const n=g("dn1"),p=g("dp1");for(let k=0;k<=n;k++){ks.push(k);P.push(binom(n,k,p))}mean=n*p;vr=n*p*(1-p);note=`P(0) = (1 − ${p})^${n} = ${f3(P[0])}`}
+   else if(m==="p"){const l=g("dl1");for(let k=0;k<=15;k++){ks.push(k);P.push(pois(l,k))}mean=l;vr=l;note=`P(0) = e^(−${l}) = ${f3(P[0])}  · 평균과 분산이 같아요`}
+   else{const N=g("dN"),D=Math.min(g("dD"),N),n=Math.min(g("dn2"),N);for(let k=0;k<=n;k++){ks.push(k);P.push(hyper(N,D,n,k))}mean=n*D/N;vr=n*(D/N)*(1-D/N)*(N-n)/(N-1);note=`${N}개 중 불량 ${D}개인 로트에서 ${n}개를 꺼내고 다시 넣지 않아요. P(0) = ${f3(P[0])}`}
+   const mx=Math.max(...P);$("#db").innerHTML=ks.map((k,i)=>`<div><i class="${i?"":"hl"}" style="height:${P[i]/mx*100*.86}%" title="P(${k}) = ${f3(P[i])}"></i><span>${ks.length>16&&k%2?"":k}</span></div>`).join("");
+   $("#ds").innerHTML=[[f3(P[0]),"P(X = 0)"],[mean.toFixed(2),"평균"],[vr.toFixed(2),"분산"]].map(([v,t])=>`<div class="stat"><b>${v}</b><span>${t}</span></div>`).join("");$("#dn").textContent=note;};
+  $("#dm").addEventListener("click",e=>{const b=e.target.closest("[data-m]");if(!b)return;m=b.dataset.m;$$("#dm .chip").forEach(x=>x.classList.toggle("on",x===b));ctl()});ctl();},
+ four(el){el.innerHTML=`<h3>활동: 와이블 분포의 네 창문</h3><p>η(특성수명)는 100시간으로 두고, 모양 β와 시간 t를 바꿔 보세요. 네 그래프가 함께 움직여요.</p>
+  <div class="row"><label for="wb">모양 β</label><input id="wb" type="range" min="0.5" max="4" step="0.1" value="2"><span id="wbv" class="nw"></span></div>
+  <div class="row"><label for="wt">시간 t</label><input id="wt" type="range" min="1" max="250" step="1" value="100"><span id="wtv" class="nw"></span></div>
+  <div class="four" id="fw">${[["f","f(t) 고장 밀도"],["F","F(t) 누적 고장"],["R","R(t) 신뢰도"],["h","h(t) 고장률"]].map(([k,t])=>`<div><h4>${t} = <span id="v${k}"></span></h4><div class="fig"><svg id="s${k}" role="img" aria-label="${t} 그래프"></svg></div></div>`).join("")}</div>
+  <p class="note">t = 100(= η)에 두면 β를 아무리 바꿔도 F = 63.2%, R = 36.8%로 그대로예요.</p>`;
+  const draw=()=>{const b=+$("#wb").value,t=+$("#wt").value,e=100;$("#wbv").textContent=b.toFixed(1);$("#wtv").textContent=t+"시간";
+   const R=x=>Math.exp(-((x/e)**b)),h=x=>b/e*((Math.max(x,.5)/e)**(b-1)),f=x=>h(x)*R(x),F=x=>1-R(x);
+   let fm=0,hm2=0;for(let i=1;i<=100;i++){const x=i*2.5;fm=Math.max(fm,f(x));hm2=Math.max(hm2,h(x))}
+   const tk=[[0,"0"],[100,"η"],[200,"200"]],sky=css('--sky');
+   const C={f:[f,fm*1.1],F:[F,1],R:[R,1],h:[h,Math.min(hm2,.06)*1.1]};
+   for(const k in C){lineChart($("#s"+k),{fn:C[k][0],xmax:250,ymax:C[k][1],col:sky,mark:t,ticks:tk,left:14});
+    $("#v"+k).textContent=k==="F"||k==="R"?(C[k][0](t)*100).toFixed(1)+"%":C[k][0](t).toFixed(4)}};
+  el.querySelectorAll("input").forEach(i=>i.oninput=draw);ro=new ResizeObserver(draw);ro.observe($("#fw"));},
+ normal(el){el.innerHTML=`<h3>활동: Z 계산기</h3><p>고장 시간이 정규분포를 따를 때, t시간까지 살아남을 확률(신뢰도)을 구해요. 파란 넓이가 신뢰도예요.</p>
+  <div class="chips"><button class="chip" data-pr="50,10,40">기출: 평균 50, σ 10, 40시간</button><button class="chip" data-pr="15,3.5,10">기출: 수도관 15년, σ 3.5, 10년</button><button class="chip" data-pr="100,10,119.6">Z = 1.96 확인</button></div>
+  <div class="two"><div class="fig" id="nF"><svg id="nS" role="img" aria-label="정규분포 곡선과 신뢰도 넓이"></svg></div><div>
+  <div class="row"><label for="nm">평균 μ</label><input id="nm" type="number" value="50"></div>
+  <div class="row"><label for="nsd">표준편차 σ</label><input id="nsd" type="number" value="10" min="0.1" step="0.1"></div>
+  <div class="row"><label for="nx">사용 시간 t</label><input id="nx" type="number" value="40" step="0.1"></div>
+  <div class="big" id="nR"></div><p id="nZ"></p></div></div>`;
+  const draw=()=>{const m=+$("#nm").value,sd=Math.max(.1,+$("#nsd").value||1),x=+$("#nx").value,z=(x-m)/sd,R=1-Phi(z);
+   $("#nR").textContent="R = "+R.toFixed(3);$("#nZ").innerHTML=`Z = (${x} − ${m}) / ${sd} = <b>${z.toFixed(2)}</b><br>고장 확률 F = Φ(${z.toFixed(2)}) = ${f3(1-R)} → 신뢰도 R = 1 − F = <b>${f3(R)}</b>`;
+   const xm=8,fn=u=>Math.exp(-(((u-4))**2)/2)/Math.sqrt(2*Math.PI),zc=Math.max(-4,Math.min(4,z))+4;
+   lineChart($("#nS"),{fn,xmax:xm,ymax:.45,col:css('--sky'),shade:[zc,8],mark:zc,ticks:[[1,"μ−3σ"],[2,"μ−2σ"],[3,"μ−σ"],[4,"μ"],[5,"μ+σ"],[6,"μ+2σ"],[7,"μ+3σ"]],left:14})};
+  el.querySelectorAll("input").forEach(i=>i.oninput=draw);
+  el.querySelectorAll("[data-pr]").forEach(b=>b.onclick=()=>{const [a,c,d]=b.dataset.pr.split(",");$("#nm").value=a;$("#nsd").value=c;$("#nx").value=d;el.querySelectorAll("[data-pr]").forEach(x=>x.classList.toggle("on",x===b));draw()});
+  ro=new ResizeObserver(draw);ro.observe($("#nF"));},
+ which(el){el.innerHTML=`<h3>활동: 어느 분포의 설명일까?</h3><p>각 설명에 맞는 분포를 골라 보세요.</p><div class="sort" id="wh"></div>`;
+  sorter($("#wh"),[["이미 500시간 쓴 부품도 새것과 고장 확률이 같다","지수"],["β와 η 두 숫자로 초기·우발·마모를 모두 그린다","와이블"],["log(t)를 취하면 종 모양이 된다","대수정규"],["평균을 중심으로 좌우 대칭인 종 모양","정규"],["수리 시간처럼 대부분 짧고 가끔 아주 길다","대수정규"],["특성수명에서 63.2%가 고장 난다","와이블"],["MTBF = 1/λ, R(t) = e^(−λt)","지수"]],["정규","지수","와이블","대수정규"]);},
+ clt(el){el.innerHTML=`<h3>활동: 중심극한정리 실험</h3><p>모집단은 지수분포(평균 1, 한쪽으로 크게 치우침)예요. 표본 n개의 평균을 400번 구해서 막대로 쌓았어요. n을 키워 보세요.</p>
+  <div class="row"><label for="cn">표본 크기 n</label><input id="cn" type="range" min="1" max="40" step="1" value="1"><span id="cnv" class="nw"></span><button class="btn alt" id="cgo">다시 뽑기</button></div>
+  <div class="bars" id="cb"></div><div class="stats" id="cs"></div><p class="note">n = 1이면 모집단 그대로(치우친 모양), n이 커질수록 평균 1 근처에 좁고 대칭인 종 모양이 돼요.</p>`;
+  let seed=3;const draw=()=>{const n=+$("#cn").value,r=rng(seed*977+n),M=[];$("#cnv").textContent=n;
+   for(let i=0;i<400;i++){let s=0;for(let j=0;j<n;j++)s+=-Math.log(1-r());M.push(s/n)}
+   const nb=30,cnt=Array(nb).fill(0);M.forEach(v=>cnt[Math.min(nb-1,Math.floor(v/3*nb))]++);const mx=Math.max(...cnt);
+   $("#cb").innerHTML=cnt.map((c,i)=>`<div><i style="height:${c/mx*100*.88}%"></i><span>${i%5===0?(i/10).toFixed(1):""}</span></div>`).join("");
+   const mean=M.reduce((a,b)=>a+b,0)/400,sd=Math.sqrt(M.reduce((a,b)=>a+(b-mean)**2,0)/399);
+   $("#cs").innerHTML=[[mean.toFixed(3),"평균들의 평균"],[sd.toFixed(3),"평균들의 표준편차"],[(1/Math.sqrt(n)).toFixed(3),"이론값 σ/√n"]].map(([v,t])=>`<div class="stat"><b>${v}</b><span>${t}</span></div>`).join("")};
+  $("#cn").oninput=draw;$("#cgo").onclick=()=>{seed++;draw()};draw();},
+ tests(el){el.innerHTML=`<h3>활동 1: 이 상황엔 어떤 분포?</h3><div class="sort" id="t1"></div><h3 style="margin-top:22px">활동 2: 1종 오류일까, 2종 오류일까?</h3><div class="sort" id="t2"></div>`;
+  sorter($("#t1"),[["표본 5개, σ 모름, 평균 수명의 신뢰구간","t"],["표본 200개, 평균 강도의 신뢰구간","Z"],["치수 산포(분산)가 0.04 이하인지 검정","χ²"],["두 공급사 부품의 산포 비교","F"],["고장 4번, 총 시험 시간으로 MTBF 하한 구하기","χ²"]],["Z","t","χ²","F"]);
+  sorter($("#t2"),[["실제로는 좋은 로트인데 검사에서 불합격","1종(α)"],["실제로는 불량 로트인데 검사에서 합격","2종(β)"],["생산자가 억울한 위험","1종(α)"],["소비자가 손해 보는 위험","2종(β)"]],["1종(α)","2종(β)"]);},
+ spc(el){el.innerHTML=`<h3>활동: X̄ 관리도에 이상 원인 넣어 보기</h3><p>축 지름 X̄ 관리도예요(중심선 10.0, 관리 한계 ±3σ). 버튼으로 공정에 문제를 일으켜 보세요.</p>
+  <div class="chips" id="sm"><button class="chip on" data-m="0">정상 공정</button><button class="chip" data-m="1">튀는 점 하나</button><button class="chip" data-m="2">평균이 슬쩍 이동</button></div>
+  <div class="fig" id="spF"><svg id="spS" role="img" aria-label="X바 관리도"></svg></div><p id="spSay"></p>`;
+  const base=[10.3,9.6,10.8,9.9,10.4,9.4,10.6,9.8,10.5,9.2,10.2,9.7,10.9,10.3,9.5,9.6,10.4,9.8,10.2,9.4,10.7,9.9,10.1,9.5,10.3];
+  let m=0;const draw=()=>{const d=base.map((v,i)=>m===1&&i===14?11.8:m===2&&i>=15?v+.75:v),U=11.5,Lc=8.5,US=12.6,LS=7.4;
+   const out=d.map(v=>v>U||v<Lc);let run=d.map(()=>false);for(let i=0;i<d.length;i++){let j=i;const up=d[i]>10;while(j<d.length&&(d[j]>10)===up)j++;if(j-i>=7)for(let k=i;k<j;k++)run[k]=true;i=j-1}
+   const s=$("#spS"),W=s.clientWidth,H=s.clientHeight;
+   if(W){const a=44,b=W-80,T=14,B=H-24,X=i=>a+i/(d.length-1)*(b-a),Y=v=>B-(v-7)/6*(B-T),ink=css('--ink'),soft=css('--soft'),tom=css('--tom'),sky=css('--sky');
+    const hl=(v,col,t,dash)=>`<line x1="${a}" x2="${b}" y1="${Y(v)}" y2="${Y(v)}" stroke="${col}" stroke-width="2" ${dash?'stroke-dasharray="6 5"':""}/><text x="${b+6}" y="${Y(v)+4}" font-size="13" fill="${col}">${t}</text>`;
+    s.innerHTML=hl(US,soft,"규격 상한",1)+hl(LS,soft,"규격 하한",1)+hl(U,tom,"UCL")+hl(Lc,tom,"LCL")+hl(10,ink,"CL 10.0")+
+     `<path d="${d.map((v,i)=>(i?"L":"M")+X(i).toFixed(1)+" "+Y(v).toFixed(1)).join("")}" fill="none" stroke="${sky}" stroke-width="2.5"/>`+
+     d.map((v,i)=>`<circle cx="${X(i)}" cy="${Y(v)}" r="${out[i]||run[i]?7:5}" fill="${out[i]||run[i]?tom:sky}"/>`).join("")+
+     `<text x="${a}" y="${B+18}" font-size="13" fill="${soft}">1</text><text x="${b}" y="${B+18}" text-anchor="end" font-size="13" fill="${soft}">25번째 표본군</text>`}
+   $("#spSay").innerHTML=m===0?"모든 점이 관리 한계 안에서 위아래로 섞여 있어요. 우연 원인만 있는 <b>관리 상태</b>예요.":m===1?"15번째 점이 <b>UCL 밖</b>으로 나갔어요. 그런데 규격 한계 안이라 불량은 아닐 수도 있어요. 그래도 이상 원인(공구 파손, 측정 실수 등)을 찾아야 해요!":"16번째부터 점들이 <b>중심선 위쪽에만 연속</b>으로 찍혔어요. 한계선을 넘진 않았지만 평균이 이동한 이상 신호예요(공구 마모 등)."};
+  $("#sm").addEventListener("click",e=>{const b=e.target.closest("[data-m]");if(!b)return;m=+b.dataset.m;$$("#sm .chip").forEach(x=>x.classList.toggle("on",x===b));draw()});
+  ro=new ResizeObserver(draw);ro.observe($("#spF"));}
+};
+
+return {L,POOL,ACT,homeDraw:homeDraw,stopRO:()=>{if(ro){ro.disconnect();ro=null}}};
+});
