@@ -265,6 +265,10 @@ footer{color:var(--soft);font-size:14px}
 .plan{display:grid;gap:12px;grid-template-columns:repeat(3,minmax(0,1fr));margin-top:12px}
 .plan div{background:var(--paper);border:2px dashed var(--line);border-radius:18px;padding:14px 16px}
 .plan b{font-family:Jua,sans-serif;font-weight:400;font-size:19px;display:block;color:var(--sky)}
+.qfig{display:block;width:100%;max-width:540px;height:auto;margin:4px 0 14px;background:var(--paper);border:2px solid var(--line);border-radius:14px;font-family:"Gowun Dodum",sans-serif}
+.qfig text{paint-order:stroke;stroke:var(--paper);stroke-width:3px}
+.tg{display:inline-block;font-family:Jua,sans-serif;font-size:13px;line-height:1;padding:4px 8px;border-radius:8px;margin-right:6px;vertical-align:2px;white-space:nowrap}
+.tg1{background:var(--leaf2);color:var(--leaf);border:1.5px solid var(--leaf)}.tg2{background:var(--sky2);color:var(--sky);border:1.5px solid var(--sky)}.tg3{background:var(--bg);color:var(--soft);border:1.5px solid var(--line)}.tg4{background:var(--tom2);color:var(--tom);border:1.5px solid var(--tom)}
 .rstop.pend{opacity:.75}.ccard.pend{border-style:dashed;background:var(--bg)}
 .srch{font-family:Jua,sans-serif;font-size:16px;color:var(--soft);margin:18px 0 4px}
 .loaderr{background:var(--tom2);border-radius:16px;padding:14px 16px}
@@ -437,6 +441,8 @@ const CRE={meta:{},fac:{},mod:{},reg(n,meta,fac){this.meta[n]=meta;this.fac[n]=f
 <script src="ch6.js"></script>
 <script src="ch7.js"></script>
 <script src="ch8.js"></script>
+<script src="figs.js"></script>
+<script src="tags.js"></script>
 <script>
 {
 /* ───── 영역 구성 (2025 BoK 기준으로 공통 확인되는 5개 영역) ─────
@@ -477,6 +483,12 @@ D.forEach(d=>{d.lessons=[];d.L.forEach((p,j)=>{const parts=p.filter(x=>Array.isA
 const Q={},ALLQ=[];
 D.forEach(d=>{const seen=new Set();d.src.forEach(n=>{const m=MOD[n];if(!m)return;m.POOL.forEach(q=>{const t=MAP[`${n}:${q.c}`];if(!t||seen.has(q.q))return;seen.add(q.q);
  const o={...q,src:n,d:d.id,lc:t.l,g:`c${n}:${q.k}`};Q[o.g]=o;ALLQ.push(o)})})});
+/* 그림 문제 붙이기 + 문제 종류 표시(기출/기출변형/연습) */
+(CRE.figQ||[]).forEach(f=>{const t=MAP[`${f.src}:${f.c}`];if(!t)return;const o={k:f.id,c:f.c,q:f.q,o:f.o,a:f.a,w:f.w,fig:f.fig,src:f.src,d:t.d,lc:t.l,g:`f:${f.id}`,tag:f.tag};Q[o.g]=o;ALLQ.push(o)});
+ALLQ.forEach(q=>{if(!q.tag)q.tag=(CRE.tags||{})[q.g]||"연습"});
+CRE.ALLQ=ALLQ;
+const TG={"기출":"tg1","기출변형":"tg2","연습":"tg3"};
+const KIND={all:[()=>true,"전체"],past:[q=>q.tag!=="연습","기출 + 기출변형"],g:[q=>q.tag==="기출","기출만"],prac:[q=>q.tag==="연습","연습만"],fig:[q=>!!q.fig,"그림 문제만"]};
 const lt=(d,l)=>{const x=DM[d]&&DM[d].lessons.find(y=>y.id===l);return x?x.t:""};
 
 /* ───── 상태 ───── */
@@ -540,7 +552,7 @@ function openLesson(d,l){const dd=DM[d],L=dd.lessons,i=L.indexOf(l),one=l.parts.
  $$("#lesson .qc").forEach(c=>bindQ(c,()=>{if(checks.every(g=>solved[g])){done.add(`d${d}-${l.id}`);save()}}));}
 
 /* ───── 문제 카드 ───── */
-function qCard(q,label){if(!q)return "";return `<div class="card qc" data-g="${q.g}"><span class="note">${label||`영역 ${DM[q.d].roman} · ${lt(q.d,q.lc)}`}</span><p class="qtext">${q.q}</p>
+function qCard(q,label){if(!q)return "";return `<div class="card qc" data-g="${q.g}"><span class="note">${label||`영역 ${DM[q.d].roman} · ${lt(q.d,q.lc)}`}</span><p class="qtext"><span class="tg ${TG[q.tag]||"tg3"}">${q.tag}</span>${q.fig?'<span class="tg tg4">그림</span>':""}${q.q}</p>${q.fig||""}
  <div class="opts">${q.o.map((t,i)=>`<button class="opt" data-i="${i}">${i+1}) ${t}</button>`).join("")}</div><div class="exp" hidden></div></div>`}
 function bindQ(card,cb,noRetry){const q=Q[card.dataset.g];if(!q)return;let used=false;
  card.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{if(used)return;used=true;const i=+b.dataset.i,ok=i===q.a;
@@ -553,7 +565,7 @@ function bindQ(card,cb,noRetry){const q=Q[card.dataset.g];if(!q)return;let used=
 
 /* ───── 영역 평가 & 모의고사 ───── */
 const shuffle=a=>a.map(v=>[Math.random(),v]).sort((x,y)=>x[0]-y[0]).map(v=>v[1]);
-let ex={key:"",list:[],i:0,score:0,res:{},size:10,pick:new Set(D.map(d=>d.id)),mode:"w"};
+let ex={key:"",list:[],i:0,score:0,res:{},size:10,pick:new Set(D.map(d=>d.id)),mode:"w",kind:"all"};
 function openExam(key){if(ex.key!==key){ex.key=key;ex.list=[]}if(!ex.list.length)return examSetup();showE()}
 function examSetup(){const isM=ex.key==="mock",d=isM?0:+ex.key.slice(1);
  const sizes=isM?[[25,"25문제"],[50,"50문제"],[100,"100문제"],[0,"전부"]]:[[10,"빠르게 10문제"],[20,"실전 20문제"],[0,"전부 풀기"]];
@@ -561,23 +573,25 @@ function examSetup(){const isM=ex.key==="mock",d=isM?0:+ex.key.slice(1);
  $("#exam").innerHTML=`<h2>${isM?"전 범위 모의고사":`영역 ${DM[d].roman} ${DM[d].name} 평가`}</h2>
  <p class="lead">${isM?"고른 영역에서 뽑아 섞어요. 끝나면 영역별 점수로 약한 곳을 알려 줘요.":"차시 확인 문제와 기출 문제를 섞었어요. 틀린 문제는 오답 노트에 자동으로 모여요."}</p>
  <h3 style="margin-top:10px">문제 수</h3><div class="chips" id="eSize">${sizes.map(([v,t])=>`<button class="chip${ex.size===v?" on":""}" data-s="${v}">${t}</button>`).join("")}</div>
+ <h3>문제 종류</h3><div class="chips" id="eKind">${Object.entries(KIND).map(([k,[f,t]])=>`<button class="chip${ex.kind===k?" on":""}" data-k="${k}">${t} (${ALLQ.filter(q=>(isM?ex.pick.has(q.d):q.d===d)&&f(q)).length})</button>`).join("")}</div>
  ${isM?`<h3>뽑는 방식</h3><div class="chips" id="eMode"><button class="chip${ex.mode==="w"?" on":""}" data-m="w">시험 비중대로</button><button class="chip${ex.mode==="e"?" on":""}" data-m="e">영역마다 똑같이</button></div>
  <p class="note">시험 비중은 비공식 자료의 대략적인 영역별 문제 수(29 · 25 · 35 · 35 · 26)를 썼어요.</p>
  <h3>범위</h3><div class="chips" id="ePick">${D.map(x=>`<button class="chip${ex.pick.has(x.id)?" on":""}" data-k="${x.id}">${x.roman} ${x.name}</button>`).join("")}</div>`:""}
  <div class="qnav"><button class="btn" id="eGo">시작하기</button>${isM?"":`<a class="btn alt" href="#d${d}">학습 지도로</a>`}</div>`;
+ $("#eKind").onclick=e=>{const b=e.target.closest("[data-k]");if(!b)return;ex.kind=b.dataset.k;$$("#eKind .chip").forEach(x=>x.classList.toggle("on",x===b))};
  $("#eSize").onclick=e=>{const b=e.target.closest("[data-s]");if(!b)return;ex.size=+b.dataset.s;$$("#eSize .chip").forEach(x=>x.classList.toggle("on",x===b))};
  if(isM){$("#eMode").onclick=e=>{const b=e.target.closest("[data-m]");if(!b)return;ex.mode=b.dataset.m;$$("#eMode .chip").forEach(x=>x.classList.toggle("on",x===b))};
   $("#ePick").onclick=e=>{const b=e.target.closest("[data-k]");if(!b)return;const k=+b.dataset.k;ex.pick.has(k)?ex.pick.delete(k):ex.pick.add(k);if(!ex.pick.size)ex.pick.add(k);b.classList.toggle("on",ex.pick.has(k))}}
- $("#eGo").onclick=()=>{startExam();showE()};}
-function startExam(){const isM=ex.key==="mock";let list;
- if(!isM)list=shuffle(ALLQ.filter(q=>`d${q.d}`===ex.key));
- else{const ds=D.filter(x=>ex.pick.has(x.id)),by={};ds.forEach(x=>by[x.id]=shuffle(ALLQ.filter(q=>q.d===x.id)));const want=ex.size||ALLQ.length;list=[];
+ $("#eGo").onclick=()=>{if(startExam()!==false)showE()};}
+function startExam(){const isM=ex.key==="mock",kf=KIND[ex.kind][0],POOLQ=ALLQ.filter(kf);let list;
+ if(!isM)list=shuffle(POOLQ.filter(q=>`d${q.d}`===ex.key));
+ else{const ds=D.filter(x=>ex.pick.has(x.id)),by={};ds.forEach(x=>by[x.id]=shuffle(POOLQ.filter(q=>q.d===x.id)));const want=ex.size||POOLQ.length;list=[];
   if(!ex.size)ds.forEach(x=>list.push(...by[x.id]));
   else if(ex.mode==="w"){const W=ds.reduce((a,x)=>a+x.w,0);let quota=ds.map(x=>[x.id,Math.floor(want*x.w/W)]);let rest=want-quota.reduce((a,q)=>a+q[1],0);
    quota.sort((a,b)=>DM[b[0]].w-DM[a[0]].w).forEach(q=>{if(rest>0){q[1]++;rest--}});quota.forEach(([id,c])=>list.push(...by[id].splice(0,c)))}
   else{let r=0;while(list.length<want&&ds.some(x=>by[x.id].length)){const a=by[ds[r%ds.length].id];if(a.length)list.push(a.pop());r++}}
   list=shuffle(list)}
- if(ex.size)list=list.slice(0,ex.size);ex.list=list;ex.i=0;ex.score=0;ex.res={};}
+ if(ex.size)list=list.slice(0,ex.size);if(!list.length){$("#exam").insertAdjacentHTML("beforeend",'<p class="loaderr">고른 조건에 맞는 문제가 없어요. 문제 종류나 범위를 바꿔 주세요.</p>');return false}ex.list=list;ex.i=0;ex.score=0;ex.res={};}
 function showE(){const L=ex.list,isM=ex.key==="mock";
  if(ex.i>=L.length){const p=Math.round(ex.score/L.length*100);
   const rows=Object.entries(ex.res).sort((a,b)=>a[0]-b[0]).map(([d,[o,t]])=>{const r=o/t;return `<div class="r"><span>${DM[d].roman} ${DM[d].name}</span><div class="bar"><i style="width:${r*100}%;background:${r>=.8?"var(--leaf)":r>=.5?"var(--sun)":"var(--tom)"}"></i></div><span class="v">${o}/${t}</span></div>`}).join("");
@@ -585,7 +599,7 @@ function showE(){const L=ex.list,isM=ex.key==="mock";
   $("#exam").innerHTML=`<h2>${isM?"모의고사":"영역 평가"} 결과</h2><div class="card"><div class="big" style="margin:6px 0">${ex.score} / ${L.length}</div><p>${p>=80?"아주 잘했어요!":p>=60?"좋아요! 오답 노트로 틀린 문제만 다시 보세요.":"괜찮아요. 약한 영역의 차시 활동을 한 번 더 해 보고 다시 도전!"}</p>
   ${Object.keys(ex.res).length>1?`<h3 style="margin-top:12px">영역별 점수</h3><div class="cres">${rows}</div>`:""}${weak?`<div class="qnav">${weak}</div>`:""}
   <div class="qnav"><button class="btn" id="eAgain">새로 섞어서 다시</button><button class="btn alt" id="eSet">설정 바꾸기</button><a class="btn alt" href="#review">오답 노트 (${[...wrong].filter(k=>Q[k]).length})</a></div></div>`;
-  $("#eAgain").onclick=()=>{startExam();showE()};$("#eSet").onclick=()=>{ex.list=[];examSetup()};return}
+  $("#eAgain").onclick=()=>{if(startExam()!==false)showE()};$("#eSet").onclick=()=>{ex.list=[];examSetup()};return}
  const q=L[ex.i];
  $("#exam").innerHTML=`<h2>${isM?"전 범위 모의고사":`영역 ${DM[q.d].roman} 평가`}</h2><div class="qbar"><i style="width:${ex.i/L.length*100}%"></i></div>`+
   qCard(q,`${ex.i+1} / ${L.length} · 맞힌 개수 ${ex.score} · 영역 ${DM[q.d].roman} ${lt(q.d,q.lc)}`)+`<div class="qnav"><button class="btn" id="eNext" disabled>다음 문제 →</button><a class="btn alt" href="#d${q.d}-${q.lc}">이 차시 복습</a><button class="btn alt" id="eQuit">그만하고 결과 보기</button></div>`;
