@@ -265,6 +265,20 @@ footer{color:var(--soft);font-size:14px}
 .plan{display:grid;gap:12px;grid-template-columns:repeat(3,minmax(0,1fr));margin-top:12px}
 .plan div{background:var(--paper);border:2px dashed var(--line);border-radius:18px;padding:14px 16px}
 .plan b{font-family:Jua,sans-serif;font-weight:400;font-size:19px;display:block;color:var(--sky)}
+.rh{margin:26px 0 10px;font-size:22px}
+.rgrid{display:grid;gap:10px;grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:12px}
+.rt{width:100%;border-collapse:collapse;background:var(--paper);border:2px solid var(--line);border-radius:14px;overflow:hidden;font-size:15px}
+.rt th,.rt td{padding:10px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.rt tbody th{font-family:Jua,sans-serif;font-weight:400;width:8em;white-space:nowrap;color:var(--soft)}
+.rt thead th,.rt tfoot th{font-family:Jua,sans-serif;font-weight:400;background:var(--sky2)}
+.rt .n{text-align:right;white-space:nowrap}
+.rtd td.bar{width:28%}.rtd td.bar i{display:block;height:14px;border-radius:7px}
+.rtd td:first-child{white-space:nowrap}
+.rdot{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:6px;vertical-align:-1px}
+.rtip{padding-left:1.2em;display:grid;gap:8px;max-width:80ch}
+.rsrc{padding-left:1.2em;display:grid;gap:6px;font-size:15px}
+@media(max-width:760px){.rgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.rt{font-size:14px}.rt th,.rt td{padding:8px}.rt tbody th{white-space:nowrap;width:1%}.rtd thead{display:none}.rtd tbody tr,.rtd tfoot tr{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:2px 6px;padding:10px 10px;border-bottom:1px solid var(--line)}.rtd td,.rtd th{display:block;border:0!important;padding:0;text-align:left!important;white-space:normal}.rtd td:first-child,.rtd tfoot th:first-child{grid-column:1/-1;font-family:Jua,sans-serif;font-size:16px;margin-bottom:4px}.rtd td.bar,.rtd th.bar{display:none}.rtd .n::before{content:attr(data-l);display:block;font-size:11px;color:var(--soft);font-family:Jua,sans-serif;font-weight:400}}
 .fxt tr.hot td{background:color-mix(in srgb,var(--sun) 22%,var(--paper))}
 .fxt tr.hot .fn{box-shadow:inset 5px 0 0 var(--sun)}
 .fxt tr.hot .ff{color:var(--ink)}
@@ -430,6 +444,69 @@ footer{color:var(--soft);font-size:14px}
   <div class="chips" id="rFilter"></div>
   <div id="rBox"></div>
 </div></section>
+<section data-view="ref" class="band"><div class="wrap">
+  <h2>참고자료: CRE 시험 정보</h2>
+  <p class="lead">한국에서 보는 지필 시험(PBT)을 기준으로 정리했어요. 시험 정보는 바뀔 수 있으니 접수 전에 ASQ와 한국표준협회(KSA) 공고를 꼭 확인하세요. 조사일: 2026년 11월 26일.</p>
+
+  <h3 class="rh">시험 한눈에 보기 (PBT 기준)</h3>
+  <div class="rgrid">
+    <div class="stat"><b>150문항</b><span>모두 채점</span></div>
+    <div class="stat"><b>4시간</b><span>시험 시간</span></div>
+    <div class="stat"><b>객관식</b><span>보기 4개 중 1개 고르기</span></div>
+    <div class="stat"><b>약 1분 36초</b><span>문제당 평균 시간</span></div>
+  </div>
+  <div class="scroll"><table class="rt">
+    <tbody>
+      <tr><th>시행 방식</th><td>지필 시험(PBT, Paper-Based Test). 한 번에 보는 단일 시험이에요.</td></tr>
+      <tr><th>문항 수</th><td>150문항 (ASQ 공식: 150-question exam)</td></tr>
+      <tr><th>문제 형식</th><td>객관식(Multiple choice). 주관식·서술형은 없어요. 앱의 기출 자료(CRE_TEST)도 모두 4지선다예요.</td></tr>
+      <tr><th>시험 시간</th><td>4시간 (ASQ 공식: four-hour exam)</td></tr>
+      <tr><th>언어</th><td>영어·한국어·중국어(지정 장소). 한국 시행 시험은 한국어로 볼 수 있어요. 번역이 어색하면 영어 원문을 함께 보는 게 도움이 돼요.</td></tr>
+      <tr><th>참고자료</th><td>오픈북(Open book). 참고 도서를 가져갈 수 있어요. 국내 교육기관 안내에는 3권까지로 적혀 있어 수량·형태 제한은 공고로 확인하세요.</td></tr>
+      <tr><th>한국 시행</th><td>한국표준협회(KSA). 보통 매년 6월·12월에 시행돼요(예: 2025년 6월 14일, 12월 13일). 2026년 이후 일정은 KSA 공고를 확인하세요.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3 class="rh">PBT와 CBT 비교</h3>
+  <div class="scroll"><table class="rt rt3">
+    <thead><tr><th></th><th>PBT (지필)</th><th>CBT (컴퓨터)</th></tr></thead>
+    <tbody>
+      <tr><th>문항 수</th><td>150문항 (전부 채점)</td><td>165문항 (150 채점 + 15 비채점 사전 검증 문항)</td></tr>
+      <tr><th>시험 시간</th><td>4시간</td><td>예약 4시간 30분 중 시험 4시간 18분</td></tr>
+      <tr><th>문제당 시간</th><td>약 96초</td><td>약 94초</td></tr>
+      <tr><th>언어</th><td>영어·한국어·중국어(지정 장소)</td><td>영어만</td></tr>
+      <tr><th>형식</th><td colspan="2">객관식, 오픈북</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3 class="rh">영역별 출제 문항과 비율</h3>
+  <p class="note">2025 BoK(2025년 1월부터 적용)의 영역별 문항 수예요. ASQ 공식 BoK PDF를 직접 열지 못해, ASQ 문서를 인용한 외부 자료 기준이에요. 영역 Ⅴ는 자료에 따라 25문항으로 적힌 곳도 있어요. 2018 BoK는 ASQ 공식 PDF 기준이에요.</p>
+  <div class="scroll"><table class="rt rtd">
+    <thead><tr><th>영역</th><th class="n">2025 BoK</th><th class="n">비율</th><th class="bar"></th><th class="n">2018 BoK</th><th class="n">이 앱 차시</th><th class="n">이 앱 문제</th></tr></thead>
+    <tbody id="refDom"></tbody>
+    <tfoot><tr><th>합계</th><th class="n" data-l="2025 BoK">150</th><th class="n" data-l="비율">100%</th><th class="bar"></th><th class="n" data-l="2018 BoK">150</th><th class="n" data-l="앱 차시" id="refL"></th><th class="n" data-l="앱 문제" id="refQ"></th></tr></tfoot>
+  </table></div>
+  <p class="note">비율 = 영역 문항 수 ÷ 150. 2018 BoK와 비교하면 신뢰성 기본이 25 → 29로 늘고, 수명주기 신뢰성이 30 → 26으로 줄었어요. 이 앱의 모의고사 “시험 비중대로”는 2025 BoK 숫자를 따라요.</p>
+
+  <h3 class="rh">점수로 연결하는 시험 전략</h3>
+  <ul class="rtip">
+    <li><b>시간 배분:</b> 문제당 약 1분 36초예요. 계산 문제에 3분 이상 쓰면 다른 문제 시간이 모자라요. 개념 문제는 1분 안에 풀고 계산 문제에 시간을 남기세요.</li>
+    <li><b>비중이 큰 영역부터:</b> Ⅲ 확률·통계와 Ⅳ 계획·시험·모델링이 각각 35문항으로, 합치면 시험의 47%예요.</li>
+    <li><b>오픈북 준비:</b> 책을 펴서 찾는 시간도 시험 시간이에요. 공식·표(Z, t, χ², 이항 누적) 위치에 미리 색인 탭을 붙여 두세요. 이 앱의 “핵심 공식” 표에서 기출 강조된 공식부터 정리하면 좋아요.</li>
+    <li><b>한국어 + 영어:</b> 번역 때문에 헷갈리는 문제가 있어요. MTBF·MTBMA, censoring(관측 중단), derating(디레이팅)처럼 영어 용어도 함께 익혀 두세요.</li>
+  </ul>
+
+  <h3 class="rh">출처</h3>
+  <ul class="rsrc">
+    <li><a href="https://www.asq.org/cert/reliability-engineer" target="_blank" rel="noopener">ASQ – Certified Reliability Engineer</a> (PBT 150문항·4시간, CBT 165문항, 언어, 2025 BoK 적용)</li>
+    <li><a href="https://www.asq.org/cert/resource/docs/2017/2018_CRE_BOK.pdf" target="_blank" rel="noopener">ASQ – 2018 CRE Body of Knowledge (PDF)</a> (2018 영역별 문항 수)</li>
+    <li><a href="https://www.processexam.com/asq/asq-cre-certification-exam-syllabus" target="_blank" rel="noopener">ProcessExam – ASQ CRE 시험 구성</a>, <a href="https://www.processexam.com/blog/what-asq-certified-reliability-engineer-should-you-become-one" target="_blank" rel="noopener">ProcessExam 블로그</a> (2025 영역별 문항 수)</li>
+    <li><a href="https://cciedump.spoto.net/asq-cre-dumps-and-exam-questions.php" target="_blank" rel="noopener">SPOTO – CRE 시험 안내</a> (영역 Ⅴ 25문항으로 다르게 표기)</li>
+    <li><a href="https://certi.ksa.or.kr/asq/qualification/2/1/crtfcView.do" target="_blank" rel="noopener">한국표준협회(KSA) – ASQ 자격</a>, <a href="https://www.ksa.or.kr/qualification/5315/subview.do" target="_blank" rel="noopener">KSA 응시 가능 자격</a> (한국 시행)</li>
+    <li><a href="http://www.iems.co.kr/certific/certific04_02.htm" target="_blank" rel="noopener">IEMS연구센터 – CRE 안내</a> (150문항·4시간·오픈북·참고도서 3권)</li>
+    <li><a href="https://accendoreliability.com/review-2018-asq-cre-body-knowledge/" target="_blank" rel="noopener">Accendo Reliability – 2018 CRE BoK 리뷰</a></li>
+  </ul>
+</div></section>
 </main>
 
 <footer class="band"><div class="wrap">
@@ -517,7 +594,7 @@ const dDone=d=>DM[d].lessons.filter(l=>done.has(`d${d}-${l.id}`)).length;
 function meter(){const t=D.reduce((a,d)=>a+dDone(d.id),0);$("#mTxt").textContent=`${t} / ${TOT} 차시 완료`;$("#mBar").style.width=t/TOT*100+"%"}
 
 /* ───── 메뉴 ───── */
-$("#nav").innerHTML=`<a href="#home">목차</a>`+D.map(d=>`<a href="#d${d.id}">${d.roman} ${d.name}</a>`).join("")+`<a href="#mock">모의고사</a><a href="#review">오답 노트</a>`;
+$("#nav").innerHTML=`<a href="#home">목차</a>`+D.map(d=>`<a href="#d${d.id}">${d.roman} ${d.name}</a>`).join("")+`<a href="#mock">모의고사</a><a href="#review">오답 노트</a><a href="#ref">참고자료</a>`;
 function subnav(d,cur){const s=$("#subnav");if(!d){s.hidden=true;return}s.hidden=false;
  s.innerHTML=`<a href="#d${d}">${DM[d].roman} 학습 지도</a>`+DM[d].lessons.map((l,i)=>`<a href="#d${d}-${l.id}">${i+1}차시</a>`).join("")+`<a href="#d${d}-exam">영역 평가</a>`;
  $$("#subnav a").forEach(a=>a.getAttribute("href")==="#"+cur?a.setAttribute("aria-current","page"):a.removeAttribute("aria-current"));
@@ -536,6 +613,7 @@ function route(){const h=location.hash.slice(1)||"home";let m;
  subnav(0);
  if(h==="mock"){show("exam");openExam("mock");return}
  if(h==="review"){show("review");buildReview();return}
+ if(h==="ref"){show("ref");drawRef();return}
  show("home");drawHome();}
 addEventListener("hashchange",()=>{route();scrollTo(0,0)});
 
@@ -627,6 +705,11 @@ function showE(){const L=ex.list,isM=ex.key==="mock";
   qCard(q,`${ex.i+1} / ${L.length} · 맞힌 개수 ${ex.score} · 영역 ${DM[q.d].roman} ${lt(q.d,q.lc)}`)+`<div class="qnav qrow"><button class="btn" id="eNext" disabled>다음 문제 →</button><span class="qside"><a class="btn alt" href="#d${q.d}-${q.lc}">이 차시 복습</a><button class="btn alt" id="eQuit">그만하고 결과 보기</button></span></div>`;
  bindQ($("#exam .qc"),ok=>{if(ok)ex.score++;const r=ex.res[q.d]||(ex.res[q.d]=[0,0]);r[1]++;if(ok)r[0]++;const b=$("#eNext");b.disabled=false;b.focus()},true);
  $("#eNext").onclick=()=>{ex.i++;showE()};$("#eQuit").onclick=()=>{const k=ex.i+($("#eNext").disabled?0:1);if(!k){ex.list=[];examSetup();return}ex.list=ex.list.slice(0,k);ex.i=k;showE()};}
+
+/* ───── 참고자료: 영역별 출제 문항 ───── */
+const B2018={1:25,2:25,3:35,4:35,5:30};
+function drawRef(){$("#refDom").innerHTML=D.map(d=>{const q=ALLQ.filter(x=>x.d===d.id).length;return `<tr><td><span class="rdot" style="background:${d.color}"></span>${d.roman} ${d.name}</td><td class="n" data-l="2025 BoK"><b>${d.w}</b></td><td class="n" data-l="비율">${(d.w/150*100).toFixed(1)}%</td><td class="bar"><i style="width:${d.w/35*100}%;background:${d.color}"></i></td><td class="n" data-l="2018 BoK">${B2018[d.id]}</td><td class="n" data-l="앱 차시">${d.lessons.length}</td><td class="n" data-l="앱 문제">${q}</td></tr>`}).join("");
+ $("#refL").textContent=D.reduce((a,d)=>a+d.lessons.length,0);$("#refQ").textContent=ALLQ.length;}
 
 /* ───── 전체 오답 노트 ───── */
 let rf=0;
