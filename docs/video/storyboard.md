@@ -39,3 +39,12 @@
 | 날짜 | 서비스 | 입력 사진 | 방식(일러스트/합성/실사) | 결과·얼굴 유사도 | 채택 |
 |---|---|---|---|---|---|
 | | | | | | |
+
+## 5. AI 장면 프롬프트 초안 (Higgsfield · Nano Banana 2, 16:9, 1k)
+
+참조 사진: 정면 미소 사진 1장 (크리스마스 배경, 꽃무늬 상의, 머리핀)
+
+- **셰프 유주**: "Warm storybook illustration of the baby in the reference photo as a tiny chef, same face, same hair clip and floral top, small white chef hat and apron, smiling happily in front of a little pot of baby food, cozy kitchen, soft pastel colors, gentle lighting"
+- **탐험가 유주**: "Warm storybook illustration of the baby in the reference photo as a little explorer, same face and hair clip, safari hat and tiny backpack, crawling through a friendly forest of giant toys, soft pastel colors"
+
+테스트 순서: 셰프 1장 → 얼굴 유사도 확인 → 괜찮으면 탐험가
