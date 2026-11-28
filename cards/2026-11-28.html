@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>오늘의 코딩 카드</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* VOICE everyday study: calm, focused, five minutes before work
+   IDEA a code editor where each card is a tab you flip through
+   PICTURE a function drawn as a machine: inputs in, return to a variable, print to a screen
+   COLOUR night editor ground, Python yellow lead, Python blue support, coral for mistakes
+   TYPE IBM Plex Sans KR for reading, JetBrains Mono for code
+   LAYOUT one card centred with tab bar on top, swipe sideways; phone: card fills width */
+:root{color-scheme:dark;--bg:#12151c;--panel:#1a1f29;--edge:#2a3140;--ink:#e8eaf0;--mute:#9aa3b5;--y:#ffd43b;--b:#5a9fd4;--r:#ff7a6b;--g:#7ee0a1}
+*{box-sizing:border-box;min-width:0}
+html,body{margin:0;background:var(--bg);color:var(--ink)}
+body{font:16px/1.6 "IBM Plex Sans KR",system-ui,sans-serif;overflow-x:clip}
+.wrap{max-width:600px;margin:0 auto;padding:20px max(16px,4vw) 32px}
+header{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+header h1{font-size:15px;font-weight:600;margin:0;color:var(--mute)}
+header h1 b{color:var(--y);font-weight:700}
+.date{font:13px "JetBrains Mono",monospace;color:var(--mute)}
+.tabs{display:flex;gap:2px;overflow-x:auto;scrollbar-width:none;background:#0e1117;border:1px solid var(--edge);border-bottom:0;border-radius:10px 10px 0 0;padding:6px 6px 0}
+.tabs button{flex:none;font:13px "JetBrains Mono",monospace;color:var(--mute);background:transparent;border:0;border-radius:6px 6px 0 0;padding:8px 12px;cursor:pointer;min-height:36px}
+.tabs button[aria-current=true]{background:var(--panel);color:var(--ink);box-shadow:inset 0 2px 0 var(--y)}
+.tabs button:focus-visible,.nav button:focus-visible,.opt:focus-visible{outline:2px solid var(--y);outline-offset:2px}
+.deck{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;background:var(--panel);border:1px solid var(--edge);border-top:0;border-radius:0 0 12px 12px}
+.deck::-webkit-scrollbar,.tabs::-webkit-scrollbar{display:none}
+.card{flex:0 0 100%;scroll-snap-align:start;padding:28px clamp(18px,5vw,36px) 30px;display:flex;flex-direction:column;gap:16px}
+.no{font:13px "JetBrains Mono",monospace;color:var(--b)}
+h2{font-size:clamp(26px,6.4vw,36px);line-height:1.15;letter-spacing:-.02em;margin:0;text-wrap:balance}
+h2 em{font-style:normal;color:var(--y)}
+p{margin:0}
+.lead{font-size:17px;color:#cfd4df}
+.fig svg{width:100%;height:auto;display:block}
+.fig text{font-family:"JetBrains Mono",monospace}
+code,pre{font-family:"JetBrains Mono",monospace}
+code{background:#0e1117;border:1px solid var(--edge);border-radius:5px;padding:1px 6px;font-size:.9em;color:var(--y);overflow-wrap:anywhere}
+pre{margin:0;background:#0e1117;border:1px solid var(--edge);border-radius:10px;padding:14px 16px;font-size:14px;line-height:1.7;overflow-x:auto}
+.k{color:#c792ea}.f{color:var(--b)}.n{color:#f7a76c}.c{color:#6b7488}.bi{color:var(--y)}.err{color:var(--r)}
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.box{background:#0e1117;border:1px solid var(--edge);border-radius:10px;padding:14px}
+.box h3{margin:6px 0 4px;font-size:17px}
+.box p{font-size:15px;color:#cfd4df}
+.box.ret{border-color:color-mix(in srgb,var(--y) 55%,var(--edge))}
+.box svg{width:100%;height:auto;display:block}
+ul.out{list-style:none;padding:0;margin:0;display:grid;gap:10px}
+ul.out li{background:#0e1117;border:1px solid var(--edge);border-radius:10px;padding:12px 14px}
+ul.out li b{display:block;color:var(--r);margin-bottom:4px}
+ul.out li pre{margin-top:8px;padding:10px 12px;font-size:13px}
+.opts{display:grid;gap:10px}
+.opt{display:flex;gap:12px;align-items:center;width:100%;text-align:left;font:15px "JetBrains Mono",monospace;color:var(--ink);background:#0e1117;border:1px solid var(--edge);border-radius:10px;padding:12px 14px;min-height:48px;cursor:pointer}
+.opt span{flex:none;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:var(--edge);font-size:13px}
+.opt:hover{border-color:var(--b)}
+.opt.ok{border-color:var(--g);background:color-mix(in srgb,var(--g) 12%,#0e1117)}
+.opt.no{border-color:var(--r);background:color-mix(in srgb,var(--r) 12%,#0e1117)}
+.why{display:none;border-left:3px solid var(--g);padding:4px 0 4px 12px;font-size:15px;color:#cfd4df}
+.why.show{display:block}
+.next{margin-top:auto;font-size:14px;color:var(--mute)}
+.week{list-style:none;padding:0;margin:0;display:grid;gap:6px;font-size:15px}
+.week li{display:flex;gap:12px;padding:8px 12px;border-radius:8px;background:#0e1117}
+.week li i{font-style:normal;font:13px "JetBrains Mono",monospace;color:var(--mute);flex:none;width:2.4em;padding-top:2px}
+.week li.now{outline:1px solid var(--y)}
+.week li.now i{color:var(--y)}
+.nav{display:flex;justify-content:space-between;align-items:center;margin-top:14px;gap:12px}
+.nav button{font:600 15px "IBM Plex Sans KR",sans-serif;color:var(--ink);background:var(--panel);border:1px solid var(--edge);border-radius:10px;padding:10px 18px;min-height:44px;cursor:pointer}
+.nav button:disabled{opacity:.35;cursor:default}
+.dots{display:flex;gap:6px}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--edge)}
+.dots i.on{background:var(--y)}
+.note{font-size:13px;color:var(--mute);margin-top:14px;text-align:center}
+@media(max-width:420px){.two{grid-template-columns:1fr}.tabs button{padding:8px 9px}}
+@media(prefers-reduced-motion:no-preference){.deck{scroll-behavior:smooth}.flow{animation:flow 2.4s linear infinite}}
+@keyframes flow{to{stroke-dashoffset:-24}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1><b>Python 주간</b> · 함수와 스코프 · 1일차</h1>
+  <span class="date">2026-11-28 · 약 5분</span>
+</header>
+
+<nav class="tabs" id="tabs" aria-label="카드 목록"></nav>
+<main class="deck" id="deck">
+
+<section class="card" data-tab="cover.py">
+  <span class="no">01 / 06</span>
+  <h2><em>print</em>와 <em>return</em>,<br>뭐가 다를까?</h2>
+  <p class="lead">둘 다 "결과를 내놓는" 것처럼 보이지만, 하나는 <b>보여주기만</b> 하고 하나는 <b>값을 돌려줍니다</b>.</p>
+  <div class="fig">
+    <svg viewBox="0 0 520 304" role="img" aria-label="함수에 2와 3이 들어가 return은 변수 y에 5를 넘기고 print는 화면에만 5를 띄우는 그림">
+      <defs><marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#ffd43b"/></marker>
+      <marker id="ab" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#5a9fd4"/></marker></defs>
+      <g font-size="20" font-weight="700">
+        <rect x="10" y="88" width="54" height="40" rx="8" fill="#232a37" stroke="#2a3140"/><text x="37" y="115" fill="#f7a76c" text-anchor="middle">2</text>
+        <rect x="10" y="140" width="54" height="40" rx="8" fill="#232a37" stroke="#2a3140"/><text x="37" y="167" fill="#f7a76c" text-anchor="middle">3</text>
+      </g>
+      <path d="M68 134H140" stroke="#9aa3b5" stroke-width="3" stroke-dasharray="8 4" class="flow" marker-end="url(#ab)"/>
+      <rect x="146" y="70" width="170" height="130" rx="16" fill="#0e1117" stroke="#5a9fd4" stroke-width="2.5"/>
+      <rect x="146" y="70" width="170" height="34" rx="16" fill="#5a9fd4"/><rect x="146" y="88" width="170" height="16" fill="#5a9fd4"/>
+      <text x="231" y="94" text-anchor="middle" font-size="17" font-weight="700" fill="#0e1117">def add(a, b)</text>
+      <text x="231" y="146" text-anchor="middle" font-size="22" fill="#e8eaf0">a + b</text>
+      <text x="231" y="180" text-anchor="middle" font-size="18" fill="#9aa3b5">= 5</text>
+      <path d="M320 112C370 112 370 70 410 70" fill="none" stroke="#ffd43b" stroke-width="3" stroke-dasharray="8 4" class="flow" marker-end="url(#ah)"/>
+      <rect x="414" y="40" width="96" height="62" rx="10" fill="#2b2715" stroke="#ffd43b" stroke-width="2"/>
+      <text x="462" y="79" text-anchor="middle" font-size="20" font-weight="700" fill="#ffd43b">y = 5</text>
+      <text x="372" y="62" text-anchor="middle" font-size="18" fill="#ffd43b">return</text>
+      <path d="M320 168C370 168 370 222 410 222" fill="none" stroke="#9aa3b5" stroke-width="3" stroke-dasharray="3 6" marker-end="url(#ab)"/>
+      <rect x="414" y="190" width="96" height="66" rx="8" fill="#0e1117" stroke="#9aa3b5" stroke-width="2"/>
+      <rect x="450" y="256" width="24" height="10" fill="#2a3140"/><rect x="436" y="266" width="52" height="6" rx="3" fill="#2a3140"/>
+      <text x="462" y="231" text-anchor="middle" font-size="22" fill="#e8eaf0">5</text>
+      <text x="372" y="254" text-anchor="middle" font-size="18" fill="#9aa3b5">print</text>
+      <text x="462" y="292" text-anchor="middle" font-size="17" fill="#9aa3b5">화면에만 보임</text>
+      <text x="462" y="26" text-anchor="middle" font-size="17" fill="#9aa3b5">변수에 저장됨</text>
+    </svg>
+  </div>
+  <p class="next">옆으로 넘기거나 → 키를 누르세요</p>
+</section>
+
+<section class="card" data-tab="concept.md">
+  <span class="no">02 / 06 · 개념</span>
+  <h2>함수의 결과는<br><em>return</em>으로만 받는다</h2>
+  <p class="lead"><code>return 값</code>은 함수를 끝내면서 그 값을 <b>호출한 자리로 돌려보냅니다</b>. 그래서 <code>y = add(2, 3)</code>처럼 변수에 담거나, 다른 계산에 바로 쓸 수 있어요.</p>
+  <p class="lead"><code>print()</code>는 값을 <b>화면(콘솔)에 출력</b>할 뿐이고, 함수 밖으로는 아무것도 전달하지 않습니다.</p>
+  <div class="box ret">
+    <h3>핵심 한 줄</h3>
+    <p><code>return</code>이 없는 함수는 자동으로 <code>None</code>을 돌려준다.</p>
+  </div>
+</section>
+
+<section class="card" data-tab="analogy.md">
+  <span class="no">03 / 06 · 비유</span>
+  <h2>자판기로 생각해 보면</h2>
+  <div class="two">
+    <div class="box">
+      <svg viewBox="0 0 200 120" aria-hidden="true"><rect x="40" y="6" width="120" height="108" rx="10" fill="#232a37"/><rect x="54" y="20" width="92" height="56" rx="6" fill="#0e1117" stroke="#9aa3b5"/><rect x="88" y="34" width="24" height="34" rx="5" fill="#5a9fd4" opacity=".55"/><rect x="62" y="88" width="76" height="16" rx="4" fill="#0e1117"/></svg>
+      <h3>print</h3>
+      <p>음료 <b>사진만 화면에</b> 띄워 줘요. 보이긴 하지만 마실 수는 없죠.</p>
+    </div>
+    <div class="box ret">
+      <svg viewBox="0 0 200 120" aria-hidden="true"><rect x="40" y="6" width="120" height="108" rx="10" fill="#232a37"/><rect x="54" y="20" width="92" height="56" rx="6" fill="#0e1117" stroke="#2a3140"/><rect x="62" y="88" width="76" height="16" rx="4" fill="#0e1117"/><rect x="88" y="66" width="24" height="40" rx="5" fill="#ffd43b"/><rect x="92" y="60" width="16" height="8" rx="2" fill="#e8eaf0"/></svg>
+      <h3>return</h3>
+      <p>음료가 <b>실제로 나와서 손에</b> 쥐어져요. 마시든 친구 주든 마음대로.</p>
+    </div>
+  </div>
+  <p class="lead">함수 결과를 <b>다음 코드에서 써야 한다면</b> 무조건 return입니다.</p>
+</section>
+
+<section class="card" data-tab="example.py">
+  <span class="no">04 / 06 · 코드 예제</span>
+  <h2>직접 비교해 보기</h2>
+<pre><span class="k">def</span> <span class="f">add_print</span>(a, b):
+    <span class="bi">print</span>(a + b)
+
+<span class="k">def</span> <span class="f">add_return</span>(a, b):
+    <span class="k">return</span> a + b
+
+x = <span class="f">add_print</span>(<span class="n">2</span>, <span class="n">3</span>)   <span class="c"># 화면: 5</span>
+y = <span class="f">add_return</span>(<span class="n">2</span>, <span class="n">3</span>)  <span class="c"># 화면: (없음)</span>
+
+<span class="bi">print</span>(x)       <span class="c"># None</span>
+<span class="bi">print</span>(y)       <span class="c"># 5</span>
+<span class="bi">print</span>(y * <span class="n">10</span>)  <span class="c"># 50</span></pre>
+  <p class="lead"><code>add_print</code>는 5를 보여줬지만, <code>x</code>에 남은 건 <code>None</code>뿐이에요.</p>
+</section>
+
+<section class="card" data-tab="mistakes.md">
+  <span class="no">05 / 06 · 흔한 실수</span>
+  <h2>이런 실수, 한 번쯤 해요</h2>
+  <ul class="out">
+    <li><b>print 결과로 계산하기</b>값이 None이라 에러가 납니다.
+<pre>total = <span class="f">add_print</span>(<span class="n">2</span>, <span class="n">3</span>) * <span class="n">10</span>
+<span class="err">TypeError: unsupported operand type(s)
+for *: 'NoneType' and 'int'</span></pre></li>
+    <li><b>return 아래에 코드 쓰기</b>return을 만나면 함수가 즉시 끝나서, 그 아래 줄은 실행되지 않아요.</li>
+    <li><b>반복문 안에서 return</b>첫 바퀴에서 바로 함수가 끝납니다. 다 모으려면 리스트에 담고 반복문이 끝난 뒤 return하세요.</li>
+  </ul>
+</section>
+
+<section class="card" data-tab="quiz.py">
+  <span class="no">06 / 06 · 퀴즈</span>
+  <h2>출력 결과는?</h2>
+<pre><span class="k">def</span> <span class="f">double</span>(n):
+    <span class="bi">print</span>(n * <span class="n">2</span>)
+
+result = <span class="f">double</span>(<span class="n">4</span>)
+<span class="bi">print</span>(result)</pre>
+  <div class="opts" id="opts" role="group" aria-label="보기">
+    <button class="opt" id="q-a" data-k="a"><span>A</span>8 → 8</button>
+    <button class="opt" id="q-b" data-k="b"><span>B</span>8 → None</button>
+    <button class="opt" id="q-c" data-k="c"><span>C</span>None → 8</button>
+    <button class="opt" id="q-d" data-k="d"><span>D</span>TypeError</button>
+  </div>
+  <p class="why" id="why"><b>정답은 B.</b> <code>double(4)</code>가 실행되며 화면에 8이 찍히고, return이 없으니 <code>result</code>에는 None이 들어가요. 그래서 두 번째 줄에 None이 출력됩니다.</p>
+  <div class="box">
+    <h3>이번 주 진도</h3>
+    <ul class="week">
+      <li class="now"><i>1일</i>print vs return</li>
+      <li><i>2일</i>기본값 매개변수와 리스트 기본값의 함정</li>
+      <li><i>3일</i>*args, **kwargs</li>
+      <li><i>4일</i>스코프와 LEGB 규칙</li>
+      <li><i>5일</i>함수도 값이다: 람다와 고차 함수</li>
+      <li><i>주말</i>복습 카드: 요약 + 틀린 퀴즈 다시 풀기</li>
+    </ul>
+  </div>
+</section>
+
+</main>
+<div class="nav">
+  <button id="prev" aria-label="이전 카드">← 이전</button>
+  <div class="dots" id="dots" aria-hidden="true"></div>
+  <button id="next" aria-label="다음 카드">다음 →</button>
+</div>
+<p class="note">샘플 카드 · 퀴즈 기록은 이 브라우저에만 저장돼 주말 복습에 쓰여요</p>
+</div>
+
+<script>
+{
+const deck=document.getElementById('deck');
+const cards=[...deck.querySelectorAll('.card')];
+const tabs=document.getElementById('tabs');
+const dots=document.getElementById('dots');
+const prev=document.getElementById('prev');
+const next=document.getElementById('next');
+tabs.innerHTML=cards.map((c,i)=>`<button data-i="${i}">${c.dataset.tab}</button>`).join('');
+dots.innerHTML=cards.map(()=>'<i></i>').join('');
+let cur=0;
+const go=i=>{i=Math.max(0,Math.min(cards.length-1,i));mark(i);lock=Date.now();deck.scrollTo({left:i*deck.clientWidth})};
+let lock=0;
+const mark=i=>{
+  cur=i;
+  tabs.querySelectorAll('button').forEach((b,j)=>b.setAttribute('aria-current',j===i));
+  dots.querySelectorAll('i').forEach((d,j)=>d.classList.toggle('on',j===i));
+  prev.disabled=i===0;next.disabled=i===cards.length-1;
+  tabs.children[i]?.scrollIntoView({block:'nearest',inline:'nearest'});
+};
+deck.addEventListener('scroll',()=>{if(Date.now()-lock<700)return;const i=Math.round(deck.scrollLeft/deck.clientWidth);if(i!==cur)mark(i)},{passive:true});
+tabs.addEventListener('click',e=>{const b=e.target.closest('button');if(b)go(+b.dataset.i)});
+prev.addEventListener('click',()=>go(cur-1));
+next.addEventListener('click',()=>go(cur+1));
+document.addEventListener('keydown',e=>{if(e.key==='ArrowRight')go(cur+1);if(e.key==='ArrowLeft')go(cur-1)});
+mark(0);
+
+const KEY='codecard-quiz-2026-11-28',ANS='b';
+const opts=document.getElementById('opts');
+const why=document.getElementById('why');
+const show=k=>{
+  opts.querySelectorAll('.opt').forEach(o=>{o.classList.toggle('ok',o.dataset.k===ANS);o.classList.toggle('no',o.dataset.k===k&&k!==ANS)});
+  why.classList.add('show');
+};
+opts.addEventListener('click',e=>{
+  const o=e.target.closest('.opt');if(!o)return;
+  show(o.dataset.k);
+  try{localStorage.setItem(KEY,JSON.stringify({pick:o.dataset.k,correct:o.dataset.k===ANS,topic:'print vs return'}))}catch(_){}
+});
+try{const s=JSON.parse(localStorage.getItem(KEY)||'null');if(s&&s.pick)show(s.pick)}catch(_){}
+}
+</script>
+</body>
+</html>
